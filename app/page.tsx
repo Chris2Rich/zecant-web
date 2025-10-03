@@ -23,7 +23,7 @@ export default function HomePage() {
       <div className="container mx-auto px-4">
         <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
-      <ScrollReveal delay={0.1}>
+      <ScrollReveal delay={0.2}>
         <FeaturesSection />
       </ScrollReveal>
       <div className="container mx-auto px-4">
@@ -35,16 +35,16 @@ export default function HomePage() {
       <div className="container mx-auto px-4">
         <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
-      <ScrollReveal delay={0.3}>
+      <ScrollReveal delay={0.2}>
         <WhyChooseUs />
       </ScrollReveal>
       <div className="container mx-auto px-4">
         <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
       </div>
-      <ScrollReveal delay={0.4}>
+      <ScrollReveal delay={0.2}>
         <CTASection />
       </ScrollReveal>
-      <ScrollReveal delay={0.5}>
+      <ScrollReveal delay={0.2}>
         <Footer />
       </ScrollReveal>
     </main>
