@@ -121,26 +121,26 @@ export default function PricingPage() {
                   </div>
 
                   {/* Price */}
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <div className="flex items-baseline gap-1">
                       <span className="text-5xl font-bold">${tier.price}</span>
                       {tier.period && <span className="text-muted-foreground">{tier.period}</span>}
                     </div>
                   </div>
 
-                  <div className="container mx-auto mb-3 px-4">
+                  <div className="container mx-auto mb-4 px-4">
                     <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
                   </div>
 
                   {/* Credits */}
-                  <div className="mb-3">
-                    <div className="flex items-baseline gap-4">
+                  <div className="mb-4">
+                    <div className="flex items-baseline">
                       <span className="font-bold">{tier.credits} Credits</span>
-                      {tier.discount && <span className="text-muted-foreground text-sm">{tier.discount}% Credit Discount</span>}
+                      {tier.discount && <span className="text-muted-foreground text-sm ml-auto">{tier.discount}% Credit Discount</span>}
                     </div>
                   </div>
 
-                  <div className="container mx-auto mb-3 px-4">
+                  <div className="container mx-auto mb-4 px-4">
                     <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
                   </div>
 
@@ -157,7 +157,7 @@ export default function PricingPage() {
                   {/* CTA  */}
                   <Button
                     className={`
-                      w-full py-3 px-6 rounded-lg font-semibold
+                      w-full mt-auto py-3 px-6 rounded-lg font-semibold
                       transition-all duration-300 cursor-pointer group 
                       ${
                         tier.highlighted
