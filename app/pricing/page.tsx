@@ -12,9 +12,9 @@ const pricingTiers = [
     description: "Perfect for getting started",
     price: "0",
     period: "/month",
+    credits: "5",
+    discount: "",
     features: [
-      "Basic strategy backtesting",
-      "5 backtests per month",
       "Historical data (1 year)",
       "Community support",
       "Basic analytics dashboard",
@@ -27,12 +27,13 @@ const pricingTiers = [
     description: "For serious traders",
     price: "199",
     period: "/month",
+    credits: "100",
+    discount: "10",
     badge: "MOST POPULAR",
     features: [
       "Unlimited backtesting",
       "Historical data (10+ years)",
       "Advanced AI strategy optimization",
-      "Real-time market data",
       "Custom indicators & signals",
       "Priority support",
       "Advanced analytics & reporting",
@@ -45,10 +46,12 @@ const pricingTiers = [
     name: "Team",
     description: "For professional teams",
     price: "2499",
+    credits: "1500",
+    discount: "15",
     period: "/month",
     features: [
       "Everything in Pro",
-      "Dedicated account manager"
+      "Custom data sources",
       "Advanced security & compliance",
       "Team collaboration tools",
       "Custom integrations",
@@ -120,10 +123,17 @@ export default function PricingPage() {
                   </div>
 
                   {/* Price */}
-                  <div className="mb-8">
+                  <div className="mb-6">
                     <div className="flex items-baseline gap-1">
                       <span className="text-5xl font-bold">${tier.price}</span>
                       {tier.period && <span className="text-muted-foreground">{tier.period}</span>}
+                    </div>
+                  </div>
+
+                  <div className="mb-8">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-bold">{tier.credits} free credits</span>
+                      {tier.discount && <span className="text-muted-foreground">{tier.discount}% discount on credits</span>}
                     </div>
                   </div>
 
