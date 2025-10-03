@@ -31,11 +31,9 @@ const pricingTiers = [
     discount: "10",
     badge: "MOST POPULAR",
     features: [
-      "Unlimited backtesting",
       "Historical data (10+ years)",
       "Advanced AI strategy optimization",
       "Custom indicators & signals",
-      "Priority support",
       "Advanced analytics & reporting",
       "API access",
     ],
@@ -130,10 +128,11 @@ export default function PricingPage() {
                     </div>
                   </div>
 
+                  {/* Credits */}
                   <div className="mb-8">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-bold">{tier.credits} free credits</span>
-                      {tier.discount && <span className="text-muted-foreground">{tier.discount}% discount on credits</span>}
+                      <span className="text-1xl font-bold">{tier.credits} credits</span>
+                      {tier.discount && <span className="text-muted-foreground">{tier.discount}% credit discount</span>}
                     </div>
                   </div>
 
