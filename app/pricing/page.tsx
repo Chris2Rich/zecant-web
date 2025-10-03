@@ -105,7 +105,7 @@ export default function PricingPage() {
                 <div
                   className={`
                     relative h-full rounded-2xl p-8 
-                    bg-card border transition-all duration-300
+                    bg-card border transition-all duration-300 flex flex-col
                     ${
                       tier.highlighted
                         ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
