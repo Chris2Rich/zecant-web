@@ -121,23 +121,31 @@ export default function PricingPage() {
                   </div>
 
                   {/* Price */}
-                  <div className="mb-6">
+                  <div className="mb-3">
                     <div className="flex items-baseline gap-1">
                       <span className="text-5xl font-bold">${tier.price}</span>
                       {tier.period && <span className="text-muted-foreground">{tier.period}</span>}
                     </div>
                   </div>
 
+                  <div className="container mx-auto mb-3 px-4">
+                    <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+                  </div>
+
                   {/* Credits */}
-                  <div className="mb-8">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-1xl font-bold">{tier.credits} credits</span>
-                      {tier.discount && <span className="text-muted-foreground">{tier.discount}% credit discount</span>}
+                  <div className="mb-3">
+                    <div className="flex items-baseline gap-4">
+                      <span className="font-bold">{tier.credits} Credits</span>
+                      {tier.discount && <span className="text-muted-foreground text-sm">{tier.discount}% Credit Discount</span>}
                     </div>
                   </div>
 
+                  <div className="container mx-auto mb-3 px-4">
+                    <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+                  </div>
+
                   {/* Features */}
-                  <ul className="space-y-4 mb-8 flex-grow">
+                  <ul className="space-y-4 mb-6 flex-grow">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3">
                         <Check className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -175,7 +183,7 @@ export default function PricingPage() {
         </section>
       </ScrollReveal>
 
-      <ScrollReveal delay={0.1}>
+      <ScrollReveal delay={0.2}>
         <Footer />
       </ScrollReveal>
     </main>
