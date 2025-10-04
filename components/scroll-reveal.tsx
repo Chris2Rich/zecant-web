@@ -9,7 +9,7 @@ interface ScrollRevealProps {
   className?: string
 }
 
-export default function ScrollReveal({ children, delay = 0, className = "" }: ScrollRevealProps) {
+export function ScrollReveal({ children, delay = 0, className = "" }: ScrollRevealProps) {
   return (
     <motion.div
       initial={{

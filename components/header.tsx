@@ -18,7 +18,7 @@ import {
   Mail,
 } from "lucide-react"
 
-export default function Header() {
+export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const {isSignedIn} = useUser()
 
