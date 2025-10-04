@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Play, Shield, ArrowRight, TrendingUp, FileHeartIcon as FileChartColumn } from "lucide-react"
+import { Shield, TrendingUp, FileChartColumn } from "lucide-react"
+import HeroButtons from "./herobuttons"
 
 export function HeroSection() {
   return (
@@ -12,39 +12,25 @@ export function HeroSection() {
 
           <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl text-pretty">
             AI-powered trading strategy development with advanced backtesting, real-time data analysis, and intelligent
-            insights from news, market data, and SEC filings. Strategy creation made simple.
+            insights from news, market data, and SEC filings. Strategy discovery made simple.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              size="lg"
-              className="group bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg px-8 py-4 glow-primary-intense hover:transition-all duration-300 hover:scale-105 cursor-pointer"
-            >
-              Start Building
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="group border-border text-foreground hover:border-primary hover:text-primary hover:bg-primary/10 font-semibold text-lg px-8 py-4 hover:glow-primary transition-all duration-300 hover:scale-105 bg-transparent cursor-pointer"
-            >
-              View Demo
-              <Play className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
+            <HeroButtons></HeroButtons>
           </div>
 
           <div className="flex items-center space-x-6 pt-4">
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4 text-primary" />
-              <span>10M+ Backtests</span>
+              <span>Run Backtests</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <FileChartColumn className="w-4 h-4 text-primary" />
-              <span>500K+ Reports</span>
+              <span>AI Reports</span>
             </div>
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Shield className="w-4 h-4 text-primary" />
-              <span>SOC 2 Compliant</span>
+              <span>SOC 2 Security</span>
             </div>
           </div>
         </div>

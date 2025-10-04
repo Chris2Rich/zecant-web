@@ -1,12 +1,13 @@
-"use client"
-import { Header } from "@/components/header"
-import { HeroSection } from "@/components/hero-section"
-import { FeaturesSection } from "@/components/features-section"
-import { BentoGrid } from "@/components/bento-grid"
-import { WhyChooseUs } from "@/components/why-choose-us"
-import { CTASection } from "@/components/cta-section"
-import { Footer } from "@/components/footer"
-import { ScrollReveal } from "@/components/scroll-reveal"
+import { HeroSection } from '@/components/hero-section'
+import { FeaturesSection } from '@/components/features-section'
+import { BentoGrid } from '@/components/bento-grid'
+import { WhyChooseUs } from '@/components/why-choose-us'
+import { CTASection } from '@/components/cta-section'
+import { Footer } from '@/components/footer'
+import dynamic from 'next/dynamic'
+
+const Header = dynamic(() => import('@/components/header'), { ssr: false })
+const ScrollReveal = dynamic(() => import('@/components/scroll-reveal'), { ssr: false })
 
 export default function HomePage() {
   return (

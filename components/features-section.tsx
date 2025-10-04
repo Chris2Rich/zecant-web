@@ -48,7 +48,7 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group p-6 bg-card/50 rounded-xl border border-border hover:border-primary/50 hover:bg-card/80 transition-all duration-300 hover:scale-[102.5%] hover:glow-primary cursor-pointer"
+              className="group p-6 bg-card/50 rounded-xl border border-border hover:border-primary/50 hover:bg-card/80 transition-all duration-300 hover:scale-[102.5%] hover:glow-primary"
             >
               <div className="mb-4">
                 <feature.icon className="w-8 h-8 text-primary group-hover:text-primary/80 transition-colors duration-300" />
@@ -60,7 +60,7 @@ export function FeaturesSection() {
               <p className="text-foreground mb-4 leading-relaxed">{feature.description}</p>
               <a
                 href="#"
-                className="text-primary hover:text-primary/80 text-sm font-medium inline-flex items-center transition-transform duration-300"
+                className="text-primary hover:text-primary/80 text-sm font-medium inline-flex items-center transition-transform duration-300 cursor-pointer"
               >
                 {feature.link} →
               </a>

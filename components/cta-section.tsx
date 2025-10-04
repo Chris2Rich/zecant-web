@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 export function CTASection() {
   return (
@@ -13,13 +14,15 @@ export function CTASection() {
           success today.
         </p>
 
+        <Link href="/sign-up">
         <Button
           size="lg"
           className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xl px-12 py-6 glow-primary-intense hover:transition-all duration-300 hover:scale-105 hover:-translate-y-1 group cursor-pointer"
-        >
+          >
           Start Building
           <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
         </Button>
+        </Link>
 
         <p className="text-sm text-muted-foreground mt-6">
           Risk Warning: Trading involves substantial risk and may result in losses.

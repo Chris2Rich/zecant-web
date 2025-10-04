@@ -4,14 +4,7 @@ import type { Metadata } from "next"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
-import { Roboto } from 'next/font/google'
-
-// Initialize fonts
-const roboto = Roboto({
-  subsets: ["latin"],
-  variable: "--font-roboto",
-  weight: ["400", "500", "700", "900"],
-})
+import { ClerkProvider } from "@clerk/nextjs"
 
 export const metadata: Metadata = {
   title: "Zecant - Advanced Financial Trading Platform",
@@ -25,11 +18,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`font-sans ${roboto.variable} antialiased select-none`}>
-        <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className="dark">
+        <body className={`antialiased select-none`}>
+          <Suspense fallback={null}>
+            {children}
+          </Suspense>
+          <Analytics />
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

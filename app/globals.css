@@ -39,8 +39,9 @@
   --sidebar-border: oklch(0.85 0.01 264);
   --sidebar-ring: oklch(0.7 0.15 200);
   --font-sans: "Roboto", "Roboto Fallback";
-  --font-serif: "Roboto Slab", "Roboto Slab Fallback";
   --font-mono: "Roboto Mono", "Roboto Mono Fallback";
+
+  font-family: Roboto, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .dark {
@@ -118,7 +119,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-serif: "Roboto Slab", "Roboto Slab Fallback";
 }
 
 @layer base {

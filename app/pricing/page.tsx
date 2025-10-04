@@ -1,10 +1,12 @@
 "use client"
 import { motion } from "framer-motion"
 import { ArrowRight, Check } from "lucide-react"
-import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
+import dynamic from "next/dynamic"
+
+const Header = dynamic(() => import('@/components/header'), { ssr: false })
+const ScrollReveal = dynamic(() => import('@/components/scroll-reveal'), { ssr: false })
 
 const pricingTiers = [
   {

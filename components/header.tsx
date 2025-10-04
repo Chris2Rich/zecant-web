@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useUser, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import Link from "next/link"
 import {
   ChevronDown,
   Menu,
@@ -16,8 +18,9 @@ import {
   Mail,
 } from "lucide-react"
 
-export function Header() {
+export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const {isSignedIn} = useUser()
 
   const solutionsDropdown = [
     {
@@ -104,14 +107,14 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-nav border-b border-border">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/">
+        <Link href={!isSignedIn ? "/" : "/app"}>
           <div className="flex items-center space-x-2 cursor-pointer">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">Z</span>
             </div>
             <span className="text-xl font-bold gradient-text">Zecant</span>
           </div>
-        </a>
+        </Link>
 
         <nav className="hidden md:flex items-center space-x-8">
           <div className="relative group">
@@ -147,15 +150,31 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
-          <Button
-            variant="outline"
-            className="border-border text-foreground hover:border-primary hover:text-primary hover:glow-primary transition-all duration-300 hover:scale-105 bg-transparent cursor-pointer"
-          >
-            Log In
-          </Button>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold hover:glow-primary-intense transition-all duration-300 hover:scale-105 cursor-pointer">
-            Sign Up
-          </Button>
+          {!isSignedIn ? (
+            <>
+            <Link href="/sign-in">
+              <Button
+                variant="outline"
+                className="border-border text-foreground hover:border-primary hover:text-primary hover:glow-primary transition-all duration-300 hover:scale-105 bg-transparent cursor-pointer"
+                >
+                Log In
+              </Button>
+            </Link>
+            <Link href="/sign-up">
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold hover:glow-primary-intense transition-all duration-300 hover:scale-105 cursor-pointer">
+                Sign Up
+              </Button>
+            </Link>
+            </>
+          ) : (
+            <UserButton 
+              appearance={{
+                elements: {
+                  avatarBox: "w-8 h-8"
+                }
+              }}
+            />
+          )}
         </div>
 
         <button
@@ -182,15 +201,32 @@ export function Header() {
               Pricing
             </a>
             <div className="pt-4 space-y-2">
-              <Button
-                variant="outline"
-                className="w-full border-border text-foreground hover:border-primary hover:text-primary bg-transparent"
-              >
-                Log In
-              </Button>
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                Sign Up
-              </Button>
+              <SignedOut>
+                <Link href="/sign-in">
+                  <Button
+                    variant="outline"
+                    className="w-full border-border text-foreground hover:border-primary hover:text-primary bg-transparent"
+                  >
+                    Log In
+                  </Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                    Sign Up
+                  </Button>
+                </Link>
+              </SignedOut>
+              <SignedIn>
+                <div className="flex justify-center">
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8"
+                      }
+                    }}
+                  />
+                </div>
+              </SignedIn>
             </div>
           </div>
         </div>
