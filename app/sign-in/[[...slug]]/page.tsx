@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSignIn, useClerk } from '@clerk/nextjs'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react'
@@ -11,7 +11,6 @@ export default function SignInPage() {
   const { signIn, isLoaded } = useSignIn()
   const { setActive } = useClerk();
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -33,10 +32,7 @@ export default function SignInPage() {
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
-        const redirectParam = searchParams.get('redirect_url')
-        const redirectUrl = redirectParam ? decodeURIComponent(redirectParam) : '/app'
-        console.log(redirectUrl)
-        router.replace(redirectUrl)
+        router.replace('/app')
       }
     } catch (err: any) {
       setError("An error occurred during sign in")

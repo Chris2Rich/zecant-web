@@ -1,30 +1,24 @@
 import { 
-    Home, 
-    Compass, 
-    LayoutGrid, 
     Bell, 
     ArrowUpRight, 
     Download,
     Plus,
     MessageSquare,
-    TrendingUp,
     BarChart3,
     Search,
     Activity,
     Layers,
     PieChart,
     FileText,
-    FileChartColumn,
     FileTextIcon,
-    Grid,
     Grid2x2Icon,
   } from "lucide-react"
 import Link from "next/link"
-import { UserButton } from "@clerk/nextjs"
+import { CustomUserButton } from '@/components/custom-user-button'
   
   export default function TradingAppLayout() {
     return (
-      <div className="flex h-screen bg-background text-foreground">
+      <div className="flex h-screen bg-background text-foreground ">
         {/* Side Navigation */}
         <aside className="w-16 bg-card border-r border-border flex flex-col items-center py-6 space-y-6">
           {/* Logo */}
@@ -50,14 +44,7 @@ import { UserButton } from "@clerk/nextjs"
             <button className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors">
               <Bell className="w-5 h-5 text-muted-foreground" />
             </button>
-            <UserButton />
-            <button className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors relative">
-              <ArrowUpRight className="w-5 h-5 text-muted-foreground" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full"></span>
-            </button>
-            <button className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors">
-              <Download className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <CustomUserButton full={false} />
           </div>
         </aside>
   

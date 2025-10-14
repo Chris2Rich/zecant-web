@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useSignUp, useClerk } from '@clerk/nextjs'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Check } from 'lucide-react'
 
@@ -11,7 +11,6 @@ export default function SignUpPage() {
   const { signUp, isLoaded } = useSignUp()
   const { setActive } = useClerk();
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
@@ -39,10 +38,7 @@ export default function SignUpPage() {
         setPendingVerification(true)
       } else if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
-        const redirectParam = searchParams.get('redirect_url')
-        const redirectUrl = redirectParam ? decodeURIComponent(redirectParam) : '/app'
-        console.log(redirectUrl)
-        router.replace(redirectUrl)
+        router.replace('/app')
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.message || 'An error occurred during sign up')
@@ -65,10 +61,7 @@ export default function SignUpPage() {
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
-        const redirectParam = searchParams.get('redirect_url')
-        const redirectUrl = redirectParam ? decodeURIComponent(redirectParam) : '/app'
-        console.log(redirectUrl)
-        router.replace(redirectUrl)
+        router.replace('/app')
       }
     } catch (err: any) {
       setError("Inputted code is not valid")

@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
+      <html lang="en" className="dark scroll-smooth">
         <body className={`antialiased select-none`}>
           <Suspense fallback={null}>
             {children}

@@ -12,7 +12,7 @@ const pricingTiers = [
     description: "Perfect for getting started",
     price: "0",
     period: "/month",
-    credits: "5",
+    credits: "3",
     discount: "",
     features: [
       "Historical data (1 year)",
@@ -23,25 +23,41 @@ const pricingTiers = [
     highlighted: false,
   },
   {
+    name: "Plus",
+    description: "For serious traders",
+    price: "20",
+    period: "/month",
+    credits: "10",
+    badge: "Most Popular",
+    features: [
+      "Historical data (2+ years)",
+      "AI enhanced strategy optimization",
+      "Custom indicators & signals",
+      "Automatic Reporting",
+    ],
+    cta: "Get Started",
+    highlighted: true,
+  },
+  {
     name: "Pro",
     description: "For serious traders",
     price: "199",
     period: "/month",
     credits: "100",
     discount: "10",
-    badge: "MOST POPULAR",
+    badge: "Best Value",
     features: [
+      "Everything in Plus",
       "Historical data (10+ years)",
-      "Advanced AI strategy optimization",
-      "Custom indicators & signals",
+      "Faster response times",
       "Advanced analytics & reporting",
       "API access",
     ],
     cta: "Start Pro Trial",
-    highlighted: true,
+    highlighted: false,
   },
   {
-    name: "Team",
+    name: "Enterprise",
     description: "For professional teams",
     price: "2499",
     credits: "1500",
@@ -83,19 +99,25 @@ export default function PricingPage() {
           </div>
 
           {/* Pricing Cards */}
-          <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 mx-auto px-4">
             {pricingTiers.map((tier, index) => (
               <motion.div
                 key={tier.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="relative group"
+                className="relative group hover:-translate-y-2 transition-transform duration-300"
               >
                 {/* Badge */}
                 {tier.badge && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
+                    <span className={`px-4 py-1 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300
+                    ${
+                      tier.highlighted
+                        ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                        : "bg-card text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                    }
+                    `}>
                       {tier.badge}
                     </span>
                   </div>
@@ -111,7 +133,6 @@ export default function PricingPage() {
                         ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
                         : "border-border group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
                     }
-                    group-hover:-translate-y-2
                   `}
                 >
                   {/* Tier Name & Description */}
@@ -136,7 +157,10 @@ export default function PricingPage() {
                   <div className="mb-4">
                     <div className="flex items-baseline">
                       <span className="font-bold">{tier.credits} Credits</span>
-                      {tier.discount && <span className="text-muted-foreground text-sm ml-auto">{tier.discount}% Credit Discount</span>}
+                      {tier.discount && <span className="text-muted-foreground text-sm ml-auto">
+                        + {tier.discount}%
+                        <span className="xl:hidden 2xl:inline"> Credit</span> Discount
+                        </span>}
                     </div>
                   </div>
 

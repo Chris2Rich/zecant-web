@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { useUser, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { useUser, SignedIn, SignedOut } from '@clerk/nextjs'
+import { CustomUserButton } from '@/components/custom-user-button'
 import Link from "next/link"
 import {
   ChevronDown,
@@ -20,7 +21,7 @@ import {
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const {isSignedIn} = useUser()
+  const { isSignedIn, isLoaded } = useUser()
 
   const solutionsDropdown = [
     {
@@ -150,7 +151,9 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
-          {!isSignedIn ? (
+          {!isLoaded ? (
+            <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />
+          ) : !isSignedIn ? (
             <>
             <Link href="/sign-in">
               <Button
@@ -167,13 +170,7 @@ export function Header() {
             </Link>
             </>
           ) : (
-            <UserButton 
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8"
-                }
-              }}
-            />
+            <CustomUserButton full={true} />
           )}
         </div>
 
@@ -201,7 +198,10 @@ export function Header() {
               Pricing
             </a>
             <div className="pt-4 space-y-2">
-              <SignedOut>
+              {!isLoaded ? (
+                <div className="w-full h-10 bg-muted rounded-lg animate-pulse" />
+              ) : !isSignedIn ? (
+                <>
                 <Link href="/sign-in">
                   <Button
                     variant="outline"
@@ -215,18 +215,12 @@ export function Header() {
                     Sign Up
                   </Button>
                 </Link>
-              </SignedOut>
-              <SignedIn>
+                </>
+              ) : (
                 <div className="flex justify-center">
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-8 h-8"
-                      }
-                    }}
-                  />
+                  <CustomUserButton full={false} />
                 </div>
-              </SignedIn>
+              )}
             </div>
           </div>
         </div>
