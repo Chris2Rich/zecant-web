@@ -1,6 +1,5 @@
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { Header } from "@/components/header"
-import { AuthRedirect } from "@/components/auth-redirect"
 import { HeroSection } from '@/components/hero-section'
 import { FeaturesSection } from '@/components/features-section'
 import { BentoGrid } from '@/components/bento-grid'

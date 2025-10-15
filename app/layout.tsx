@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
+import { AuthRedirect } from "@/components/auth-redirect"
 
 export const metadata: Metadata = {
   title: "Zecant - Advanced Financial Trading Platform",
@@ -22,7 +23,9 @@ export default function RootLayout({
       <html lang="en" className="dark scroll-smooth">
         <body className={`antialiased select-none`}>
           <Suspense fallback={null}>
+            <AuthRedirect>
             {children}
+            </AuthRedirect>
           </Suspense>
           <Analytics />
         </body>

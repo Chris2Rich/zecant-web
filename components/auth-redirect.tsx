@@ -1,14 +1,22 @@
 "use client"
 
 import { useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 
-export function AuthRedirect() {
+export function AuthRedirect({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   const { isSignedIn, isLoaded } = useUser()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
+    if (isLoaded && ! isSignedIn && pathname == '/app') {
+      router.replace('/sign-up')
+    }
     if (isLoaded && isSignedIn) {
       router.replace('/app')
     }
@@ -20,5 +28,5 @@ export function AuthRedirect() {
   }
 
   // Return null for unauthenticated users (they should see the landing page)
-  return null
+  return children
 }

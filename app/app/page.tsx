@@ -15,6 +15,7 @@ import {
   } from "lucide-react"
 import Link from "next/link"
 import { CustomUserButton } from '@/components/custom-user-button'
+
   
   export default function TradingAppLayout() {
     return (
@@ -84,25 +85,25 @@ import { CustomUserButton } from '@/components/custom-user-button'
               status="Running"
               lastActive="2m Ago"
               icon={Search}
-            />
+              />
             <AgentCard
               name="Backtest Runner"
               status="Completed"
               lastActive="15m Ago"
               icon={Activity}
-            />
+              />
             <AgentCard
               name="Portfolio Analyzer"
               status="Idle"
               lastActive="1h Ago"
               icon={PieChart}
-            />
+              />
             <AgentCard
               name="News Monitor"
               status="Error"
               lastActive="Just Now"
               icon={FileText}
-            />
+              />
           </div>
   
           {/* Panel Footer */}

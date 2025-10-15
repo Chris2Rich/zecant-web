@@ -36,6 +36,7 @@ export default function SignUpPage() {
 
       if (result.status === 'missing_requirements') {
         setPendingVerification(true)
+        signUp?.prepareEmailAddressVerification({ strategy: 'email_code' })
       } else if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
         router.replace('/app')
@@ -120,14 +121,14 @@ export default function SignUpPage() {
                   className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200 text-center text-lg tracking-widest"
                   placeholder="Enter 6-digit code"
                   maxLength={6}
-                />
+                  />
               </div>
 
               <Button
                 type="submit"
                 disabled={isLoading || !isLoaded}
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
-              >
+                >
                 {isLoading ? 'Verifying...' : 'Verify email'}
               </Button>
             </form>
@@ -138,7 +139,7 @@ export default function SignUpPage() {
                 <button
                   onClick={() => signUp?.prepareEmailAddressVerification({ strategy: 'email_code' })}
                   className="text-primary hover:text-primary/80 font-medium transition-colors cursor-pointer"
-                >
+                  >
                   Resend
                 </button>
               </p>
@@ -155,7 +156,7 @@ export default function SignUpPage() {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/80 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
-      
+
       <div className="relative w-full max-w-md">
         {/* Back Button */}
         <Link href="/">
