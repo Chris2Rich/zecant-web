@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { ArrowRight, Check } from "lucide-react"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 const pricingTiers = [
   {
@@ -179,20 +180,22 @@ export default function PricingPage() {
                   </ul>
 
                   {/* CTA  */}
+                  <Link href={'/sign-up'}>
                   <Button
                     className={`
                       w-full mt-auto py-3 px-6 rounded-lg font-semibold
                       transition-all duration-300 cursor-pointer group 
                       ${
                         tier.highlighted
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
                       }
                     `}
-                  >
+                    >
                     {tier.cta}
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </Button>
+                </Link>
                 </div>
               </motion.div>
             ))}

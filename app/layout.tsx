@@ -22,10 +22,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark scroll-smooth">
         <body className={`antialiased select-none`}>
-          <Suspense fallback={null}>
+          <Suspense fallback={null}> 
             <AuthRedirect>
-            {children}
-            </AuthRedirect>
+              {children}
+            </AuthRedirect>     
           </Suspense>
           <Analytics />
         </body>

@@ -2,6 +2,7 @@
 
 import { useUser } from '@clerk/nextjs'
 import { useRouter, usePathname } from 'next/navigation'
+import path from 'path'
 import { useEffect } from 'react'
 
 export function AuthRedirect({
@@ -14,19 +15,17 @@ export function AuthRedirect({
   const pathname = usePathname()
 
   useEffect(() => {
-    if (isLoaded && ! isSignedIn && pathname == '/app') {
+    if (! isSignedIn && pathname == '/app') {
       router.replace('/sign-up')
     }
-    if (isLoaded && isSignedIn) {
+    if (isSignedIn && (pathname == '/sign-up' || pathname == '/sign-in')) {
       router.replace('/app')
     }
   }, [isLoaded, isSignedIn, router])
 
-  // Don't render anything while checking auth state or redirecting
-  if (!isLoaded || isSignedIn) {
+  if (!isLoaded) {
     return null
   }
 
-  // Return null for unauthenticated users (they should see the landing page)
   return children
 }
