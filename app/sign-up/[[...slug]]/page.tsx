@@ -39,7 +39,7 @@ export default function SignUpPage() {
         signUp?.prepareEmailAddressVerification({ strategy: 'email_code' })
       } else if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
-        router.replace('/app')
+        router.replace('/onboarding')
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.message || 'An error occurred during sign up')
@@ -62,7 +62,7 @@ export default function SignUpPage() {
 
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
-        router.replace('/app')
+        router.replace('/onboarding')
       }
     } catch (err: any) {
       setError("Inputted code is not valid")

@@ -5,79 +5,13 @@ import { motion } from "framer-motion"
 import { ArrowRight, Check } from "lucide-react"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
 
-const pricingTiers = [
-  {
-    name: "Free",
-    description: "Perfect for getting started",
-    price: "0",
-    period: "/month",
-    credits: "3",
-    discount: "",
-    features: [
-      "Historical data (1 year)",
-      "Community support",
-      "Basic analytics dashboard",
-    ],
-    cta: "Get Started Free",
-    highlighted: false,
-  },
-  {
-    name: "Plus",
-    description: "For serious traders",
-    price: "20",
-    period: "/month",
-    credits: "10",
-    badge: "Most Popular",
-    features: [
-      "Historical data (2+ years)",
-      "AI enhanced strategy optimization",
-      "Custom indicators & signals",
-      "Automatic Reporting",
-    ],
-    cta: "Get Started",
-    highlighted: true,
-  },
-  {
-    name: "Pro",
-    description: "For serious traders",
-    price: "199",
-    period: "/month",
-    credits: "100",
-    discount: "10",
-    badge: "Best Value",
-    features: [
-      "Everything in Plus",
-      "Historical data (10+ years)",
-      "Faster response times",
-      "Advanced analytics & reporting",
-      "API access",
-    ],
-    cta: "Start Pro Trial",
-    highlighted: false,
-  },
-  {
-    name: "Enterprise",
-    description: "For professional teams",
-    price: "2499",
-    credits: "1500",
-    discount: "15",
-    period: "/month",
-    features: [
-      "Everything in Pro",
-      "Custom data sources",
-      "Advanced security & compliance",
-      "Team collaboration tools",
-      "Custom integrations",
-      "SLA guarantee",
-    ],
-    cta: "Contact Sales",
-    highlighted: false,
-  },
-]
+import { pricingTiers } from "@/business/constants.js"
 
 export default function PricingPage() {
+  const {isSignedIn} = useUser()
   return (
     <main className="min-h-screen bg-gradient-to-br from-background to-muted/50">
       <div className="absolute inset-0 opacity-10">
@@ -146,7 +80,7 @@ export default function PricingPage() {
                   <div className="mb-4">
                     <div className="flex items-baseline gap-1">
                       <span className="text-5xl font-bold">${tier.price}</span>
-                      {tier.period && <span className="text-muted-foreground">{tier.period}</span>}
+                      {tier.period && <span className="text-muted-foreground text-sm">{tier.period}</span>}
                     </div>
                   </div>
 
@@ -180,7 +114,7 @@ export default function PricingPage() {
                   </ul>
 
                   {/* CTA  */}
-                  <Link href={'/sign-up'}>
+                  {isSignedIn ? <Link href={'/sign-up'}>
                   <Button
                     className={`
                       w-full mt-auto py-3 px-6 rounded-lg font-semibold
@@ -195,7 +129,24 @@ export default function PricingPage() {
                     {tier.cta}
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </Button>
+                </Link> :
+                <Link href={"/settings#plan-" + tier.name}>
+                  <Button
+                    className={`
+                      w-full mt-auto py-3 px-6 rounded-lg font-semibold
+                      transition-all duration-300 cursor-pointer group 
+                      ${
+                        tier.highlighted
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                      }
+                    `}
+                    >
+                    {isSignedIn ? "Switch Tier" : tier.cta}
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Button>
                 </Link>
+                }
                 </div>
               </motion.div>
             ))}
@@ -204,7 +155,7 @@ export default function PricingPage() {
           {/* FAQ or Additional Info */}
           <div className="mt-20 text-center">
             <p className="text-muted-foreground">
-              All plans include 14-day money-back guarantee. No credit card required for free tier.
+              No card details are required for free tier.
             </p>
           </div>
         </section>

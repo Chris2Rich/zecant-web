@@ -1,30 +1,24 @@
-"use client"
+import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { headers } from 'next/headers';
 
-import { useUser } from '@clerk/nextjs'
-import { useRouter, usePathname } from 'next/navigation'
-import path from 'path'
-import { useEffect } from 'react'
-
-export function AuthRedirect({
+export async function AuthRedirect({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { isSignedIn, isLoaded } = useUser()
-  const router = useRouter()
-  const pathname = usePathname()
+  const user = await currentUser()
+  const headerslist = await headers()
+  const pathname = headerslist.get("x-pathname")
 
-  useEffect(() => {
-    if (! isSignedIn && pathname == '/app') {
-      router.replace('/sign-up')
-    }
-    if (isSignedIn && (pathname == '/sign-up' || pathname == '/sign-in')) {
-      router.replace('/app')
-    }
-  }, [isLoaded, isSignedIn, router])
-
-  if (!isLoaded) {
-    return null
+  if (! user && pathname == '/app') {
+    redirect('/sign-up')
+  }
+  if (user && (pathname == '/sign-up' || pathname == '/sign-in')) {
+    redirect('/app')
+  }
+  if (user && (pathname != '/onboarding') && (user.privateMetadata.onboarded != true)){
+    redirect('/onboarding')
   }
 
   return children
