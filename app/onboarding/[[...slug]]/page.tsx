@@ -42,7 +42,7 @@ export default function OnboardingPage() {
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/80 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
-      <div className="relative w-full mr-[4rem] ml-[4rem]">
+
         <div className="bg-card/95 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -137,7 +137,6 @@ export default function OnboardingPage() {
             {isSubmitting ? "Saving..." : "Continue"}
           </Button>
         </div>
-      </div>
     </div>
   );
 }
