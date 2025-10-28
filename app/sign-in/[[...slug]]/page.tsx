@@ -56,7 +56,7 @@ export default function SignInPage() {
             className="absolute -top-16 left-0 text-muted-foreground hover:text-foreground"
             >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            Back
           </Button>
         </Link>
 
