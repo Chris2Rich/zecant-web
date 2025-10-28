@@ -27,7 +27,8 @@ export default function OnboardingPage() {
     setIsSubmitting(true);
     setError("");
     try {
-    //   await user.update({ publicMetadata: { tier: selectedTier, onboardingComplete: true } });
+      user.publicMetadata.tier = selectedTier
+      user.publicMetadata.onboarded = true
       router.replace("/app");
     } catch (err) {
       setError("Unable to save tier. Please try again.");
@@ -73,7 +74,11 @@ export default function OnboardingPage() {
                       tier.highlighted
                         ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
                         : "bg-card text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                    }
+                      +
+                      selectedTier === tier.name
+                        ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                        : "bg-card text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                      }
                     `}>
                       {tier.badge}
                     </span>
@@ -83,14 +88,19 @@ export default function OnboardingPage() {
                 {/* Card */}
                 <div
                   className={`
-                    relative h-full rounded-2xl p-8 
+                    relative h-full rounded-2xl p-8 cursor-pointer
                     bg-card border transition-all duration-300 flex flex-col
                     ${
                       tier.highlighted
-                        ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
-                        : "border-border group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                        ? selectedTier === tier.name
+                          ? "border-primary shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                          : "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                        : selectedTier === tier.name
+                          ? "border-primary/50 shadow-[0_0_30px_rgba(6,182,212,0.3)]"
+                          : "border-border hover:border-primary/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
                     }
                   `}
+                  onClick={() => handleSelect(tier.name)}
                 >
                   {/* Tier Name & Description */}
                   <div className="mb-6">
@@ -130,7 +140,7 @@ export default function OnboardingPage() {
             ))}
         </div>
           <Button
-            className="w-full py-3 font-semibold text-lg mt-2"
+            className="ml-[50%] -translate-x-1/2 font-semibold text-lg mt-8"
             onClick={handleContinue}
             disabled={!selectedTier || isSubmitting}
           >
