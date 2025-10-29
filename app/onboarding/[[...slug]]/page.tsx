@@ -66,38 +66,14 @@ export default function OnboardingPage() {
                 transition={{ delay: index * 0.1 }}
                 className="relative group hover:-translate-y-2 transition-transform duration-300"
               >
-                {/* Badge */}
-                {tier.badge && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                    <span className={`px-4 py-1 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300
-                    ${
-                      tier.highlighted
-                        ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                        : "bg-card text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                      +
-                      selectedTier === tier.name
-                        ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                        : "bg-card text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                      }
-                    `}>
-                      {tier.badge}
-                    </span>
-                  </div>
-                )}
-
-                {/* Card */}
                 <div
                   className={`
                     relative h-full rounded-2xl p-8 cursor-pointer
                     bg-card border transition-all duration-300 flex flex-col
                     ${
-                      tier.highlighted
-                        ? selectedTier === tier.name
-                          ? "border-primary shadow-[0_0_50px_rgba(6,182,212,0.5)]"
-                          : "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
-                        : selectedTier === tier.name
-                          ? "border-primary/50 shadow-[0_0_30px_rgba(6,182,212,0.3)]"
-                          : "border-border hover:border-primary/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                    selectedTier === tier.name
+                      ? "border-primary shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                      : "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
                     }
                   `}
                   onClick={() => handleSelect(tier.name)}
