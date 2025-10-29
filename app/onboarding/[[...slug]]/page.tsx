@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 import { pricingTiers } from "@/business/constants.js"
 
 export default function OnboardingPage() {
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const router = useRouter();
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,10 +27,18 @@ export default function OnboardingPage() {
     setIsSubmitting(true);
     setError("");
     try {
-      await user.updatePublicMetadata({
-        tier: selectedTier,
-        onboarded: true,
+      const res = await fetch("/api/update-billing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ billingTier: selectedTier }),
       });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update billing");
+      }
+      
       router.replace("/app");
     } catch (err) {
       setError("Unable to save tier. Please try again.");
@@ -52,7 +60,8 @@ export default function OnboardingPage() {
               <span className="text-primary-foreground font-bold text-xl">Z</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Choose Your Plan</h1>
-            <p className="text-muted-foreground">Select a plan to finish onboarding and get started.</p>
+            <p className="text-muted-foreground">Select a plan to finish onboarding and get started. <br />{
+            selectedTier ? `Currently selected: ${selectedTier}` : ""}</p>
           </div>
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg text-center mb-4">
@@ -74,8 +83,8 @@ export default function OnboardingPage() {
                     bg-card border transition-all duration-300 flex flex-col
                     ${
                     selectedTier === tier.name
-                      ? "border-primary shadow-[0_0_50px_rgba(6,182,212,0.5)]"
-                      : "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                      ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
+                      : "border-border group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
                     }
                   `}
                   onClick={() => handleSelect(tier.name)}
@@ -100,18 +109,19 @@ export default function OnboardingPage() {
 
                   {/* Credits */}
                   <div className="mb-4">
-                    <div className="flex items-baseline">
-                      <span className="font-bold">{tier.credits} Credits</span>
-                      {tier.discount && <span className="text-muted-foreground text-sm ml-auto">
-                        + {tier.discount}%
-                        <span className="xl:hidden 2xl:inline"> Credit</span> Discount
-                        </span>}
+                    <div className="flex items-baseline font-bold ml-[50%] -translate-x-1/2">
+                      {tier.credits} Credits
                     </div>
                   </div>
 
                   <div className="container mx-auto mb-4 px-4">
                     <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
                   </div>
+
+                  {tier.discount && <span className="text-muted-foreground text-sm ml-[50%] -translate-x-1/2">
+                        + {tier.discount}%
+                        <span className="2xl:inline"> Credit</span> Discount
+                        </span>}
                 </div>
 
               </motion.div>
