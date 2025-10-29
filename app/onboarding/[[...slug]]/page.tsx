@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { pricingTiers } from "@/business/constants.js"
 
 export default function OnboardingPage() {
@@ -144,7 +144,8 @@ export default function OnboardingPage() {
             onClick={handleContinue}
             disabled={!selectedTier || isSubmitting}
           >
-            {isSubmitting ? "Saving..." : "Continue"}
+          {isSubmitting ? "Saving..." : "Continue"}
+          <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
           </Button>
         </div>
     </div>
