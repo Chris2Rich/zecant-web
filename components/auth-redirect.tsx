@@ -17,7 +17,7 @@ export async function AuthRedirect({
   if (user && (pathname == '/sign-up' || pathname == '/sign-in')) {
     redirect('/app')
   }
-  if (user && (pathname != '/onboarding') && (user.privateMetadata.onboarded != true)){
+  if (user && (pathname != '/onboarding') && (user.publicMetadata.onboarded != true)){
     redirect('/onboarding')
   }
 

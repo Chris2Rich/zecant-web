@@ -27,8 +27,10 @@ export default function OnboardingPage() {
     setIsSubmitting(true);
     setError("");
     try {
-      user.publicMetadata.tier = selectedTier
-      user.publicMetadata.onboarded = true
+      await user.updatePublicMetadata({
+        tier: selectedTier,
+        onboarded: true,
+      });
       router.replace("/app");
     } catch (err) {
       setError("Unable to save tier. Please try again.");
@@ -122,7 +124,7 @@ export default function OnboardingPage() {
           >
           {isSubmitting ? "Saving..." : "Continue"}
           <ArrowRight className={`w-5 h-5 ml-2 
-          ${!(!selectedTier || isSubmitting) ?
+          ${selectedTier ?
             "group-hover:translate-x-1 transition-transform duration-300"
             : ""
           }`} />
