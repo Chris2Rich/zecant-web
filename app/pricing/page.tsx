@@ -138,7 +138,6 @@ export function PricingCards() {
       ))}
     </div>
 
-    {/* FAQ or Additional Info */}
     <div className="mt-20 text-center">
       <p className="text-muted-foreground">
         No card details are required for free tier.
