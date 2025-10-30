@@ -69,3 +69,18 @@ export const pricingTiers = [
       highlighted: false,
     },
   ]
+
+  export const billingTiers = {
+    Plus: {
+      priceId: "price_1SNu58JfEi0Dfj0EReSYSb5t", // $20/mo
+      credits: 50,
+    },
+    Pro: {
+      priceId: "price_1SNuHdJfEi0Dfj0EbRgYBxM8", // $200/mo
+      credits: 650,
+    },
+    Enterprise: {
+      priceId: "price_1SNuHdJfEi0Dfj0EoP9WCuFX", // $1000/mo
+      credits: 3500,
+    },
+  };
