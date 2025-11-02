@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { Elements, useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { pricingTiers } from "@/business/constants.js";
@@ -41,10 +41,16 @@ export default function OnboardingPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ billingTier: selectedTier }),
+        credentials: "include",
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update billing");
+
+      if (data.free) {
+        router.replace("/app");
+        return;
+      }
 
       // ✅ Move to payment step
       setClientSecret(data.clientSecret);
@@ -166,7 +172,38 @@ export default function OnboardingPage() {
             transition={{ duration: 0.4 }}
             className="bg-card/95 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl w-full max-w-lg"
           >
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <Elements stripe={stripePromise} options={{
+              clientSecret,
+              appearance: {
+                theme: 'stripe',
+                variables: {
+                  colorPrimary: 'hsl(var(--primary))',
+                  colorBackground: 'hsl(var(--background))',
+                  colorText: 'hsl(var(--foreground))',
+                  colorDanger: 'hsl(var(--destructive))',
+                  fontFamily: 'inherit',
+                  spacingUnit: '4px',
+                  borderRadius: '8px',
+                  colorTextPlaceholder: 'hsl(var(--muted-foreground))',
+                },
+                rules: {
+                  '.Input': {
+                    backgroundColor: 'hsl(var(--background))',
+                    border: '1px solid hsl(var(--input))',
+                    color: 'hsl(var(--foreground))',
+                  },
+                  '.Input:focus': {
+                    border: '1px solid hsl(var(--ring))',
+                    boxShadow: '0 0 0 1px hsl(var(--ring))',
+                    outline: 'none',
+                  },
+                  '.Label': {
+                    color: 'hsl(var(--foreground))',
+                    fontWeight: '500',
+                  },
+                },
+              },
+            }}>
               <PaymentForm
                 clientSecret={clientSecret}
                 subscriptionId={subscriptionId!}
@@ -193,15 +230,24 @@ function PaymentForm({
   const elements = useElements();
   const [isPaying, setIsPaying] = useState(false);
   const [error, setError] = useState("");
+  const [cardholderName, setCardholderName] = useState("");
 
-  const handlePayment = async () => {
+  const handlePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!stripe || !elements) return;
     setIsPaying(true);
     setError("");
 
-    // ✅ Pass clientSecret directly as documented
+    const cardElement = elements.getElement(CardNumberElement);
+    if (!cardElement) return;
+
     const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: { card: elements.getElement(CardElement)! },
+      payment_method: {
+        card: cardElement,
+        billing_details: {
+          name: cardholderName,
+        },
+      },
     });
 
     if (result.error) {
@@ -215,23 +261,114 @@ function PaymentForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subscriptionId }),
+        credentials: "include",
       });
       onSuccess();
     }
   };
 
+
+  const stripeElementStyle = {
+    style: {
+      base: {
+        fontSize: '16px',
+        color: 'oklch(0.92 0.01 240)', // Replace with your actual foreground color
+        fontFamily: 'Roboto',
+        '::placeholder': {
+          color: 'oklch(0.6 0.01 240)', // Replace with your actual muted-foreground color
+        },
+      },
+      invalid: {
+        color: 'oklch(0.5 0.2 25)', // Replace with your actual destructive color
+      },
+    },
+  };
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-center mb-4">Complete Your Payment</h2>
-      <CardElement className="p-3 border border-border rounded-lg bg-background" />
-      {error && <p className="text-destructive text-sm text-center">{error}</p>}
-      <Button
-        onClick={handlePayment}
-        disabled={isPaying}
-        className="w-full font-semibold text-lg mt-4"
-      >
-        {isPaying ? "Processing..." : "Pay Now"}
-      </Button>
+    <div>
+      <div className="text-center mb-8">
+        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4">
+          <span className="text-primary-foreground font-bold text-xl">Z</span>
+        </div>
+        <h1 className="text-2xl font-bold text-foreground mb-2">Complete Your Payment</h1>
+        <p className="text-muted-foreground">Enter your payment details to get started</p>
+      </div>
+
+      <form onSubmit={handlePayment} className="space-y-6">
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="cardholder" className="block text-sm font-medium text-foreground mb-2">
+              Cardholder Name
+            </label>
+            <input
+              id="cardholder"
+              type="text"
+              value={cardholderName}
+              onChange={(e) => setCardholderName(e.target.value)}
+              required
+              className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
+              placeholder="John Doe"
+            />
+          </div>
+
+          <div>
+            <div>
+              <label htmlFor="cardNumber" className="block text-sm font-medium text-foreground mb-2">
+                Card Number
+              </label>
+              <CardNumberElement
+                id="cardNumber"
+                className="px-4 py-3 bg-background border border-input rounded-lg mb-4"
+                options={stripeElementStyle}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="cardExpiry" className="block text-sm font-medium text-foreground mb-2">
+                  Expiry Date
+                </label>
+                <CardExpiryElement
+                  id="cardExpiry"
+                  className="px-4 py-3 bg-background border border-input rounded-lg"
+                  options={stripeElementStyle}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="cardCvc" className="block text-sm font-medium text-foreground mb-2">
+                  CVC
+                </label>
+                <CardCvcElement
+                  id="cardCvc"
+                  className="px-4 py-3 bg-background border border-input rounded-lg"
+                  options={stripeElementStyle}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={isPaying || !stripe}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
+        >
+          {isPaying ? 'Processing...' : 'Pay Now'}
+        </Button>
+      </form>
+
+      <div className="mt-6 text-center">
+        <p className="text-muted-foreground text-xs">
+          Your payment is secured by Stripe
+        </p>
+      </div>
     </div>
   );
 }

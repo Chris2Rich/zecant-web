@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(req) {
     try {
-        const { userId } = auth();
+        const { userId } = await auth();
         if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
@@ -28,7 +28,7 @@ export async function POST(req) {
             return NextResponse.json({ error: "Payment not completed" }, { status: 400 });
         }
 
-        const user = await clerkClient.users.getUser(userId);
+        const user = await (await clerkClient()).users.getUser(userId);
         const tier = user.privateMetadata?.pendingTier;
         const tierData = billingTiers[tier];
         if (!tierData) {
@@ -38,7 +38,7 @@ export async function POST(req) {
         const currentCredits = user.publicMetadata?.credits || 0;
         const newCredits = currentCredits + tierData.credits;
 
-        await clerkClient.users.updateUserMetadata(userId, {
+        await (await clerkClient()).users.updateUserMetadata(userId, {
             publicMetadata: {
                 ...user.publicMetadata,
                 billingTier: tier,

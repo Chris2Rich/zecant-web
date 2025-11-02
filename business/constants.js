@@ -71,6 +71,10 @@ export const pricingTiers = [
   ]
 
   export const billingTiers = {
+    Free: {
+      priceId: null,
+      credits: 3,
+    },
     Plus: {
       priceId: "price_1SNu58JfEi0Dfj0EReSYSb5t", // $20/mo
       credits: 50,

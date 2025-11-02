@@ -1,7 +1,5 @@
 import { 
     Bell, 
-    ArrowUpRight, 
-    Download,
     Plus,
     MessageSquare,
     BarChart3,
@@ -42,9 +40,7 @@ import { CustomUserButton } from '@/components/custom-user-button'
   
           {/* Bottom Actions */}
           <div className="flex flex-col items-center space-y-4 pt-4 border-t border-border">
-            <button className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors">
-              <Bell className="w-5 h-5 text-muted-foreground" />
-            </button>
+            <NavItem icon={Bell} label="Notifications"/>
             <CustomUserButton full={false} />
           </div>
         </aside>

@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(req) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -20,10 +20,34 @@ export async function POST(req) {
       return NextResponse.json({ error: "Invalid billing tier" }, { status: 400 });
     }
 
-    const user = await clerkClient.users.getUser(userId);
-    let stripeCustomerId = user.privateMetadata?.stripeCustomerId;
+    const user = await (await clerkClient()).users.getUser(userId);
 
-    // ✅ Create Stripe customer if not exists
+    // 🆓 Handle free tier immediately — no Stripe needed
+    if (!tierData.priceId || tierData.price === 0) {
+
+      await (await clerkClient()).users.updateUserMetadata(userId, {
+        publicMetadata: {
+          ...user.publicMetadata,
+          billingTier,
+          credits: tierData.credits,
+          onboarded: true,
+        },
+        privateMetadata: {
+          ...user.privateMetadata,
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+          pendingTier: null,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        free: true, // flag to let frontend skip payment step
+      });
+    }
+
+    // 💳 Paid tiers continue with Stripe flow
+    let stripeCustomerId = user.privateMetadata?.stripeCustomerId;
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
         email: user.emailAddresses[0]?.emailAddress,
@@ -33,7 +57,6 @@ export async function POST(req) {
       stripeCustomerId = customer.id;
     }
 
-    // ✅ Create or update subscription
     const subscription = await stripe.subscriptions.create({
       customer: stripeCustomerId,
       items: [{ price: tierData.priceId }],
@@ -41,13 +64,12 @@ export async function POST(req) {
       expand: ["latest_invoice.payment_intent"],
     });
 
-    // ✅ Save subscription info to Clerk (no credits yet)
-    await clerkClient.users.updateUserMetadata(userId, {
+    await (await clerkClient()).users.updateUserMetadata(userId, {
       privateMetadata: {
         ...user.privateMetadata,
         stripeCustomerId,
         stripeSubscriptionId: subscription.id,
-        pendingTier: billingTier, // store temporarily
+        pendingTier: billingTier,
       },
     });
 
