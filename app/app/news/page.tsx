@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, Newspaper } from "lucide-react";
 
-interface Article {
+interface ArticleHeader {
   title: string;
   description: string;
   url: string;
@@ -15,7 +15,7 @@ interface Article {
 }
 
 // Example financial news articles
-const mockArticles: Article[] = [
+const mockArticles: ArticleHeader[] = [
   {
     title: "Fed Signals Potential Rate Cuts as Inflation Cools to 2.4%",
     description: "The Federal Reserve indicated it may begin cutting interest rates in the coming months as inflation continues to moderate, with core PCE falling to its lowest level since early 2021.",
