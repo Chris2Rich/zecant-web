@@ -11,7 +11,7 @@ interface Article {
   urlToImage: string;
   publishedAt: string;
   source: { name: string };
-  category: string;
+  category: Array<string>;
 }
 
 // Example financial news articles
@@ -23,7 +23,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80",
     publishedAt: new Date(Date.now() - 35 * 60000).toISOString(),
     source: { name: "Bloomberg" },
-    category: "general"
+    category: ["general"]
   },
   {
     title: "Apple Unveils AI-Powered Trading Platform for Institutional Investors",
@@ -32,7 +32,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80",
     publishedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
     source: { name: "Financial Times" },
-    category: "technology"
+    category: ["technology"]
   },
   {
     title: "Walmart Beats Earnings Expectations with 8.2% Revenue Growth",
@@ -41,7 +41,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&q=80",
     publishedAt: new Date(Date.now() - 4 * 3600000).toISOString(),
     source: { name: "Reuters" },
-    category: "retail"
+    category: ["retail"]
   },
   {
     title: "Moderna Stock Surges 23% on Breakthrough Cancer Vaccine Data",
@@ -50,7 +50,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=800&q=80",
     publishedAt: new Date(Date.now() - 5 * 3600000).toISOString(),
     source: { name: "CNBC" },
-    category: "life sciences"
+    category: ["life sciences"]
   },
   {
     title: "Senate Passes Bipartisan Infrastructure Bill with $1.2T in Spending",
@@ -59,7 +59,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80",
     publishedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
     source: { name: "Wall Street Journal" },
-    category: "politics"
+    category: ["politics"]
   },
   {
     title: "India's GDP Growth Accelerates to 7.8%, Outpacing Major Economies",
@@ -68,7 +68,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80",
     publishedAt: new Date(Date.now() - 7 * 3600000).toISOString(),
     source: { name: "MarketWatch" },
-    category: "developing markets"
+    category: ["developing markets"]
   },
   {
     title: "JPMorgan Raises S&P 500 Target to 6,200 on Strong Corporate Earnings",
@@ -77,7 +77,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&q=80",
     publishedAt: new Date(Date.now() - 9 * 3600000).toISOString(),
     source: { name: "Bloomberg" },
-    category: "general"
+    category: ["general"]
   },
   {
     title: "Microsoft Acquires Cybersecurity Firm for $8.5B to Boost Cloud Security",
@@ -86,7 +86,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80",
     publishedAt: new Date(Date.now() - 10 * 3600000).toISOString(),
     source: { name: "Reuters" },
-    category: "technology"
+    category: ["technology"]
   },
   {
     title: "Amazon Plans 150 New Fulfillment Centers, Creating 100K Jobs",
@@ -95,7 +95,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80",
     publishedAt: new Date(Date.now() - 12 * 3600000).toISOString(),
     source: { name: "Financial Times" },
-    category: "retail"
+    category: ["retail"]
   },
   {
     title: "Pfizer and BioNTech Partner on Next-Gen mRNA Therapeutics Platform",
@@ -104,7 +104,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80",
     publishedAt: new Date(Date.now() - 14 * 3600000).toISOString(),
     source: { name: "CNBC" },
-    category: "life sciences"
+    category: ["life sciences"]
   },
   {
     title: "White House Proposes Tax Reform Package Targeting Corporate Buybacks",
@@ -113,7 +113,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
     publishedAt: new Date(Date.now() - 15 * 3600000).toISOString(),
     source: { name: "Wall Street Journal" },
-    category: "politics"
+    category: ["politics"]
   },
   {
     title: "Brazil Central Bank Cuts Interest Rates as Inflation Falls Below Target",
@@ -122,7 +122,7 @@ const mockArticles: Article[] = [
     urlToImage: "https://images.unsplash.com/photo-1483389127117-b6a2102724ae?w=800&q=80",
     publishedAt: new Date(Date.now() - 18 * 3600000).toISOString(),
     source: { name: "MarketWatch" },
-    category: "developing markets"
+    category: ["developing markets"]
   }
 ];
 
@@ -152,7 +152,7 @@ export default function NewsfeedPage() {
 
   const filteredArticles = category === 'general' 
     ? mockArticles 
-    : mockArticles.filter(article => article.category === category);
+    : mockArticles.filter(article => article.category.includes(category));
 
   const featuredArticle = filteredArticles[0];
   const gridArticles = filteredArticles.slice(1);
