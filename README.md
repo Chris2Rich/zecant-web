@@ -4,12 +4,6 @@
 
 Web app for Zecant
 
-## Deployment
-
-Live at:
-
-**[https://vercel.com/chris2richs-projects/v0-zecant](https://vercel.com/chris2richs-projects/v0-zecant)**
-
 ## TODO
 
 - Make news part work
