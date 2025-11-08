@@ -194,21 +194,6 @@ export default function ChatPage() {
             </div>
           )}
 
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
-            >
-              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-destructive">Error</p>
-                <p className="text-sm text-destructive/80 mt-1">{error}</p>
-              </div>
-            </motion.div>
-          )}
-
           {/* Welcome Message */}
           {messages.length === 0 && !currentStreamingMessage && (
             <div className="text-center py-16">
@@ -301,6 +286,22 @@ export default function ChatPage() {
           </div>
 
           <div ref={messagesEndRef} />
+
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+            >
+              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-destructive">Error</p>
+                <p className="text-sm text-destructive/80 mt-1">{error}</p>
+              </div>
+            </motion.div>
+          )}
+
         </div>
       </div>
 
@@ -321,7 +322,7 @@ export default function ChatPage() {
               disabled={!isConnected || isStreaming}
               className="w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
               rows={1}
-              style={{ minHeight: "48px", maxHeight: "200px" }}
+              style={{ minHeight: "3em", maxHeight: "9.375em" }}
             />
             <button
               onClick={sendMessage}
