@@ -80,6 +80,7 @@ export default function ChatPage() {
                     timestamp: Date.now(),
                   },
                 ]);
+                console.log(messages)
               }
               streamingMessageRef.current = "";
               setCurrentStreamingMessage("");
