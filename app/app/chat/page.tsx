@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Loader2, AlertCircle, Bot, User } from "lucide-react";
 
 const SENTINEL = "_____";
-const WS_URL = "wss://zecant.com/rawllm"; // Adjust to your domain
+const WS_URL = "wss://api.zecant.com/rawllm";
 
 interface Message {
   role: "user" | "assistant";
