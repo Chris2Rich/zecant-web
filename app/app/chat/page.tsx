@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Loader2, AlertCircle, Bot, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 const SENTINEL = "_____";
 const WS_URL = "wss://api.zecant.com/rawllm";
@@ -249,8 +251,31 @@ export default function ChatPage() {
                         })}
                       </span>
                     </div>
-                    <div className="prose prose-sm max-w-none text-foreground">
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code({ inline, className, children, ...props }: any) {
+                          if (inline) {
+                            return (
+                              <code className="bg-muted px-1 rounded text-sm" {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                          // Wrap children in a fragment to satisfy TS typing
+                          return (
+                            <pre className="bg-muted p-2 rounded overflow-x-auto break-words text-sm">
+                              <code className={className} {...props}>
+                                {children as React.ReactNode}
+                              </code>
+                            </pre>
+                          );
+                        },
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
                     </div>
                   </div>
                 </motion.div>
@@ -273,11 +298,31 @@ export default function ChatPage() {
                       </span>
                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
                     </div>
-                    <div className="prose prose-sm max-w-none text-foreground">
-                      <p className="whitespace-pre-wrap">
+                    <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap animate-pulse">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code({ inline, className, children, ...props }: any) {
+                            if (inline) {
+                              return (
+                                <code className="bg-muted px-1 rounded text-sm" {...props}>
+                                  {children}
+                                </code>
+                              );
+                            }
+                            // Wrap children in a fragment to satisfy TS typing
+                            return (
+                              <pre className="bg-muted p-2 rounded overflow-x-auto break-words text-sm">
+                                <code className={className} {...props}>
+                                  {children as React.ReactNode}
+                                </code>
+                              </pre>
+                            );
+                          },
+                        }}
+                      >
                         {currentStreamingMessage}
-                        <span className="inline-block w-1 h-4 bg-primary ml-0.5 animate-pulse" />
-                      </p>
+                      </ReactMarkdown>
                     </div>
                   </div>
                 </motion.div>
