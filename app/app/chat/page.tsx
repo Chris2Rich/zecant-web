@@ -30,6 +30,9 @@ export default function ChatPage() {
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Use ref to track streaming message to avoid stale closure
+  const streamingMessageRef = useRef("");
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -60,30 +63,42 @@ export default function ChatPage() {
             const command = data.substring(SENTINEL.length);
 
             if (command === "start") {
+              console.log("Stream started");
               setIsStreaming(true);
+              streamingMessageRef.current = "";
               setCurrentStreamingMessage("");
             } else if (command === "end") {
-              // Save the complete message
-              if (currentStreamingMessage) {
+              console.log("Stream ended, message:", streamingMessageRef.current);
+              // Save the complete message using ref (not state)
+              const finalMessage = streamingMessageRef.current;
+              if (finalMessage) {
                 setMessages((prev) => [
                   ...prev,
                   {
                     role: "assistant",
-                    content: currentStreamingMessage,
+                    content: finalMessage,
                     timestamp: Date.now(),
                   },
                 ]);
               }
+              streamingMessageRef.current = "";
               setCurrentStreamingMessage("");
               setIsStreaming(false);
             } else if (command.startsWith("err")) {
-              const errorData: ErrorMessage = JSON.parse(command.substring(3));
-              setError(errorData.data);
+              console.error("Error received:", command);
+              try {
+                const errorData: ErrorMessage = JSON.parse(command.substring(3));
+                setError(errorData.data);
+              } catch (e) {
+                setError("An error occurred");
+              }
               setIsStreaming(false);
+              streamingMessageRef.current = "";
               setCurrentStreamingMessage("");
             }
           } else {
-            // Streaming token
+            // Streaming token - update both ref and state
+            streamingMessageRef.current += data;
             setCurrentStreamingMessage((prev) => prev + data);
           }
         };
