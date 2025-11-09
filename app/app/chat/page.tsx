@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Loader2, AlertCircle, Bot, User } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import Markdown from "markdown-to-jsx";
+import 'katex/dist/katex.min.css';
+import { BlockMath, InlineMath } from "react-katex";
+import React, { ReactNode } from "react";
 
 const SENTINEL = "_____";
 const WS_URL = "wss://api.zecant.com/rawllm";
@@ -21,6 +23,210 @@ interface ErrorMessage {
   data: string;
 }
 
+type MarkdownRenderProps = {
+  message: string;
+};
+
+function MarkdownRender({message} : MarkdownRenderProps) {
+  // Pre-process message to handle LaTeX
+  const processedMessage = React.useMemo(() => {
+    let processed = message;
+    
+    // Use unique placeholders that won't conflict
+    const displayMathBlocks: string[] = [];
+    const inlineMathBlocks: string[] = [];
+    
+    // Handle display math FIRST (most specific to least specific)
+    // \[...\] notation
+    processed = processed.replace(/\\\[([\s\S]+?)\\\]/g, (match, latex) => {
+      displayMathBlocks.push(latex.trim());
+      return `DISPLAYMATHPLACEHOLDER${displayMathBlocks.length - 1}ENDPLACEHOLDER`;
+    });
+    
+    // $$...$$ notation
+    processed = processed.replace(/\$\$([\s\S]+?)\$\$/g, (match, latex) => {
+      displayMathBlocks.push(latex.trim());
+      return `DISPLAYMATHPLACEHOLDER${displayMathBlocks.length - 1}ENDPLACEHOLDER`;
+    });
+    
+    // Handle inline math SECOND
+    // \(...\) notation
+    processed = processed.replace(/\\\(([\s\S]+?)\\\)/g, (match, latex) => {
+      inlineMathBlocks.push(latex.trim());
+      return `INLINEMATHPLACEHOLDER${inlineMathBlocks.length - 1}ENDPLACEHOLDER`;
+    });
+    
+    // $...$ notation (must come after $$...$$)
+    processed = processed.replace(/\$([^\$\n]+?)\$/g, (match, latex) => {
+      inlineMathBlocks.push(latex.trim());
+      return `INLINEMATHPLACEHOLDER${inlineMathBlocks.length - 1}ENDPLACEHOLDER`;
+    });
+    
+    return { processed, displayMathBlocks, inlineMathBlocks };
+  }, [message]);
+
+  const renderWithMath = (content: ReactNode): ReactNode => {
+    if (typeof content === 'string') {
+      // Split by display math placeholders
+      let parts: (string | JSX.Element)[] = [content];
+      
+      // Replace display math
+      processedMessage.displayMathBlocks.forEach((latex, index) => {
+        const placeholder = `DISPLAYMATHPLACEHOLDER${index}ENDPLACEHOLDER`;
+        parts = parts.flatMap((part) => {
+          if (typeof part === 'string' && part.includes(placeholder)) {
+            return part.split(placeholder).flatMap((segment, i, arr) => {
+              if (i === arr.length - 1) return [segment];
+              return [
+                segment,
+                <BlockMath key={`display-${index}-${i}`}>{latex}</BlockMath>
+              ];
+            }).filter(s => s !== '');
+          }
+          return [part];
+        });
+      });
+      
+      // Replace inline math
+      processedMessage.inlineMathBlocks.forEach((latex, index) => {
+        const placeholder = `INLINEMATHPLACEHOLDER${index}ENDPLACEHOLDER`;
+        parts = parts.flatMap((part) => {
+          if (typeof part === 'string' && part.includes(placeholder)) {
+            return part.split(placeholder).flatMap((segment, i, arr) => {
+              if (i === arr.length - 1) return [segment];
+              return [
+                segment,
+                <InlineMath key={`inline-${index}-${i}`}>{latex}</InlineMath>
+              ];
+            }).filter(s => s !== '');
+          }
+          return [part];
+        });
+      });
+      
+      return parts.length === 1 ? parts[0] : parts;
+    }
+    
+    if (Array.isArray(content)) {
+      return content.map((child, i) => (
+        <React.Fragment key={i}>{renderWithMath(child)}</React.Fragment>
+      ));
+    }
+    
+    // Handle React elements - need to recurse into children
+    if (React.isValidElement(content)) {
+      if (content.props.children) {
+        return React.cloneElement(content, {
+          ...content.props,
+          children: renderWithMath(content.props.children)
+        });
+      }
+    }
+    
+    return content;
+  };
+
+  return <Markdown
+    options={{
+      forceBlock: false,
+      wrapper: React.Fragment,
+      overrides: {
+        br: {
+          component: () => <br />
+        },
+        code: {
+          component: ({ children }) => (
+            <pre className="bg-muted p-3 rounded-lg overflow-x-auto text-sm whitespace-pre-wrap">
+              <code>{children}</code>
+            </pre>
+          )
+        },
+        table: {
+          component: ({ children, ...props }) => (
+            <div className="overflow-x-auto">
+              <table {...props} className="table-auto border-collapse w-full text-sm">
+                {children}
+              </table>
+            </div>
+          )
+        },
+        th: { 
+          component: ({ children }) => (
+            <th className="border px-2 py-1 font-bold">
+              {renderWithMath(children)}
+            </th>
+          )
+        },
+        td: { 
+          component: ({ children }) => (
+            <td className="border px-2 py-1">
+              {renderWithMath(children)}
+            </td>
+          )
+        },
+        p: { 
+          component: ({ children }) => (
+            <p className="leading-relaxed whitespace-pre-wrap">
+              {renderWithMath(children)}
+            </p>
+          )
+        },
+        h1: {
+          component: ({ children }) => (
+            <h1>{renderWithMath(children)}</h1>
+          )
+        },
+        h2: {
+          component: ({ children }) => (
+            <h2>{renderWithMath(children)}</h2>
+          )
+        },
+        h3: {
+          component: ({ children }) => (
+            <h3>{renderWithMath(children)}</h3>
+          )
+        },
+        h4: {
+          component: ({ children }) => (
+            <h4>{renderWithMath(children)}</h4>
+          )
+        },
+        h5: {
+          component: ({ children }) => (
+            <h5>{renderWithMath(children)}</h5>
+          )
+        },
+        h6: {
+          component: ({ children }) => (
+            <h6>{renderWithMath(children)}</h6>
+          )
+        },
+        li: {
+          component: ({ children }) => (
+            <li>{renderWithMath(children)}</li>
+          )
+        },
+        span: {
+          component: ({ children }) => (
+            <span>{renderWithMath(children)}</span>
+          )
+        },
+        strong: {
+          component: ({ children }) => <strong>{renderWithMath(children)}</strong>
+        },
+        em: {
+          component: ({ children }) => <em>{renderWithMath(children)}</em>
+        },
+        hr: {
+          component: () => <hr className="my-6 border-border" />
+        },
+      }
+    }}
+  >
+    {processedMessage.processed}
+  </Markdown>
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -35,15 +241,6 @@ export default function ChatPage() {
   
   // Use ref to track streaming message to avoid stale closure
   const streamingMessageRef = useRef("");
-
-  // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, currentStreamingMessage]);
 
   // Connect to WebSocket
   useEffect(() => {
@@ -184,10 +381,10 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col">
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-6 py-8">
+        <div className="w-full mx-auto px-6 py-8">
           {/* Connection Status */}
           {!isConnected && (
             <div className="mb-6 p-4 rounded-xl bg-muted/50 border border-border flex items-center gap-3">
@@ -242,7 +439,7 @@ export default function ChatPage() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-foreground">
-                        {message.role === "user" ? "You" : "Assistant"}
+                        {message.role === "user" ? "You" : "ZECA"}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {new Date(message.timestamp).toLocaleTimeString([], {
@@ -251,31 +448,8 @@ export default function ChatPage() {
                         })}
                       </span>
                     </div>
-                    <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        code({ inline, className, children, ...props }: any) {
-                          if (inline) {
-                            return (
-                              <code className="bg-muted px-1 rounded text-sm" {...props}>
-                                {children}
-                              </code>
-                            );
-                          }
-                          // Wrap children in a fragment to satisfy TS typing
-                          return (
-                            <pre className="bg-muted p-2 rounded overflow-x-auto break-words text-sm">
-                              <code className={className} {...props}>
-                                {children as React.ReactNode}
-                              </code>
-                            </pre>
-                          );
-                        },
-                      }}
-                    >
-                      {message.content}
-                    </ReactMarkdown>
+                    <div className="prose prose-sm max-w-none text-foreground">
+                      <MarkdownRender message={message.content}/>
                     </div>
                   </div>
                 </motion.div>
@@ -298,31 +472,8 @@ export default function ChatPage() {
                       </span>
                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
                     </div>
-                    <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap animate-pulse">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          code({ inline, className, children, ...props }: any) {
-                            if (inline) {
-                              return (
-                                <code className="bg-muted px-1 rounded text-sm" {...props}>
-                                  {children}
-                                </code>
-                              );
-                            }
-                            // Wrap children in a fragment to satisfy TS typing
-                            return (
-                              <pre className="bg-muted p-2 rounded overflow-x-auto break-words text-sm">
-                                <code className={className} {...props}>
-                                  {children as React.ReactNode}
-                                </code>
-                              </pre>
-                            );
-                          },
-                        }}
-                      >
-                        {currentStreamingMessage}
-                      </ReactMarkdown>
+                    <div className="prose prose-sm max-w-none text-foreground animate-pulse">
+                        <MarkdownRender message={currentStreamingMessage}/>
                     </div>
                   </div>
                 </motion.div>
@@ -337,7 +488,7 @@ export default function ChatPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+              className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
             >
               <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
               <div className="flex-1">
@@ -351,7 +502,7 @@ export default function ChatPage() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-background/80 backdrop-blur-sm">
+      <div>
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="relative">
             <textarea
@@ -361,11 +512,11 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               placeholder={
                 isConnected
-                  ? "Type a message... (Shift + Enter for new line)"
+                  ? "Type a message..."
                   : "Connecting..."
               }
               disabled={!isConnected || isStreaming}
-              className="w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+              className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
               rows={1}
               style={{ minHeight: "3em", maxHeight: "9.375em" }}
             />
@@ -381,7 +532,7 @@ export default function ChatPage() {
               )}
             </button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
+          <p className="text-xs text-muted-foreground mt-2 text-center select-none">
             Press Enter to send, Shift + Enter for new line
           </p>
         </div>

@@ -19,7 +19,7 @@ import { usePathname } from "next/navigation"
   export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     return (
-      <div className="flex h-screen bg-background text-foreground ">
+      <div className="flex h-screen bg-background text-foreground overflow-hidden">
         {/* Side Navigation */}
         <aside className="w-16 bg-card border-r border-border flex flex-col items-center py-6 space-y-6">
           {/* Logo */}
@@ -49,9 +49,9 @@ import { usePathname } from "next/navigation"
   
           {/* Content Grid */}
           <main className="flex-1 overflow-hidden">
-            <div className="h-full p-2">
+            <div className="h-full p-2 scrollbar-thin">
               {/* Empty grid container */}
-              <div className="h-full rounded-lg border border-border bg-card/30 p-4 select-text">
+              <div className="h-full rounded-lg border border-border bg-card/30 p-4 select-text scrollbar-thin">
                 {children}
               </div>
             </div>

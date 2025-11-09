@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import { AuthRedirect } from "@/components/auth-redirect"
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Zecant - Advanced Financial Trading Platform",
@@ -13,14 +14,16 @@ export const metadata: Metadata = {
     "Professional trading platform with advanced analytics, real-time execution, and comprehensive risk management tools.",
 }
 
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const pathname = (await headers()).get("x-pathname");
   return (
     <ClerkProvider>
-      <html lang="en" className="dark scroll-smooth">
+      <html lang="en" className={`dark scroll-smooth scrollbar-thin ${pathname?.startsWith("/app") ? "overflow-hidden" : ""}`}>
         <body className={`antialiased select-none`}>
           <Suspense fallback={null}> 
             <AuthRedirect>
