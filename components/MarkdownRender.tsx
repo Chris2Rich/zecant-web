@@ -8,31 +8,32 @@ type MarkdownRenderProps = {
 };
 
 // Direct KaTeX renderer component
+// Pre-render KaTeX to HTML string during useMemo
 function KatexMath({ latex, display }: { latex: string; display: boolean }) {
-  const ref = React.useRef<HTMLSpanElement>(null);
-
-  React.useEffect(() => {
-    if (ref.current) {
-      try {
-        katex.render(latex, ref.current, {
-          displayMode: display,
-          throwOnError: false,
-          errorColor: '#C00',
-          strict: false,
-        });
-      } catch (e) {
-        if (ref.current) {
-          ref.current.textContent = display ? `$$${latex}$$` : `$${latex}$`;
-          ref.current.style.color = '#C00';
-        }
-      }
+  const html = useMemo(() => {
+    try {
+      return katex.renderToString(latex, {
+        displayMode: display,
+        throwOnError: false,
+        errorColor: '#C00',
+        strict: false,
+      });
+    } catch (e) {
+      const escaped = display ? `$$${latex}$$` : `$${latex}$`;
+      return `<span style="color: #C00;">${escaped}</span>`;
     }
   }, [latex, display]);
 
   return display ? (
-    <span ref={ref} className="block my-4 text-center" />
+    <span 
+      className="block my-4 text-center" 
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   ) : (
-    <span ref={ref} className="inline-block align-middle" />
+    <span 
+      className="inline-block align-middle" 
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   );
 }
 
@@ -89,15 +90,30 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
     
     // Inline math: $...$ with stricter rules to avoid false positives
     // Must contain at least one backslash OR letter, and no spaces at boundaries
+    // Single-letter variables
+    text = text.replace(/\$([a-zA-Z])\$/g, (match, letter) => {
+      const marker = `§§MATH${counter}§§`;
+      map.set(marker, { latex: letter, display: false });
+      counter++;
+      return marker;
+    });
+
+    // Multi-character inline math
     text = text.replace(/\$([^\s$][^$\n]*?[^\s$])\$/g, (match, latex) => {
-      // Check if it looks like LaTeX (contains backslash or has letters)
-      if (/[\\a-zA-Z]/.test(latex) && !/^\d+(\.\d+)?$/.test(latex)) {
+      // Skip if it looks like a price (starts with digits)
+      if (/^[\d,.]/.test(latex)) {
+        return match;
+      }
+      
+      // Must contain letters or backslash for LaTeX
+      if (/[\\a-zA-Z]/.test(latex)) {
         const marker = `§§MATH${counter}§§`;
         map.set(marker, { latex: latex.trim(), display: false });
         counter++;
         return marker;
       }
-      return match; // Keep original if it doesn't look like LaTeX
+      
+      return match;
     });
     
     // Restore code blocks and inline code
