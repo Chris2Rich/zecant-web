@@ -33,7 +33,7 @@ import { usePathname } from "next/navigation"
   
           {/* Main Navigation */}
           <nav className="flex-1 flex flex-col items-center space-y-6 pt-6 border-t border-border">
-            {/* <NavItem icon={HomeIcon} label="Home" link="/app" active={pathname == '/app'}/> */}
+            <NavItem icon={HomeIcon} label="Home" link="/app" active={pathname == '/app'}/>
             <NavItem icon={FileTextIcon} label="News" link="/app/news" active={pathname.startsWith('/app/news')}/>
             <NavItem icon={MessageSquare} label="Chat" link="/app/chat" active={pathname.startsWith('/app/chat')}/> 
             <NavItem icon={BarChart3} label="Strategies" link="/app/strategies" active={pathname.startsWith('/app/strategies')}/>
