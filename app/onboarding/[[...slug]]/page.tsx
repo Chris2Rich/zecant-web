@@ -141,12 +141,6 @@ export default function OnboardingPage() {
                         {tier.credits} Credits
                       </div>
                     </div>
-
-                    {tier.discount && (
-                      <span className="text-muted-foreground text-sm ml-[50%] -translate-x-1/2">
-                        + {tier.discount}% Credit Discount
-                      </span>
-                    )}
                   </div>
                 </motion.div>
               ))}

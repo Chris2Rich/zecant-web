@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Loader2, AlertCircle, Bot, User } from "lucide-react";
+import { Loader2, AlertCircle, Bot, User, ArrowUp } from "lucide-react";
 import MarkdownRender from "@/components/MarkdownRender";
 
 const SENTINEL = "_____";
@@ -275,29 +275,28 @@ export default function ChatPage() {
           </div>
 
           <div ref={messagesEndRef} />
-
-          {/* Error Message */}
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
-            >
-              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-destructive">Error</p>
-                <p className="text-sm text-destructive/80 mt-1">{error}</p>
-              </div>
-            </motion.div>
-          )}
-
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-destructive">Error</p>
+            <p className="text-sm text-destructive/80 mt-1">{error}</p>
+          </div>
+        </motion.div>
+      )}
 
       {/* Input Area */}
       <div>
         <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="relative">
+          <div className="flex items-center">
             <textarea
               ref={textareaRef}
               value={input}
@@ -309,19 +308,19 @@ export default function ChatPage() {
                   : "Connecting..."
               }
               disabled={!isConnected || isStreaming}
-              className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+              className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed mr-2"
               rows={1}
               style={{ minHeight: "3em", maxHeight: "9.375em" }}
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || !isConnected || isStreaming}
-              className="absolute right-2 bottom-2 w-8 h-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+              className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
               {isStreaming ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <ArrowUp className="w-4 h-4" />
               )}
             </button>
           </div>
