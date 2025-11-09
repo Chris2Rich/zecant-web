@@ -1,11 +1,13 @@
 "use client";
 
+import { useSidebarContext } from "@/components/SidebarContext"
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Bot, User, ArrowUp, Settings2 } from "lucide-react";
+import { Loader2, AlertCircle, Bot, User, ArrowUp, MessageSquarePlus, Archive, MessageCircle, Search } from "lucide-react";
 import MarkdownRender from "@/components/MarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
+import { defaultChatOptions } from "@/business/constants";
 
 const SENTINEL = "_____";
 const WS_URL = "wss://api.zecant.com/rawllm";
@@ -22,7 +24,23 @@ interface ErrorMessage {
   data: string;
 }
 
-export default function ChatPage() {
+export default function ChatLayout({ children }: { children: React.ReactNode }) {
+  const { register, unregister } = useSidebarContext()
+
+  useEffect(() => {
+    const regId = register([
+      { icon: MessageSquarePlus, label: "New Chat", fn: () => {console.log("New Chat Created?")} },
+      { icon: Search, label: "Search Chats", fn: () => {console.log("Seach Powers?")} },
+      { icon: Archive, label: "Archived Chats", fn: () => {console.log("Archived Modal")} }
+    ])
+
+    return () => unregister(regId)
+  }, [register, unregister])
+
+  return <ChatPage></ChatPage>
+}
+
+export function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -183,6 +201,13 @@ export default function ChatPage() {
     // TODO: Send enabled tools to your backend/WebSocket
   };
 
+  const handleSuggestedPrompt = (prompt: string) => {
+    setInput(prompt);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Messages Container */}
@@ -206,8 +231,20 @@ export default function ChatPage() {
                 Start a conversation
               </h2>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Ask me anything. I'm here to help with your questions.
+                Ask anything. <b>ZECA</b> is here to help with your questions.
               </p>
+
+              {!input && <div className="max-w-xl w-fit flex flex-col items-center gap-4 mt-16 mx-auto">
+                {defaultChatOptions.map((prompt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSuggestedPrompt(prompt)}
+                    className="hover:cursor-pointer w-full px-4 py-3 border-b border-border/50 hover:border-border/100 hover:text-foreground text-muted-foreground transition-colors"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>}
             </div>
           )}
 
@@ -333,7 +370,7 @@ export default function ChatPage() {
             {isStreaming ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <ArrowUp className="w-4 h-4" />
+                  <ArrowUp className="w-5 h-5" />
                 )}
             </Button>
           </div>

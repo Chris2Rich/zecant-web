@@ -126,10 +126,10 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                       w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
                       ${tool.enabled 
                         ? 'bg-primary/20 text-primary' 
-                        : 'bg-muted text-muted-foreground group-hover:text-primary'
+                        : 'bg-muted text-muted-foreground group-hover:text-foreground'
                       }
                     `}>
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-5 h-5" />
                     </div>
                     
                     <div className="flex-1 text-left min-w-0">

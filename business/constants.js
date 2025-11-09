@@ -88,3 +88,10 @@ export const pricingTiers = [
       credits: 3500,
     },
   };
+
+  export const defaultChatOptions = [
+    "What is the purpose of covariance matrices in portfolio optimisation?",
+    "Model the effect of interest rates on the valuation of the MAG7.",
+    "Analyse the latest price action of recent IPOs and discover the causes.",
+    "What are the factors that could cause US employment to fall?",
+  ]

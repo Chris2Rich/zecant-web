@@ -15,13 +15,41 @@ import Link from "next/link"
 import {CustomUserButton} from '@/components/custom-user-button'
 import {usePathname} from "next/navigation"
 import NavItem from "@/components/navitem"
+import NavFunction from "@/components/navfunction"
 import AgentCard from "@/components/agentcard"
+import { SidebarProvider, useSidebarContext } from "@/components/SidebarContext"
 
-export default function AppLayout({children} : {
+function SidebarInnerStatic() {
+    // This component renders the dynamic area (reads from context)
+    const pathname = usePathname()
+    const { items } = useSidebarContext()
+  
+    return (
+      <div className="flex flex-col items-center space-y-4 pt-4 border-t border-border">
+        {items.length === 0 ? null : items.map((item, i) => (
+          <NavFunction
+            key={item.id ?? `${item.fn}-${i}`}
+            icon={item.icon}
+            label={item.label}
+            fn={item.fn}
+          />
+        ))}
+      </div>
+    )
+  }
+
+export default function AppLayout({children, sidebarItems = []} : {
     children : React.ReactNode
+    sidebarItems?: Array<{
+        icon: any,
+        label: string,
+        link: string,
+        active?: boolean
+      }>
 }) {
     const pathname = usePathname()
     return (
+        <SidebarProvider>
         <div className="flex h-screen bg-background text-foreground overflow-hidden">
             {/* Side Navigation */}
             <aside className="w-16 bg-card border-r border-border flex flex-col items-center py-6 space-y-6">
@@ -60,7 +88,9 @@ export default function AppLayout({children} : {
                         active={
                             pathname.startsWith('/app/strategies')
                         }/>
+                    <SidebarInnerStatic />
                 </nav>
+
 
                 {/* Bottom Actions */}
                 <div className="flex flex-col items-center space-y-4 pt-4 border-t border-border">
@@ -119,5 +149,6 @@ export default function AppLayout({children} : {
                 </div>
             </aside>
         </div>
+        </SidebarProvider>
     )
 }
