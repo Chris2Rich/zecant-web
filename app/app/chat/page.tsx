@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Bot, User, ArrowUp } from "lucide-react";
+import { Loader2, AlertCircle, Bot, User, ArrowUp, Settings2 } from "lucide-react";
 import MarkdownRender from "@/components/MarkdownRender";
+import { Button } from "@/components/ui/button"
+import { ChatToolsButton } from "@/components/chat-tools-button";
 
 const SENTINEL = "_____";
 const WS_URL = "wss://api.zecant.com/rawllm";
@@ -27,6 +29,7 @@ export default function ChatPage() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
+  const [enabledTools, setEnabledTools] = useState<any[]>([]);
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -173,6 +176,13 @@ export default function ChatPage() {
     textarea.style.height = Math.min(textarea.scrollHeight, 200) + "px";
   };
 
+  const handleToolsChange = (tools: any[]) => {
+    const enabled = tools.filter(t => t.enabled);
+    setEnabledTools(enabled);
+    console.log("Enabled tools:", enabled);
+    // TODO: Send enabled tools to your backend/WebSocket
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Messages Container */}
@@ -283,7 +293,7 @@ export default function ChatPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+          className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3 absolute top-1/2 left-1/2 -translate-1/2"
         >
           <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
           <div className="flex-1">
@@ -295,8 +305,9 @@ export default function ChatPage() {
 
       {/* Input Area */}
       <div>
-        <div className="max-w-4xl mx-auto px-6 py-4">
+        <div className="max-w-5xl mx-auto px-6 pt-4">
           <div className="flex items-center">
+          <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
               ref={textareaRef}
               value={input}
@@ -304,25 +315,27 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               placeholder={
                 isConnected
-                  ? "Type a message..."
+                  ? "Ask anything..."
                   : "Connecting..."
               }
               disabled={!isConnected || isStreaming}
-              className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed mr-2"
+              className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed mx-4"
               rows={1}
               style={{ minHeight: "3em", maxHeight: "9.375em" }}
             />
-            <button
+            <Button
+              size="default"
+              variant="outline"
+              className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 hover:scale-105 cursor-pointer relative"
               onClick={sendMessage}
               disabled={!input.trim() || !isConnected || isStreaming}
-              className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
             >
-              {isStreaming ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <ArrowUp className="w-4 h-4" />
-              )}
-            </button>
+            {isStreaming ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowUp className="w-4 h-4" />
+                )}
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center select-none">
             Press Enter to send, Shift + Enter for new line

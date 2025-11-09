@@ -3,17 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, Newspaper } from "lucide-react";
-
-interface ArticleHeader {
-  title: string;
-  description: string;
-  url: string;
-  urlToImage: string;
-  publishedAt: string;
-  source: { name: string };
-  category: Array<string>;
-}
-
+import { ArticleEmphasised, ArticleOverview, ArticleHeader } from "@/components/articles";
 // Example financial news articles
 const mockArticles: ArticleHeader[] = [
   {
@@ -138,18 +128,6 @@ export default function NewsfeedPage() {
     { id: 'developing markets', label: 'Developing Markets' },
   ];
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
-    return date.toLocaleDateString();
-  };
-
   const filteredArticles = category === 'general' 
     ? mockArticles 
     : mockArticles.filter(article => article.category.includes(category));
@@ -188,92 +166,13 @@ export default function NewsfeedPage() {
           <>
             {/* Featured Article - Large */}
             {featuredArticle && (
-              <motion.article
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-12 group cursor-pointer"
-                onClick={() => window.open(featuredArticle.url, '_blank')}
-              >
-                <div className="relative h-96 rounded-2xl overflow-hidden mb-6">
-                  {featuredArticle.urlToImage ? (
-                    <img
-                      src={featuredArticle.urlToImage}
-                      alt={featuredArticle.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <Newspaper className="w-16 h-16 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  
-                  {/* Overlay Content */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8">
-                    <div className="flex items-center gap-2 text-xs text-white/80 mb-3">
-                      <span className="font-semibold">{featuredArticle.source.name}</span>
-                      <span>•</span>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(featuredArticle.publishedAt)}
-                      </div>
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 line-clamp-2">
-                      {featuredArticle.title}
-                    </h1>
-                    <p className="text-white/90 text-base line-clamp-2 max-w-3xl">
-                      {featuredArticle.description}
-                    </p>
-                  </div>
-                </div>
-              </motion.article>
+              <ArticleEmphasised article={featuredArticle} />
             )}
 
             {/* Grid Articles - Smaller */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {gridArticles.map((article, index) => (
-                <motion.article
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="group cursor-pointer"
-                  onClick={() => window.open(article.url, '_blank')}
-                >
-                  <div className="relative h-48 rounded-xl overflow-hidden mb-3">
-                    {article.urlToImage ? (
-                      <img
-                        src={article.urlToImage}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center">
-                        <Newspaper className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                    <span className="font-semibold text-foreground">{article.source.name}</span>
-                    <span>•</span>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {formatDate(article.publishedAt)}
-                    </div>
-                  </div>
-                  
-                  <h2 className="text-lg font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                    {article.title}
-                  </h2>
-                  
-                  <p className="text-muted-foreground text-sm line-clamp-2">
-                    {article.description}
-                  </p>
-                </motion.article>
+                <ArticleOverview article={article} index={index} key={index} />
               ))}
             </div>
           </>
