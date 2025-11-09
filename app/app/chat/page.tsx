@@ -211,7 +211,7 @@ export function ChatPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
         <div className="w-full mx-auto px-6 py-8">
           {/* Connection Status */}
           {!isConnected && (
