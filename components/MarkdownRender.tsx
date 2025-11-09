@@ -37,14 +37,31 @@ function KatexMath({ latex, display }: { latex: string; display: boolean }) {
 }
 
 export default function MarkdownRender({ message }: MarkdownRenderProps) {
-  // Step 1: Extract all LaTeX and replace with unique Unicode markers
-  // Using zero-width characters that markdown won't touch
+  // Step 1: Extract code blocks and inline code, then LaTeX, replacing with unique markers
   const { processedText, mathMap } = useMemo(() => {
     let text = message;
     const map = new Map<string, { latex: string; display: boolean }>();
-    
-    // Use a simple counter-based marker system
+    const codeMap = new Map<string, string>();
     let counter = 0;
+    let codeCounter = 0;
+    
+    // First, protect code blocks (``` ... ```)
+    text = text.replace(/```[\s\S]*?```/g, (match) => {
+      const marker = `§§CODE${codeCounter}§§`;
+      codeMap.set(marker, match);
+      codeCounter++;
+      return marker;
+    });
+    
+    // Protect inline code (` ... `)
+    text = text.replace(/`[^`]+?`/g, (match) => {
+      const marker = `§§CODE${codeCounter}§§`;
+      codeMap.set(marker, match);
+      codeCounter++;
+      return marker;
+    });
+    
+    // Now process LaTeX (code blocks are protected)
     
     // Display math: $$...$$
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, latex) => {
@@ -70,12 +87,22 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
       return marker;
     });
     
-    // Inline math: $...$
-    text = text.replace(/\$([^$\n]+?)\$/g, (_, latex) => {
-      const marker = `§§MATH${counter}§§`;
-      map.set(marker, { latex: latex.trim(), display: false });
-      counter++;
-      return marker;
+    // Inline math: $...$ with stricter rules to avoid false positives
+    // Must contain at least one backslash OR letter, and no spaces at boundaries
+    text = text.replace(/\$([^\s$][^$\n]*?[^\s$])\$/g, (match, latex) => {
+      // Check if it looks like LaTeX (contains backslash or has letters)
+      if (/[\\a-zA-Z]/.test(latex) && !/^\d+(\.\d+)?$/.test(latex)) {
+        const marker = `§§MATH${counter}§§`;
+        map.set(marker, { latex: latex.trim(), display: false });
+        counter++;
+        return marker;
+      }
+      return match; // Keep original if it doesn't look like LaTeX
+    });
+    
+    // Restore code blocks and inline code
+    text = text.replace(/§§CODE\d+§§/g, (marker) => {
+      return codeMap.get(marker) || marker;
     });
     
     return { processedText: text, mathMap: map };
