@@ -107,6 +107,11 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-nav border-b border-border">
+      <div className="w-full bg-red-700 text-foreground text-center text-bold text-xs">
+        <p>
+          DO NOT BUY ANYTHING HERE. THIS SITE AND SERVICE ARE IN DEVELOPMENT!
+        </p>
+      </div>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href={!isSignedIn ? "/" : "/app"}>
           <div className="flex items-center space-x-2 cursor-pointer">

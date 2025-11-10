@@ -24,11 +24,6 @@ export default async function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`dark scroll-smooth scrollbar-thin ${pathname?.startsWith("/app") ? "overflow-hidden" : ""}`}>
         <body className={`antialiased select-none`}>
-          <div className="w-full bg-red-700 text-primary-foreground text-center text-bold text-sm">
-            <p>
-              DO NOT BUY ANYTHING HERE. THIS SITE AND SERVICE ARE IN DEVELOPMENT!
-            </p>
-          </div>
           <Suspense fallback={null}> 
               {children}
           </Suspense>

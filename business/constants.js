@@ -65,7 +65,7 @@ export const pricingTiers = [
         "Custom integrations",
         "SLA guarantee",
       ],
-      cta: "Contact Sales",
+      cta: "Get Started",
       highlighted: false,
     },
   ]

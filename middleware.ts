@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
 const isAppRoute = createRouteMatcher(['/app(.*)']);
 const isAuthRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
 const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)']);
+const isApiRoute = createRouteMatcher(['/api/(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
@@ -29,7 +30,7 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // 3. Redirect authenticated but not onboarded users to onboarding (except if already there)
-  if (userId && !onboarded && !isOnboardingRoute(req)) {
+  if (userId && !onboarded && !isOnboardingRoute(req) && !isApiRoute) {
     return NextResponse.redirect(new URL('/onboarding', req.url));
   }
 
