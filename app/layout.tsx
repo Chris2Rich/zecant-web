@@ -5,7 +5,6 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
-import { AuthRedirect } from "@/components/auth-redirect"
 import { headers } from "next/headers";
 
 export const metadata: Metadata = {
@@ -31,9 +30,7 @@ export default async function RootLayout({
             </p>
           </div>
           <Suspense fallback={null}> 
-            <AuthRedirect>
               {children}
-            </AuthRedirect>     
           </Suspense>
           <Analytics />
         </body>

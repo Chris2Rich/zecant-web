@@ -8,22 +8,47 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
 ]);
 
+const isAppRoute = createRouteMatcher(['/app(.*)']);
+const isAuthRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
+const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)']);
+
 export default clerkMiddleware(async (auth, req) => {
+  const { userId, sessionClaims } = await auth();
+  const url = req.nextUrl.clone();
+
+  const onboarded = sessionClaims?.publicMetadata?.onboarded === true;
+
+  // 1. Redirect unauthenticated users from /app routes to sign-up
+  if (!userId && isAppRoute(req)) {
+    return NextResponse.redirect(new URL('/sign-up', req.url));
+  }
+
+  // 2. Redirect authenticated+onboarded users away from auth pages to /app
+  if (userId && onboarded && isAuthRoute(req)) {
+    return NextResponse.redirect(new URL('/app', req.url));
+  }
+
+  // 3. Redirect authenticated but not onboarded users to onboarding (except if already there)
+  if (userId && !onboarded && !isOnboardingRoute(req)) {
+    return NextResponse.redirect(new URL('/onboarding', req.url));
+  }
+
+  // 4. Redirect onboarded users away from onboarding to /app
+  if (userId && onboarded && isOnboardingRoute(req)) {
+    return NextResponse.redirect(new URL('/app', req.url));
+  }
+
+  // Protect non-public routes
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
 
-  const url = req.nextUrl.clone()
+  // Create response with headers
+  const res = NextResponse.next();
+  res.headers.set("x-url", url.toString());
+  res.headers.set("x-pathname", url.pathname);
 
-  // Create a response
-  const res = NextResponse.next()
-
-  // Add the full URL (or just pathname) as a header
-  res.headers.set("x-url", url.toString())
-  res.headers.set("x-pathname", url.pathname)
-
-  return res
-
+  return res;
 });
 
 export const config = {
