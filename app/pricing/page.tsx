@@ -102,7 +102,8 @@ export function PricingCards() {
             </ul>
 
             {/* CTA  */}
-            {isSignedIn ? <Link href={'/sign-up'}>
+            {!isSignedIn ?
+            <Link href={'/sign-up'}>
               <Button
                 className={`
               w-full mt-auto py-3 px-6 rounded-lg font-semibold
