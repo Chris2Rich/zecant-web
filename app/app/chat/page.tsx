@@ -51,10 +51,58 @@ export function ChatPage() {
 
   const wsRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // Use ref to track streaming message to avoid stale closure
+  // Track streaming message
   const streamingMessageRef = useRef("");
+  
+  // Track if user has manually scrolled up
+  const userHasScrolledRef = useRef(false);
+  const shouldAutoScrollRef = useRef(true);
+
+  // Function to check if user is near bottom
+  const isNearBottom = () => {
+    if (!messagesContainerRef.current) return false;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    const threshold = 800; // pixels from bottom
+    
+    return scrollHeight - scrollTop - clientHeight < threshold;
+  };
+
+  // Function to scroll to bottom
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: smooth ? 'smooth' : 'auto',
+      block: 'end'
+    });
+  };
+
+  // Handle scroll events to detect manual scrolling
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      // If streaming, check if user scrolled away from bottom
+      if (isStreaming) {
+        const nearBottom = isNearBottom();
+        userHasScrolledRef.current = !nearBottom;
+        shouldAutoScrollRef.current = nearBottom;
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [isStreaming]);
+
+  // Auto-scroll when messages change or streaming updates
+  useEffect(() => {
+    if (shouldAutoScrollRef.current) {
+      scrollToBottom();
+    }
+  }, [messages, currentStreamingMessage]);
 
   // Connect to WebSocket
   useEffect(() => {
@@ -71,7 +119,6 @@ export function ChatPage() {
         ws.onmessage = (event) => {
           const data = event.data;
 
-          // Handle sentinel messages
           if (data.startsWith(SENTINEL)) {
             const command = data.substring(SENTINEL.length);
 
@@ -80,9 +127,11 @@ export function ChatPage() {
               setIsStreaming(true);
               streamingMessageRef.current = "";
               setCurrentStreamingMessage("");
+              // Reset scroll tracking when stream starts
+              shouldAutoScrollRef.current = true;
+              userHasScrolledRef.current = false;
             } else if (command === "end") {
               console.log("Stream ended, message:", streamingMessageRef.current);
-              // Save the complete message using ref (not state)
               const finalMessage = streamingMessageRef.current;
               if (finalMessage) {
                 setMessages((prev) => [
@@ -93,11 +142,13 @@ export function ChatPage() {
                     timestamp: Date.now(),
                   },
                 ]);
-                console.log(messages)
               }
               streamingMessageRef.current = "";
               setCurrentStreamingMessage("");
               setIsStreaming(false);
+              // Reset scroll tracking after stream ends
+              shouldAutoScrollRef.current = true;
+              userHasScrolledRef.current = false;
             } else if (command.startsWith("err")) {
               console.error("Error received:", command);
               try {
@@ -126,7 +177,6 @@ export function ChatPage() {
           console.log("WebSocket disconnected");
           setIsConnected(false);
           setIsStreaming(false);
-          // Attempt to reconnect after 3 seconds
           setTimeout(connectWebSocket, 3000);
         };
 
@@ -165,6 +215,10 @@ export function ChatPage() {
 
     setMessages((prev) => [...prev, userMessage]);
     
+    // Enable auto-scroll for new user message
+    shouldAutoScrollRef.current = true;
+    userHasScrolledRef.current = false;
+    
     // Send to WebSocket
     wsRef.current.send(input.trim());
     
@@ -198,7 +252,6 @@ export function ChatPage() {
     const enabled = tools.filter(t => t.enabled);
     setEnabledTools(enabled);
     console.log("Enabled tools:", enabled);
-    // TODO: Send enabled tools to your backend/WebSocket
   };
 
   const handleSuggestedPrompt = (prompt: string) => {
@@ -211,7 +264,10 @@ export function ChatPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div 
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto scrollbar-thin"
+      >
         <div className="w-full mx-auto px-6 py-8">
           {/* Connection Status */}
           {!isConnected && (
@@ -312,7 +368,7 @@ export function ChatPage() {
                       </span>
                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
                     </div>
-                    <div className="prose prose-sm max-w-none text-foreground animate-pulse">
+                    <div className="prose prose-sm max-w-none text-foreground">
                         <MarkdownRender message={currentStreamingMessage}/>
                     </div>
                   </div>
@@ -330,7 +386,7 @@ export function ChatPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3 relative top-1/2 left-1/2 -translate-1/2"
+          className="mx-6 mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
         >
           <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
           <div className="flex-1">

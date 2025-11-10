@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import Markdown from 'markdown-to-jsx';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 type MarkdownRenderProps = {
   message: string;
@@ -17,6 +19,7 @@ function KatexMath({ latex, display }: { latex: string; display: boolean }) {
         throwOnError: false,
         errorColor: '#C00',
         strict: false,
+        trust: true,
       });
     } catch (e) {
       const escaped = display ? `$$${latex}$$` : `$${latex}$`;
@@ -37,10 +40,30 @@ function KatexMath({ latex, display }: { latex: string; display: boolean }) {
   );
 }
 
+function CodeBlock({ className, children }: { className?: string; children: string }) {
+  // Extract language from className (e.g., "lang-javascript" -> "javascript")
+  const language = className?.replace('lang-', '') || 'text';
+  
+  return (
+    <SyntaxHighlighter
+      language={language}
+      style={nord}
+      customStyle={{
+        margin: '1rem 0',
+        borderRadius: '0.5rem',
+        fontSize: '0.875rem',
+      }}
+      showLineNumbers={false}
+    >
+      {children}
+    </SyntaxHighlighter>
+  );
+}
+
 export default function MarkdownRender({ message }: MarkdownRenderProps) {
   // Step 1: Extract code blocks and inline code, then LaTeX, replacing with unique markers
   const { processedText, mathMap } = useMemo(() => {
-    let text = message;
+    let text = message.normalize("NFKD");
     const map = new Map<string, { latex: string; display: boolean }>();
     const codeMap = new Map<string, string>();
     let counter = 0;
@@ -199,18 +222,31 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
         overrides: {
           br: { component: () => <br /> },
           code: {
-            component: ({ children, ...props }) => (
-              <code {...props} className="bg-muted rounded px-1 py-0.5 text-sm">
-                {children}
-              </code>
-            )
+            component: ({ className, children, ...props }) => {
+              // Check if it's a code block (has language class) or inline code
+              const isCodeBlock = className?.startsWith('lang-');
+              
+              if (isCodeBlock) {
+                return (
+                  <CodeBlock className={className}>
+                    {String(children)}
+                  </CodeBlock>
+                );
+              }
+              
+              // Inline code
+              return (
+                <code {...props} className="bg-muted rounded px-1 py-0.5 text-sm font-mono">
+                  {children}
+                </code>
+              );
+            }
           },
           pre: {
-            component: ({ children, ...props }) => (
-              <pre {...props} className="bg-muted p-3 rounded-lg overflow-x-auto text-sm whitespace-pre-wrap">
-                {children}
-              </pre>
-            )
+            component: ({ children }) => {
+              // Let CodeBlock handle the styling
+              return <>{children}</>;
+            }
           },
           table: {
             component: ({ children, ...props }) => (
