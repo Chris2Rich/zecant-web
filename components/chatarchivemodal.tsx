@@ -99,7 +99,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="relative bg-background border border-border rounded-2xl shadow-2xl w-full mx-12 max-h-[90vh] flex flex-col"
+          className="relative bg-background border border-border rounded-2xl shadow-2xl w-full mx-12 flex flex-col"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
