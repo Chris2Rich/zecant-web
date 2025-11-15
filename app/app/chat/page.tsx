@@ -1,5 +1,6 @@
 "use client";
 
+import { ChatArchiveModal } from "@/components/chatarchivemodal";
 import { useSidebarContext } from "@/components/SidebarContext"
 import { useUser, useAuth  } from "@clerk/nextjs";
 import { useState, useRef, useEffect } from "react";
@@ -28,9 +29,11 @@ interface SSEMessage {
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const { register, unregister } = useSidebarContext()
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false);
 
   // Create a ref to store the new chat handler
   const newChatHandlerRef = useRef<(() => void) | null>(null);
+  const loadChatHandlerRef = useRef<((chatId: string) => void) | null>(null);
 
   const handleNewChat = () => {
     if (newChatHandlerRef.current) {
@@ -38,20 +41,42 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     }
   };
 
+  const handleLoadChat = (chatId: string) => {
+    if (loadChatHandlerRef.current) {
+      loadChatHandlerRef.current(chatId);
+    }
+  };
+
   useEffect(() => {
     const regId = register([
       { icon: MessageSquarePlus, label: "New Chat", fn: handleNewChat },
       { icon: Search, label: "Search Chats", fn: () => {console.log("Search Powers?")} },
-      { icon: Archive, label: "Archived Chats", fn: () => {console.log("Archived Modal")} }
+      { icon: Archive, label: "Archived Chats", fn: () => setIsArchiveOpen(true) }
     ])
 
     return () => unregister(regId)
   }, [register, unregister])
 
-  return <ChatPage newChatHandlerRef={newChatHandlerRef} />
+  return     <>
+  <ChatPage 
+    newChatHandlerRef={newChatHandlerRef}
+    loadChatHandlerRef={loadChatHandlerRef}
+  />
+  <ChatArchiveModal 
+    isOpen={isArchiveOpen}
+    onClose={() => setIsArchiveOpen(false)}
+    onSelectChat={handleLoadChat}
+  />
+</>
 }
 
-export function ChatPage({ newChatHandlerRef }: { newChatHandlerRef: React.MutableRefObject<(() => void) | null> }) {
+export function ChatPage({ 
+  newChatHandlerRef,
+  loadChatHandlerRef 
+}: { 
+  newChatHandlerRef: React.MutableRefObject<(() => void) | null>,
+  loadChatHandlerRef: React.MutableRefObject<((chatId: string) => void) | null>
+}) {
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -85,8 +110,41 @@ export function ChatPage({ newChatHandlerRef }: { newChatHandlerRef: React.Mutab
     textareaRef.current?.focus();
   };
 
+  const handleLoadChat = async (chatId: string) => {
+    const token = await getAuthToken();
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${API_URL}/lm/gethistory?chatid=${chatId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to load chat");
+
+      const data = await response.json();
+      
+      // Convert database messages to UI format
+      const loadedMessages: Message[] = data.messages
+        .filter((msg: any) => msg.role === "user" || msg.role === "assistant")
+        .map((msg: any) => ({
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp).getTime(),
+        }));
+
+      setMessages(loadedMessages);
+      setCurrentChatId(chatId);
+      setError(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to load chat");
+    }
+  };
+
   useEffect(() => {
     newChatHandlerRef.current = handleNewChat;
+    loadChatHandlerRef.current = handleLoadChat;
   }, []);
 
   // Function to check if user is near bottom
