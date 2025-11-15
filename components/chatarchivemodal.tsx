@@ -109,7 +109,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
   // Filter chats based on search (dummy for now - just filters by title)
   const filteredChats = chats.filter(chat => {
     if (!searchQuery) return true;
-    return chat.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    return chat.title?.toLowerCase().includes(searchQuery.toLowerCase()) || chat.chat_id.toLowerCase().includes(searchQuery.toLowerCase())
   });
 
   if (!isOpen) return null;
