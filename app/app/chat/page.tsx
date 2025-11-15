@@ -1,16 +1,16 @@
 "use client";
 
 import { useSidebarContext } from "@/components/SidebarContext"
+import { useUser, useAuth  } from "@clerk/nextjs";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Bot, User, ArrowUp, MessageSquarePlus, Archive, MessageCircle, Search } from "lucide-react";
+import { Loader2, AlertCircle, Bot, User, ArrowUp, MessageSquarePlus, Archive, Search } from "lucide-react";
 import MarkdownRender from "@/components/MarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { defaultChatOptions } from "@/business/constants";
 
-const SENTINEL = "_____";
-const WS_URL = "wss://api.zecant.com/rawllm";
+const API_URL = "https://api.zecant.com";
 
 interface Message {
   role: "user" | "assistant";
@@ -18,10 +18,12 @@ interface Message {
   timestamp: number;
 }
 
-interface ErrorMessage {
-  type: "error";
-  code: string;
-  data: string;
+interface SSEMessage {
+  type: "metadata" | "token" | "done" | "error" | "tool_call";
+  content?: string;
+  chatid?: string;
+  message_id?: string;
+  error?: string;
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -41,15 +43,17 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 }
 
 export function ChatPage() {
+  const { user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
   const [enabledTools, setEnabledTools] = useState<any[]>([]);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
-  const wsRef = useRef<WebSocket | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -104,105 +108,24 @@ export function ChatPage() {
     }
   }, [messages, currentStreamingMessage]);
 
-  // Connect to WebSocket
-  useEffect(() => {
-    const connectWebSocket = () => {
-      try {
-        const ws = new WebSocket(WS_URL);
-        
-        ws.onopen = () => {
-          console.log("WebSocket connected");
-          setIsConnected(true);
-          setError(null);
-        };
+  const getAuthToken = async (): Promise<string | null> => {
+    try {
+      const token = await getToken();
+      return token;
+    } catch (err) {
+      console.error("Failed to get auth token:", err);
+      return null;
+    }
+  };
 
-        ws.onmessage = (event) => {
-          const data = event.data;
-
-          if (data.startsWith(SENTINEL)) {
-            const command = data.substring(SENTINEL.length);
-
-            if (command === "start") {
-              console.log("Stream started");
-              setIsStreaming(true);
-              streamingMessageRef.current = "";
-              setCurrentStreamingMessage("");
-              // Reset scroll tracking when stream starts
-              shouldAutoScrollRef.current = true;
-              userHasScrolledRef.current = false;
-            } else if (command === "end") {
-              console.log("Stream ended, message:", streamingMessageRef.current);
-              const finalMessage = streamingMessageRef.current;
-              if (finalMessage) {
-                setMessages((prev) => [
-                  ...prev,
-                  {
-                    role: "assistant",
-                    content: finalMessage,
-                    timestamp: Date.now(),
-                  },
-                ]);
-              }
-              streamingMessageRef.current = "";
-              setCurrentStreamingMessage("");
-              setIsStreaming(false);
-              // Reset scroll tracking after stream ends
-              shouldAutoScrollRef.current = true;
-              userHasScrolledRef.current = false;
-            } else if (command.startsWith("err")) {
-              console.error("Error received:", command);
-              try {
-                const errorData: ErrorMessage = JSON.parse(command.substring(3));
-                setError(errorData.data);
-              } catch (e) {
-                setError("An error occurred");
-              }
-              setIsStreaming(false);
-              streamingMessageRef.current = "";
-              setCurrentStreamingMessage("");
-            }
-          } else {
-            // Streaming token - update both ref and state
-            streamingMessageRef.current += data;
-            setCurrentStreamingMessage((prev) => prev + data);
-          }
-        };
-
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-          setError("Connection error. Please try again.");
-        };
-
-        ws.onclose = () => {
-          console.log("WebSocket disconnected");
-          setIsConnected(false);
-          setIsStreaming(false);
-          setTimeout(connectWebSocket, 3000);
-        };
-
-        wsRef.current = ws;
-      } catch (err) {
-        console.error("Failed to connect:", err);
-        setError("Failed to connect to server");
-      }
-    };
-
-    connectWebSocket();
-
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
-  }, []);
-
-  const sendMessage = () => {
-    if (!input.trim() || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+  const sendMessage = async () => {
+    if (!input.trim() || isStreaming || !isLoaded || !user) {
       return;
     }
 
-    if (isStreaming) {
-      setError("Please wait for the current response to complete");
+    const token = await getAuthToken();
+    if (!token) {
+      setError("Authentication failed. Please try logging in again.");
       return;
     }
 
@@ -219,16 +142,119 @@ export function ChatPage() {
     shouldAutoScrollRef.current = true;
     userHasScrolledRef.current = false;
     
-    // Send to WebSocket
-    wsRef.current.send(input.trim());
-    
     // Clear input
+    const messageToSend = input.trim();
     setInput("");
     setError(null);
 
     // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
+    }
+
+    // Start streaming
+    setIsStreaming(true);
+    streamingMessageRef.current = "";
+    setCurrentStreamingMessage("");
+
+    // Create abort controller for this request
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const response = await fetch(`${API_URL}/lm/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: messageToSend,
+          tools: enabledTools.map(t => t.name || t.id),
+          chatid: currentChatId,
+        }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error("No response body");
+      }
+
+      // Process SSE stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6); // Remove 'data: ' prefix
+            
+            try {
+              const parsed: SSEMessage = JSON.parse(data);
+
+              if (parsed.type === "metadata") {
+                // Store chat ID from metadata
+                if (parsed.chatid) {
+                  setCurrentChatId(parsed.chatid);
+                }
+              } else if (parsed.type === "token") {
+                // Accumulate tokens
+                streamingMessageRef.current += parsed.content || "";
+                setCurrentStreamingMessage(prev => prev + (parsed.content || ""));
+              } else if (parsed.type === "done") {
+                // Streaming complete - add assistant message
+                const finalMessage = streamingMessageRef.current;
+                if (finalMessage) {
+                  setMessages((prev) => [
+                    ...prev,
+                    {
+                      role: "assistant",
+                      content: finalMessage,
+                      timestamp: Date.now(),
+                    },
+                  ]);
+                }
+                streamingMessageRef.current = "";
+                setCurrentStreamingMessage("");
+                setIsStreaming(false);
+                shouldAutoScrollRef.current = true;
+                userHasScrolledRef.current = false;
+              } else if (parsed.type === "error") {
+                setError(parsed.error || "An error occurred");
+                streamingMessageRef.current = "";
+                setCurrentStreamingMessage("");
+                setIsStreaming(false);
+              } else if (parsed.type === "tool_call") {
+                // Future: Handle tool calls in UI
+                console.log("Tool call:", parsed);
+              }
+            } catch (parseErr) {
+              console.error("Failed to parse SSE message:", parseErr, data);
+            }
+          }
+        }
+      }
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.log("Request aborted");
+      } else {
+        console.error("Stream error:", err);
+        setError(err.message || "Failed to send message");
+      }
+      streamingMessageRef.current = "";
+      setCurrentStreamingMessage("");
+      setIsStreaming(false);
     }
   };
 
@@ -258,8 +284,18 @@ export function ChatPage() {
     setInput(prompt);
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
+      textareaRef.current.focus();
     }
   };
+
+  // Show loading state while Clerk loads
+  if (!isLoaded) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -269,14 +305,6 @@ export function ChatPage() {
         className="flex-1 overflow-y-auto scrollbar-thin"
       >
         <div className="w-full mx-auto px-6 py-8">
-          {/* Connection Status */}
-          {!isConnected && (
-            <div className="mb-6 p-4 rounded-xl bg-muted/50 border border-border flex items-center gap-3">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Connecting to server...</span>
-            </div>
-          )}
-
           {/* Welcome Message */}
           {messages.length === 0 && !currentStreamingMessage && (
             <div className="text-center py-16">
@@ -364,7 +392,7 @@ export function ChatPage() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-foreground">
-                        Assistant
+                        ZECA
                       </span>
                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
                     </div>
@@ -400,18 +428,14 @@ export function ChatPage() {
       <div>
         <div className="max-w-5xl mx-auto px-6 pt-4">
           <div className="flex items-center">
-          <ChatToolsButton onToolsChange={handleToolsChange} />
+            <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
               ref={textareaRef}
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder={
-                isConnected
-                  ? "Ask anything..."
-                  : "Connecting..."
-              }
-              disabled={!isConnected || isStreaming}
+              placeholder="Ask anything..."
+              disabled={isStreaming}
               className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed mx-4"
               rows={1}
               style={{ minHeight: "3em", maxHeight: "9.375em" }}
@@ -421,13 +445,13 @@ export function ChatPage() {
               variant="outline"
               className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 hover:scale-105 cursor-pointer relative"
               onClick={sendMessage}
-              disabled={!input.trim() || !isConnected || isStreaming}
+              disabled={!input.trim() || isStreaming}
             >
-            {isStreaming ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <ArrowUp className="w-5 h-5" />
-                )}
+              {isStreaming ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <ArrowUp className="w-5 h-5" />
+              )}
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center select-none">
