@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, MessageSquare, Calendar, Loader2 } from "lucide-react";
+import { X, Search, MessageSquare, Calendar, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@clerk/nextjs";
 import { formatDate } from "@/business/utils";
@@ -163,7 +163,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredChats.map((chat) => (
                   <motion.button
                     key={chat.chat_id}
