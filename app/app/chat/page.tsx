@@ -29,20 +29,29 @@ interface SSEMessage {
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const { register, unregister } = useSidebarContext()
 
+  // Create a ref to store the new chat handler
+  const newChatHandlerRef = useRef<(() => void) | null>(null);
+
+  const handleNewChat = () => {
+    if (newChatHandlerRef.current) {
+      newChatHandlerRef.current();
+    }
+  };
+
   useEffect(() => {
     const regId = register([
-      { icon: MessageSquarePlus, label: "New Chat", fn: () => {console.log("New Chat Created?")} },
-      { icon: Search, label: "Search Chats", fn: () => {console.log("Seach Powers?")} },
+      { icon: MessageSquarePlus, label: "New Chat", fn: handleNewChat },
+      { icon: Search, label: "Search Chats", fn: () => {console.log("Search Powers?")} },
       { icon: Archive, label: "Archived Chats", fn: () => {console.log("Archived Modal")} }
     ])
 
     return () => unregister(regId)
   }, [register, unregister])
 
-  return <ChatPage></ChatPage>
+  return <ChatPage newChatHandlerRef={newChatHandlerRef} />
 }
 
-export function ChatPage() {
+export function ChatPage({ newChatHandlerRef }: { newChatHandlerRef: React.MutableRefObject<(() => void) | null> }) {
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -64,6 +73,21 @@ export function ChatPage() {
   // Track if user has manually scrolled up
   const userHasScrolledRef = useRef(false);
   const shouldAutoScrollRef = useRef(true);
+
+  const handleNewChat = () => {
+    setCurrentChatId(null);
+    setMessages([]);
+    setCurrentStreamingMessage("");
+    streamingMessageRef.current = "";
+    setIsStreaming(false);
+    setError(null);
+    setInput("");
+    textareaRef.current?.focus();
+  };
+
+  useEffect(() => {
+    newChatHandlerRef.current = handleNewChat;
+  }, []);
 
   // Function to check if user is near bottom
   const isNearBottom = () => {
