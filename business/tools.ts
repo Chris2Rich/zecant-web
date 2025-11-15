@@ -25,7 +25,7 @@ export const lmtools: Tool[] = [
     enabled: false
     },
     {
-    id: "stockgraph",
+    id: "stock_chart",
     name: "Market Info",
     description: "Interactive embedded financial diagrams",
     icon: ChartCandlestick,

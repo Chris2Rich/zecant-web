@@ -250,7 +250,7 @@ export function ChatPage({
         },
         body: JSON.stringify({
           message: messageToSend,
-          tools: enabledTools.map(t => t.name || t.id),
+          tools: enabledTools.map(t => t.id),
           chatid: currentChatId,
         }),
         signal: abortControllerRef.current.signal,

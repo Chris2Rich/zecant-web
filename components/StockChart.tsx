@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Loader2, TrendingUp, TrendingDown } from "lucide-react";
 import {
@@ -48,6 +48,7 @@ export function StockChart({ ticker, days = 30 }: StockChartProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hoveredData, setHoveredData] = useState<CandleData | null>(null);
+  const hoverRef = useRef<CandleData | null>(null);
 
   useEffect(() => {
     fetchStockData();
@@ -161,12 +162,21 @@ export function StockChart({ ticker, days = 30 }: StockChartProps) {
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload[0]) {
-      const data = payload[0].payload;
-      setHoveredData(data);
+      hoverRef.current = payload[0].payload;
       return null; // We show data in header instead
     }
     return null;
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (hoverRef.current !== hoveredData) {
+        setHoveredData(hoverRef.current);
+      }
+    }, 16); // 60fps check
+  
+    return () => clearInterval(interval);
+  }, [hoveredData]);
 
   const displayPrice = hoveredData || (data.length > 0 ? data[data.length - 1] : null);
   const isPositive = stockInfo ? stockInfo.change >= 0 : true;

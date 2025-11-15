@@ -59,6 +59,24 @@ function CodeBlock({ className, children }: { className?: string; children: stri
   );
 }
 
+const BLOCK_ELEMENTS = new Set([
+  'address', 'article', 'aside', 'blockquote', 'canvas', 'dd', 'div',
+  'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
+  'h1','h2','h3','h4','h5','h6','header','hr','li','main','nav',
+  'noscript','ol','p','pre','section','table','tfoot','ul','video'
+]);
+
+// Helper to check if a React child is a block element
+function isBlockElement(child: React.ReactNode): boolean {
+  if (!React.isValidElement(child)) return false;
+  const type = child.type;
+  if (typeof type === 'string') {
+    return BLOCK_ELEMENTS.has(type.toLowerCase());
+  }
+  // For custom React components, assume they render a block-level element
+  return true;
+}
+
 export default function MarkdownRender({ message }: MarkdownRenderProps) {
   // Step 1: Extract component blocks, code blocks, inline code, then LaTeX
   const { processedText, mathMap, componentMap } = useMemo(() => {
@@ -84,7 +102,7 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
       }
       
       componentCounter++;
-      return marker;
+      return `\n\n${marker}\n\n`;
     });
     
     // Protect code blocks (``` ... ```)
@@ -293,12 +311,23 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
               </td>
             )
           },
-          p: { 
-            component: ({ children, ...props }) => (
-              <p {...props} className="leading-relaxed whitespace-pre-wrap">
-                {children}
-              </p>
-            )
+          p: {
+            component: ({ children, ...props }) => {
+              const hasBlockChild = React.Children.toArray(children).some(
+                (child) =>
+                  React.isValidElement(child) && React.Children.toArray(children).some(isBlockElement)
+              );
+          
+              if (hasBlockChild) {
+                return <>{children}</>;
+              }
+          
+              return (
+                <div {...props} className="leading-relaxed whitespace-pre-wrap">
+                  {children}
+                </div>
+              );
+            },
           },
           h1: { 
             component: ({ children, ...props }) => (
