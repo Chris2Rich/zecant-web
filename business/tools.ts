@@ -4,7 +4,8 @@ import {
     BarChart3,
     Calculator,
     FileText,
-    FilePlus
+    FilePlus,
+    ChartCandlestick
   } from "lucide-react"
 
 export interface Tool {
@@ -22,6 +23,13 @@ export const lmtools: Tool[] = [
     description: "Search verified sources for information",
     icon: Search,
     enabled: false
+    },
+    {
+    id: "stockgraph",
+    name: "Market Info",
+    description: "Interactive embedded financial diagrams",
+    icon: ChartCandlestick,
+    enabled: true
     },
     {
     id: "graph",

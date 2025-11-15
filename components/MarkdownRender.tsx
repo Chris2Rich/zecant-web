@@ -11,7 +11,6 @@ type MarkdownRenderProps = {
 };
 
 // Direct KaTeX renderer component
-// Pre-render KaTeX to HTML string during useMemo
 function KatexMath({ latex, display }: { latex: string; display: boolean }) {
   const html = useMemo(() => {
     try {
@@ -42,7 +41,6 @@ function KatexMath({ latex, display }: { latex: string; display: boolean }) {
 }
 
 function CodeBlock({ className, children }: { className?: string; children: string }) {
-  // Extract language from className (e.g., "lang-javascript" -> "javascript")
   const language = className?.replace('lang-', '') || 'text';
   
   return (
@@ -62,18 +60,37 @@ function CodeBlock({ className, children }: { className?: string; children: stri
 }
 
 export default function MarkdownRender({ message }: MarkdownRenderProps) {
-  // Step 1: Extract code blocks and inline code, then LaTeX, replacing with unique markers
-  const { processedText, mathMap } = useMemo(() => {
+  // Step 1: Extract component blocks, code blocks, inline code, then LaTeX
+  const { processedText, mathMap, componentMap } = useMemo(() => {
     let text = message.normalize("NFKD");
-    const map = new Map<string, { latex: string; display: boolean }>();
-    const codeMap = new Map<string, string>();
-    let counter = 0;
+    const mathMapLocal = new Map<string, { latex: string; display: boolean }>();
+    const codeMapLocal = new Map<string, string>();
+    const componentMapLocal = new Map<string, { type: string; params: any }>();
+    let mathCounter = 0;
     let codeCounter = 0;
+    let componentCounter = 0;
     
-    // First, protect code blocks (``` ... ```)
+    // First, extract component blocks (:::function ... :::)
+    text = text.replace(/:::(\w+)\n([\s\S]*?):::/g, (match, functionName, params) => {
+      const marker = `§§COMPONENT${componentCounter}§§`;
+      
+      try {
+        // Try to parse params as JSON
+        const parsedParams = JSON.parse(params.trim());
+        componentMapLocal.set(marker, { type: functionName, params: parsedParams });
+      } catch (e) {
+        // If not JSON, treat as plain text
+        componentMapLocal.set(marker, { type: functionName, params: { text: params.trim() } });
+      }
+      
+      componentCounter++;
+      return marker;
+    });
+    
+    // Protect code blocks (``` ... ```)
     text = text.replace(/```[\s\S]*?```/g, (match) => {
       const marker = `§§CODE${codeCounter}§§`;
-      codeMap.set(marker, match);
+      codeMapLocal.set(marker, match);
       codeCounter++;
       return marker;
     });
@@ -81,83 +98,59 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
     // Protect inline code (` ... `)
     text = text.replace(/`[^`]+?`/g, (match) => {
       const marker = `§§CODE${codeCounter}§§`;
-      codeMap.set(marker, match);
+      codeMapLocal.set(marker, match);
       codeCounter++;
       return marker;
     });
     
-    // Now process LaTeX (code blocks are protected)
+    // Process LaTeX (code blocks are protected)
     
     // Display math: $$...$$
     text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, latex) => {
-      const marker = `§§MATH${counter}§§`;
-      map.set(marker, { latex: latex.trim(), display: true });
-      counter++;
+      const marker = `§§MATH${mathCounter}§§`;
+      mathMapLocal.set(marker, { latex: latex.trim(), display: true });
+      mathCounter++;
       return marker;
     });
     
     // Display math: \[...\]
     text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, latex) => {
-      const marker = `§§MATH${counter}§§`;
-      map.set(marker, { latex: latex.trim(), display: true });
-      counter++;
+      const marker = `§§MATH${mathCounter}§§`;
+      mathMapLocal.set(marker, { latex: latex.trim(), display: true });
+      mathCounter++;
       return marker;
     });
     
     // Inline math: \(...\)
     text = text.replace(/\\\(([\s\S]*?)\\\)/g, (_, latex) => {
-      const marker = `§§MATH${counter}§§`;
-      map.set(marker, { latex: latex.trim(), display: false });
-      counter++;
+      const marker = `§§MATH${mathCounter}§§`;
+      mathMapLocal.set(marker, { latex: latex.trim(), display: false });
+      mathCounter++;
       return marker;
-    });
-    
-    // Inline math: $...$ with stricter rules to avoid false positives
-    // Must contain at least one backslash OR letter, and no spaces at boundaries
-    // Single-letter variables
-    text = text.replace(/\$([a-zA-Z])\$/g, (match, letter) => {
-      const marker = `§§MATH${counter}§§`;
-      map.set(marker, { latex: letter, display: false });
-      counter++;
-      return marker;
-    });
-
-    // Multi-character inline math
-    text = text.replace(/\$([^\s$][^$\n]*?[^\s$])\$/g, (match, latex) => {
-      // Skip if it looks like a price (starts with digits)
-      if (/^[\d,.]/.test(latex)) {
-        return match;
-      }
-      
-      // Must contain letters or backslash for LaTeX
-      if (/[\\a-zA-Z]/.test(latex)) {
-        const marker = `§§MATH${counter}§§`;
-        map.set(marker, { latex: latex.trim(), display: false });
-        counter++;
-        return marker;
-      }
-      
-      return match;
     });
     
     // Restore code blocks and inline code
     text = text.replace(/§§CODE\d+§§/g, (marker) => {
-      return codeMap.get(marker) || marker;
+      return codeMapLocal.get(marker) || marker;
     });
     
-    return { processedText: text, mathMap: map };
+    return { 
+      processedText: text, 
+      mathMap: mathMapLocal,
+      componentMap: componentMapLocal
+    };
   }, [message]);
 
-  // Step 2: Post-process function that recursively replaces markers with React components
-  const replaceMathMarkers = (node: React.ReactNode): React.ReactNode => {
+  // Step 2: Replace markers with React components
+  const replaceMarkers = (node: React.ReactNode): React.ReactNode => {
     if (typeof node === 'string') {
-      // Check if string contains any math markers
-      if (!node.includes('§§MATH')) {
+      // Check if string contains any markers
+      if (!node.includes('§§MATH') && !node.includes('§§COMPONENT')) {
         return node;
       }
 
       const parts: (string | JSX.Element)[] = [];
-      const markerRegex = /§§MATH(\d+)§§/g;
+      const markerRegex = /§§(MATH|COMPONENT)(\d+)§§/g;
       let lastIndex = 0;
       let match;
       let key = 0;
@@ -168,19 +161,52 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
           parts.push(node.substring(lastIndex, match.index));
         }
 
-        // Add math component
+        const markerType = match[1];
         const marker = match[0];
-        const mathData = mathMap.get(marker);
-        if (mathData) {
-          parts.push(
-            <KatexMath 
-              key={`math-${key++}`}
-              latex={mathData.latex}
-              display={mathData.display}
-            />
-          );
-        } else {
-          parts.push(marker); // Fallback
+
+        if (markerType === 'MATH') {
+          // Add math component
+          const mathData = mathMap.get(marker);
+          if (mathData) {
+            parts.push(
+              <KatexMath 
+                key={`math-${key++}`}
+                latex={mathData.latex}
+                display={mathData.display}
+              />
+            );
+          } else {
+            parts.push(marker);
+          }
+        } else if (markerType === 'COMPONENT') {
+          // Add custom component
+          const componentData = componentMap.get(marker);
+          if (componentData) {
+            const componentKey = `component-${key++}`;
+            
+            // Render the appropriate component based on type
+            if (componentData.type === 'stock_chart') {
+              parts.push(
+                <div key={componentKey} className="my-6">
+                  <StockChart 
+                    ticker={componentData.params.ticker}
+                    days={componentData.params.days || 30}
+                  />
+                </div>
+              );
+            } else {
+              // Unknown component type - show error
+              parts.push(
+                <div key={componentKey} className="my-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
+                  <p className="text-sm text-destructive">
+                    Unknown component: {componentData.type}
+                  </p>
+                </div>
+              );
+            }
+          } else {
+            parts.push(marker);
+          }
         }
 
         lastIndex = match.index + marker.length;
@@ -196,35 +222,34 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
 
     if (Array.isArray(node)) {
       return node.map((child, i) => (
-        <React.Fragment key={i}>{replaceMathMarkers(child)}</React.Fragment>
+        <React.Fragment key={i}>{replaceMarkers(child)}</React.Fragment>
       ));
     }
 
     if (React.isValidElement(node) && node.props?.children) {
       return React.cloneElement(node, {
         ...node.props,
-        children: replaceMathMarkers(node.props.children),
+        children: replaceMarkers(node.props.children),
       } as any);
     }
 
     return node;
   };
 
-  // Step 3: Create wrapper that applies post-processing
-  const MathWrapper = ({ children }: { children: React.ReactNode }) => {
-    return <>{replaceMathMarkers(children)}</>;
+  // Step 3: Wrapper that applies post-processing
+  const ComponentWrapper = ({ children }: { children: React.ReactNode }) => {
+    return <>{replaceMarkers(children)}</>;
   };
 
   return (
     <Markdown
       options={{
         forceBlock: false,
-        wrapper: MathWrapper,
+        wrapper: ComponentWrapper,
         overrides: {
           br: { component: () => <br /> },
           code: {
             component: ({ className, children, ...props }) => {
-              // Check if it's a code block (has language class) or inline code
               const isCodeBlock = className?.startsWith('lang-');
               
               if (isCodeBlock) {
@@ -235,7 +260,6 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
                 );
               }
               
-              // Inline code
               return (
                 <code {...props} className="bg-muted rounded px-1 py-0.5 text-sm font-mono">
                   {children}
@@ -244,10 +268,7 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
             }
           },
           pre: {
-            component: ({ children }) => {
-              // Let CodeBlock handle the styling
-              return <>{children}</>;
-            }
+            component: ({ children }) => <>{children}</>
           },
           table: {
             component: ({ children, ...props }) => (
