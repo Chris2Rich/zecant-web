@@ -50,7 +50,6 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     const regId = register([
       { icon: MessageSquarePlus, label: "New Chat", fn: handleNewChat },
-      { icon: Search, label: "Search Chats", fn: () => {console.log("Search Powers?")} },
       { icon: Archive, label: "Archived Chats", fn: () => setIsArchiveOpen(true) }
     ])
 

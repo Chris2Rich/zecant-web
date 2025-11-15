@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, MessageSquare, Calendar, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@clerk/nextjs";
+import { formatDate } from "@/business/utils";
 
 const API_URL = "https://api.zecant.com";
 
@@ -33,6 +34,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
   useEffect(() => {
     if (isOpen) {
       fetchChats();
+      setSearchQuery("")
     }
   }, [isOpen]);
 
@@ -71,32 +73,10 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
     onClose();
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return "Today";
-    } else if (diffDays === 1) {
-      return "Yesterday";
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
-    } else {
-      return date.toLocaleDateString(undefined, { 
-        month: 'short', 
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-      });
-    }
-  };
-
   // Filter chats based on search (dummy for now - just filters by title)
   const filteredChats = chats.filter(chat => {
     if (!searchQuery) return true;
-    return chat.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-           chat.chat_id.toLowerCase().includes(searchQuery.toLowerCase());
+    return chat.title?.toLowerCase().includes(searchQuery.toLowerCase())
   });
 
   if (!isOpen) return null;
@@ -119,7 +99,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="relative bg-background border border-border rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col"
+          className="relative bg-background border border-border rounded-2xl shadow-2xl w-full mx-12 max-h-[90vh] flex flex-col"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border">
@@ -154,7 +134,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -175,9 +155,6 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
               </div>
             ) : filteredChats.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
-                  <MessageSquare className="w-8 h-8 text-muted-foreground" />
-                </div>
                 <p className="text-muted-foreground">
                   {searchQuery ? "No chats found" : "No conversations yet"}
                 </p>
@@ -186,7 +163,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredChats.map((chat) => (
                   <motion.button
                     key={chat.chat_id}

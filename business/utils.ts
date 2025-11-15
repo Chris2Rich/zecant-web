@@ -5,7 +5,7 @@ export const formatDate = (dateString: string) => {
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-    if (diffHours < 24) return `${diffHours} hours ago`;
+    if (diffMins < 60) return `${diffMins} minute${diffMins != 1 ? "s" : ""} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours != 1 ? "s" : ""} ago`;
     return date.toLocaleDateString();
   };
