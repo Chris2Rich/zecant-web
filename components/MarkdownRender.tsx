@@ -4,6 +4,7 @@ import 'katex/dist/katex.min.css';
 import katex from 'katex';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { StockChart } from "@/components/StockChart";
 
 type MarkdownRenderProps = {
   message: string;
