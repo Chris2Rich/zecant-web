@@ -73,6 +73,39 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
     onClose();
   };
 
+  const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
+    // Prevent triggering the parent onClick
+    e.stopPropagation();
+  
+    if (!confirm("Are you sure you want to delete this chat?")) {
+      return;
+    }
+  
+    try {
+      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+  
+      const response = await fetch(`${API_URL}/lm/deletechat?chatid=${chatId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete chat");
+      }
+  
+      // Remove from local state
+      setChats(prev => prev.filter(chat => chat.chat_id !== chatId));
+    } catch (err: any) {
+      console.error("Error deleting chat:", err);
+      setError(err.message || "Failed to delete chat");
+    }
+  };
+
   // Filter chats based on search (dummy for now - just filters by title)
   const filteredChats = chats.filter(chat => {
     if (!searchQuery) return true;
@@ -163,17 +196,17 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredChats.map((chat) => (
-                  <motion.button
-                    key={chat.chat_id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredChats.map((chat) => (
+                <motion.div
+                  key={chat.chat_id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative group"
+                >
+                  <button
                     onClick={() => handleSelectChat(chat.chat_id)}
-                    className="p-4 rounded-xl border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-colors text-left group"
-                  >
+                    className="w-full p-4 rounded-xl border border-border bg-card hover:bg-accent hover:border-accent-foreground/20 transition-colors text-left hover:cursor-pointer">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <MessageSquare className="w-5 h-5 text-primary" />
@@ -191,7 +224,17 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                         </p>
                       </div>
                     </div>
-                  </motion.button>
+                  </button>
+                    
+                    {/* Delete Button */}
+                    <button
+                      onClick={(e) => handleDeleteChat(chat.chat_id, e)}
+                      className="absolute bottom-2 right-2 p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all opacity-50 hover:opacity-100 z-10 hover:cursor-pointer"
+                      title="Delete chat"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </motion.div>
                 ))}
               </div>
             )}
