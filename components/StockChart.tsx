@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback  } from "react";
+import { useState, useEffect, useRef  } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Loader2, TrendingUp, TrendingDown } from "lucide-react";
 import {
@@ -37,58 +37,81 @@ interface StockChartProps {
 }
 
 export function StockChart({ ticker, days = 30 }: StockChartProps) {
-  const { getToken } = useAuth();
-  const [data, setData] = useState<CandleData[]>([]);
-  const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [hoveredData, setHoveredData] = useState<CandleData | null>(null);
-
-  const fetchStockData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const token = await getToken();
-      if (!token) throw new Error("Not authenticated");
-
-      const response = await fetch(
-        `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${days}&interval=1d`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch data");
-
-      const result = await response.json();
-      setData(result.data);
-
-      if (result.data && result.data.length > 1) {
-        const latest = result.data[result.data.length - 1];
-        const previous = result.data[result.data.length - 2];
-
-        const change = latest.close - previous.close;
-        const changePercent = (change / previous.close) * 100;
-
-        setStockInfo({
-          currentPrice: latest.close,
-          change,
-          changePercent,
-          volume: formatVolume(latest.volume),
-        });
+    const { getToken } = useAuth();
+    const [data, setData] = useState<CandleData[]>([]);
+    const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [hoveredData, setHoveredData] = useState<CandleData | null>(null);
+    
+    // Track what we've already fetched
+    const fetchedRef = useRef<string>("");
+  
+    useEffect(() => {
+      const fetchKey = `${ticker}-${days}`;
+      
+      // Don't refetch if we already have this data
+      if (fetchedRef.current === fetchKey) {
+        return;
       }
-    } catch (err: any) {
-      console.error("Error fetching stock data:", err);
-      setError(err.message || "Failed to load data");
-    } finally {
-      setLoading(false);
-    }
-  }, [ticker, days, getToken]); // Add dependencies here
-
-  useEffect(() => {
-    fetchStockData();
-  }, [fetchStockData]);
+  
+      let cancelled = false;
+  
+      const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+  
+        try {
+          const token = await getToken();
+          if (!token || cancelled) return;
+  
+          const response = await fetch(
+            `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${days}&interval=1d`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+  
+          if (!response.ok || cancelled) return;
+  
+          const result = await response.json();
+          if (cancelled) return;
+  
+          setData(result.data);
+          fetchedRef.current = fetchKey; // Mark as fetched
+  
+          if (result.data && result.data.length > 1) {
+            const latest = result.data[result.data.length - 1];
+            const previous = result.data[result.data.length - 2];
+  
+            const change = latest.close - previous.close;
+            const changePercent = (change / previous.close) * 100;
+  
+            setStockInfo({
+              currentPrice: latest.close,
+              change,
+              changePercent,
+              volume: formatVolume(latest.volume),
+            });
+          }
+        } catch (err: any) {
+          if (!cancelled) {
+            console.error("Error fetching stock data:", err);
+            setError(err.message || "Failed to load data");
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        }
+      };
+  
+      fetchData();
+  
+      return () => {
+        cancelled = true;
+      };
+    }, [ticker, days]);
 
   const formatVolume = (vol: number) => {
     if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
