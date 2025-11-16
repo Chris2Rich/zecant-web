@@ -414,7 +414,7 @@ export function ChatPage({
           )}
 
           {/* Messages */}
-          <div className="space-y-6">
+          <div className="space-y-6 overflow-x-hidden">
             <AnimatePresence mode="popLayout">
               {messages.map((message, index) => (
                 <motion.div
