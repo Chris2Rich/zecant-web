@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef  } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { Loader2, TrendingUp, TrendingDown } from "lucide-react";
 import {
@@ -36,82 +36,131 @@ interface StockChartProps {
   days?: number;
 }
 
-export function StockChart({ ticker, days = 30 }: StockChartProps) {
-    const { getToken } = useAuth();
-    const [data, setData] = useState<CandleData[]>([]);
-    const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [hoveredData, setHoveredData] = useState<CandleData | null>(null);
+// Memoize the candle shape component
+const CandleShape = memo((props: any) => {
+  const { x, y, width, payload, data } = props;
+  const isPositive = payload.close >= payload.open;
+  const color = isPositive ? "#10b981" : "#ef4444";
+
+  const bodyHeight = Math.abs(payload.close - payload.open);
+  const bodyY = Math.min(payload.close, payload.open);
+
+  const wickTop = payload.high;
+  const wickBottom = payload.low;
+
+  const priceRange = Math.max(...data.map((d: CandleData) => d.high)) - Math.min(...data.map((d: CandleData) => d.low));
+  const chartHeight = 250;
+  const scale = chartHeight / priceRange;
+
+  const wickX = x + width / 2;
+  const bodyWidth = Math.max(width * 0.6, 2);
+  const bodyX = x + (width - bodyWidth) / 2;
+
+  return (
+    <g>
+      <line
+        x1={wickX}
+        y1={y - (wickTop - bodyY) * scale}
+        x2={wickX}
+        y2={y + (bodyY - wickBottom + bodyHeight) * scale}
+        stroke={color}
+        strokeWidth={1}
+      />
+      <rect
+        x={bodyX}
+        y={y}
+        width={bodyWidth}
+        height={Math.max(bodyHeight * scale, 1)}
+        fill={color}
+        stroke={color}
+        strokeWidth={1}
+      />
+    </g>
+  );
+});
+
+CandleShape.displayName = "CandleShape";
+
+export const StockChart = memo(function StockChart({ ticker, days = 30 }: StockChartProps) {
+  const { getToken } = useAuth();
+  const [data, setData] = useState<CandleData[]>([]);
+  const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hoveredData, setHoveredData] = useState<CandleData | null>(null);
+  
+  // Track what we've already fetched
+  const fetchedRef = useRef<string>("");
+  const isFetchingRef = useRef(false);
+
+  useEffect(() => {
+    const fetchKey = `${ticker}-${days}`;
     
-    // Track what we've already fetched
-    const fetchedRef = useRef<string>("");
-  
-    useEffect(() => {
-      const fetchKey = `${ticker}-${days}`;
-      
-      // Don't refetch if we already have this data
-      if (fetchedRef.current === fetchKey) {
-        return;
-      }
-  
-      let cancelled = false;
-  
-      const fetchData = async () => {
-        setLoading(true);
-        setError(null);
-  
-        try {
-          const token = await getToken();
-          if (!token || cancelled) return;
-  
-          const response = await fetch(
-            `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${days}&interval=1d`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-  
-          if (!response.ok || cancelled) return;
-  
-          const result = await response.json();
-          if (cancelled) return;
-  
-          setData(result.data);
-          fetchedRef.current = fetchKey; // Mark as fetched
-  
-          if (result.data && result.data.length > 1) {
-            const latest = result.data[result.data.length - 1];
-            const previous = result.data[result.data.length - 2];
-  
-            const change = latest.close - previous.close;
-            const changePercent = (change / previous.close) * 100;
-  
-            setStockInfo({
-              currentPrice: latest.close,
-              change,
-              changePercent,
-              volume: formatVolume(latest.volume),
-            });
+    // Don't refetch if we already have this data or are currently fetching
+    if (fetchedRef.current === fetchKey || isFetchingRef.current) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchData = async () => {
+      isFetchingRef.current = true;
+      setLoading(true);
+      setError(null);
+
+      try {
+        const token = await getToken();
+        if (!token || cancelled) return;
+
+        const response = await fetch(
+          `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${days}&interval=1d`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
           }
-        } catch (err: any) {
-          if (!cancelled) {
-            console.error("Error fetching stock data:", err);
-            setError(err.message || "Failed to load data");
-          }
-        } finally {
-          if (!cancelled) {
-            setLoading(false);
-          }
+        );
+
+        if (!response.ok || cancelled) return;
+
+        const result = await response.json();
+        if (cancelled) return;
+
+        setData(result.data);
+        fetchedRef.current = fetchKey; // Mark as fetched
+
+        if (result.data && result.data.length > 1) {
+          const latest = result.data[result.data.length - 1];
+          const previous = result.data[result.data.length - 2];
+
+          const change = latest.close - previous.close;
+          const changePercent = (change / previous.close) * 100;
+
+          setStockInfo({
+            currentPrice: latest.close,
+            change,
+            changePercent,
+            volume: formatVolume(latest.volume),
+          });
         }
-      };
-  
-      fetchData();
-  
-      return () => {
-        cancelled = true;
-      };
-    }, [ticker, days]);
+      } catch (err: any) {
+        if (!cancelled) {
+          console.error("Error fetching stock data:", err);
+          setError(err.message || "Failed to load data");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          isFetchingRef.current = false;
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+      isFetchingRef.current = false;
+    };
+  }, [ticker, days, getToken]);
 
   const formatVolume = (vol: number) => {
     if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
@@ -124,48 +173,6 @@ export function StockChart({ ticker, days = 30 }: StockChartProps) {
 
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-
-  const CandleShape = (props: any) => {
-    const { x, y, width, payload } = props;
-    const isPositive = payload.close >= payload.open;
-    const color = isPositive ? "#10b981" : "#ef4444";
-
-    const bodyHeight = Math.abs(payload.close - payload.open);
-    const bodyY = Math.min(payload.close, payload.open);
-
-    const wickTop = payload.high;
-    const wickBottom = payload.low;
-
-    const priceRange = Math.max(...data.map((d) => d.high)) - Math.min(...data.map((d) => d.low));
-    const chartHeight = 250;
-    const scale = chartHeight / priceRange;
-
-    const wickX = x + width / 2;
-    const bodyWidth = Math.max(width * 0.6, 2);
-    const bodyX = x + (width - bodyWidth) / 2;
-
-    return (
-      <g>
-        <line
-          x1={wickX}
-          y1={y - (wickTop - bodyY) * scale}
-          x2={wickX}
-          y2={y + (bodyY - wickBottom + bodyHeight) * scale}
-          stroke={color}
-          strokeWidth={1}
-        />
-        <rect
-          x={bodyX}
-          y={y}
-          width={bodyWidth}
-          height={Math.max(bodyHeight * scale, 1)}
-          fill={color}
-          stroke={color}
-          strokeWidth={1}
-        />
-      </g>
-    );
-  };
 
   const displayPrice = hoveredData || (data.length > 0 ? data[data.length - 1] : null);
   const isPositive = stockInfo ? stockInfo.change >= 0 : true;
@@ -239,7 +246,7 @@ export function StockChart({ ticker, days = 30 }: StockChartProps) {
               width={60}
             />
             <Tooltip content={() => null} cursor={{ stroke: "#71717a", strokeWidth: 1 }} />
-            <Bar dataKey="close" shape={<CandleShape />} isAnimationActive={false} />
+            <Bar dataKey="close" shape={<CandleShape data={data} />} isAnimationActive={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -273,4 +280,4 @@ export function StockChart({ ticker, days = 30 }: StockChartProps) {
       </div>
     </div>
   );
-}
+});

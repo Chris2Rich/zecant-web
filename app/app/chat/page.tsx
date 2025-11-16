@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, AlertCircle, Bot, User, ArrowUp, MessageSquarePlus, Archive, Search } from "lucide-react";
 import MarkdownRender from "@/components/MarkdownRender";
+import { MemoizedMessage } from "@/components/MemoizedMarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { defaultChatOptions } from "@/business/constants";
@@ -418,45 +419,17 @@ export function ChatPage({
             <AnimatePresence mode="popLayout">
               {messages.map((message, index) => (
                 <motion.div
-                  key={index}
+                  key={`${message.timestamp}-${index}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="flex gap-4"
                 >
-                  {/* Avatar */}
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      message.role === "user"
-                        ? "bg-secondary"
-                        : "bg-primary/10"
-                    }`}
-                  >
-                    {message.role === "user" ? (
-                      <User className="w-5 h-5 text-secondary-foreground" />
-                    ) : (
-                      <Bot className="w-5 h-5 text-primary" />
-                    )}
-                  </div>
-
-                  {/* Message Content */}
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">
-                        {message.role === "user" ? "You" : "ZECA"}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(message.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <div className="prose prose-sm max-w-none text-foreground">
-                      <MarkdownRender message={message.content}/>
-                    </div>
-                  </div>
+                  <MemoizedMessage
+                    role={message.role}
+                    content={message.content}
+                    timestamp={message.timestamp}
+                  />
                 </motion.div>
               ))}
 
@@ -478,15 +451,13 @@ export function ChatPage({
                       <Loader2 className="w-3 h-3 animate-spin text-primary" />
                     </div>
                     <div className="prose prose-sm max-w-none text-foreground">
-                        <MarkdownRender message={currentStreamingMessage}/>
+                      <MarkdownRender message={currentStreamingMessage}/>
                     </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-
-          <div ref={messagesEndRef} />
         </div>
       </div>
 
