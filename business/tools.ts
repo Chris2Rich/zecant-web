@@ -29,7 +29,7 @@ export const lmtools: Tool[] = [
     name: "Market Info",
     description: "Interactive embedded financial diagrams",
     icon: ChartCandlestick,
-    enabled: true
+    enabled: false
     },
     {
     id: "graph",
