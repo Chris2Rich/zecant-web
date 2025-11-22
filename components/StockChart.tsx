@@ -76,21 +76,28 @@ const formatDate = (dateStr: string, includeYear = false): string => {
   return date.toLocaleDateString(undefined, options);
 };
 
-// Custom Candlestick Shape - properly integrated with Recharts
+// Custom Candlestick Shape - uses price domain for positioning
 const CandleShape = memo(function CandleShape(props: any) {
-  const { x, y, width, height, payload, yAxis } = props;
-  if (!payload || !yAxis) return null;
+  const { x, width, payload, priceDomain, chartHeight, chartTop } = props;
+  if (!payload || !priceDomain) return null;
 
   const { open, high, low, close } = payload;
   const isPositive = close >= open;
   const color = isPositive ? "#10b981" : "#ef4444";
 
-  // Use yAxis scale for accurate positioning
-  const scale = yAxis.scale;
-  const openY = scale(open);
-  const closeY = scale(close);
-  const highY = scale(high);
-  const lowY = scale(low);
+  const [minPrice, maxPrice] = priceDomain;
+  const priceRange = maxPrice - minPrice;
+
+  // Convert price to Y coordinate (Y increases downward)
+  const priceToY = (price: number) => {
+    const ratio = (maxPrice - price) / priceRange;
+    return chartTop + ratio * chartHeight;
+  };
+
+  const openY = priceToY(open);
+  const closeY = priceToY(close);
+  const highY = priceToY(high);
+  const lowY = priceToY(low);
 
   const bodyTop = Math.min(openY, closeY);
   const bodyHeight = Math.max(Math.abs(closeY - openY), 1);
@@ -115,7 +122,7 @@ const CandleShape = memo(function CandleShape(props: any) {
         y={bodyTop}
         width={bodyWidth}
         height={bodyHeight}
-        fill={isPositive ? color : color}
+        fill={color}
         stroke={color}
         strokeWidth={1}
         rx={1}
@@ -167,7 +174,7 @@ export const StockChart = memo(function StockChart({
   const fetchedRef = useRef<string>("");
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const days = parseInt(selectedRange, 30);
+  const days = parseInt(selectedRange, 10);
 
   useEffect(() => {
     const fetchKey = `${ticker}-${days}`;
@@ -357,7 +364,18 @@ export const StockChart = memo(function StockChart({
             {latestCandle && (
               <ReferenceLine y={latestCandle.close} stroke="#525252" strokeDasharray="2 2" />
             )}
-            <Bar dataKey="high" shape={<CandleShape />} isAnimationActive={false} />
+            <Bar 
+              dataKey="high" 
+              shape={(props: any) => (
+                <CandleShape 
+                  {...props} 
+                  priceDomain={priceDomain} 
+                  chartHeight={250} 
+                  chartTop={10} 
+                />
+              )} 
+              isAnimationActive={false} 
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
