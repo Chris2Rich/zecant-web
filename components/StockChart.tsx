@@ -264,6 +264,101 @@ export const StockChart = memo(function StockChart({
     }
   }, [selectedRange]);
 
+  const xAxisTicks = useMemo(() => {
+    if (!data || data.length === 0) return undefined;
+
+    const ticks: string[] = [];
+    let lastDate: Date | null = null;
+    let lastIndex = -1;
+    
+    // Minimum number of data points required between ticks to prevent text overlap
+    // Adjust based on total data density
+    const minGap = data.length > 200 ? 15 : 3;
+
+    data.forEach((item, index) => {
+      const currentDate = new Date(item.date);
+      let addTick = false;
+
+      // Note: We removed the "if (!lastDate) addTick = true" block.
+      // We now rely solely on period transitions to keep the scale clean.
+
+      if (lastDate) {
+        switch (selectedRange) {
+          case "1": // 1D: New hour
+            addTick = currentDate.getHours() !== lastDate.getHours();
+            break;
+          case "7": // 1W: New day
+            addTick = currentDate.getDate() !== lastDate.getDate();
+            break;
+          case "30": // 1M: Start of week (Mondays)
+            // If current day is Monday (1) and previous wasn't, or if day number decreased (new week)
+            addTick = currentDate.getDay() === 1 && lastDate.getDay() !== 1;
+            break;
+          case "90": // 3M: Start of month
+            addTick = currentDate.getMonth() !== lastDate.getMonth();
+            break;
+          case "365": // 1Y: Start of month
+            addTick = currentDate.getMonth() !== lastDate.getMonth();
+            break;
+          case "all": // All: Start of year
+            addTick = currentDate.getFullYear() !== lastDate.getFullYear();
+            break;
+        }
+      } else {
+        // Edge case: Ensure the very first tick is considered for "Start of Year" logic
+        // but we don't automatically add it. We initialize lastDate for the next loop.
+        lastDate = currentDate;
+        // Optionally add the first tick ONLY if the dataset is very short
+        if (data.length < 10) addTick = true; 
+      }
+
+      // COLLISION & LOGIC CHECK
+      if (addTick) {
+        // 1. Ensure we have enough space from the last tick (prevents bunching)
+        // 2. OR if it's the first tick we're adding (ticks.length === 0)
+        if (lastIndex === -1 || (index - lastIndex) >= minGap) {
+           ticks.push(item.date);
+           lastIndex = index;
+        }
+      }
+
+      // Always update lastDate to current for the next iteration comparison
+      lastDate = currentDate;
+    });
+
+    // Fallback: If logic produced no ticks or just 1 (e.g. short/flat data), 
+    // force add start and end to ensure chart has labels.
+    if (ticks.length < 2) {
+      return [data[0].date, data[data.length - 1].date];
+    }
+    
+    return ticks;
+  }, [data, selectedRange]);
+
+  const periodStats = useMemo(() => {
+    if (!data || data.length === 0) return null;
+
+    let maxHigh = -Infinity;
+    let minLow = Infinity;
+    let totalVol = 0;
+
+    // Single pass loop for performance (O(n))
+    for (let i = 0; i < data.length; i++) {
+      const d = data[i];
+      if (d.high > maxHigh) maxHigh = d.high;
+      if (d.low < minLow) minLow = d.low;
+      totalVol += d.volume;
+    }
+
+    return {
+      open: data[0].open,
+      close: data[data.length - 1].close,
+      high: maxHigh,
+      low: minLow,
+      volume: totalVol
+    };
+  }, [data]);
+
   const isPositive = stockInfo ? stockInfo.change >= 0 : true;
   const latestCandle = data.length > 0 ? data[data.length - 1] : null;
 
@@ -338,12 +433,12 @@ export const StockChart = memo(function StockChart({
             <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
             <XAxis
               dataKey="date"
+              ticks={xAxisTicks} // Use explicit ticks
               tickFormatter={(d) => formatXAxis(d, selectedRange, data.length)}
               stroke="#71717a"
               fontSize={11}
               tickMargin={8}
-              interval="preserveStartEnd"
-              minTickGap={selectedRange === "1" ? 60 : selectedRange === "all" ? 80 : 50}
+              interval={0} // Force display of all generated ticks
             />
             <YAxis
               domain={priceDomain}
@@ -385,27 +480,27 @@ export const StockChart = memo(function StockChart({
 
       <div className="px-6 pb-6 pt-2 border-t border-border">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {latestCandle && (
+          {periodStats && (
             <>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Open</p>
-                <p className="text-sm font-medium text-foreground">{formatPrice(latestCandle.open)}</p>
+                <p className="text-sm font-medium text-foreground">{formatPrice(periodStats.open)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">High</p>
-                <p className="text-sm font-medium text-green-500">{formatPrice(latestCandle.high)}</p>
+                <p className="text-sm font-medium text-green-500">{formatPrice(periodStats.high)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Low</p>
-                <p className="text-sm font-medium text-red-500">{formatPrice(latestCandle.low)}</p>
+                <p className="text-sm font-medium text-red-500">{formatPrice(periodStats.low)}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Close</p>
-                <p className="text-sm font-medium text-foreground">{formatPrice(latestCandle.close)}</p>
+                <p className="text-sm font-medium text-foreground">{formatPrice(periodStats.close)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Volume</p>
-                <p className="text-sm font-medium text-foreground">{formatVolume(latestCandle.volume)}</p>
+                <p className="text-xs text-muted-foreground mb-1">Total Vol</p>
+                <p className="text-sm font-medium text-foreground">{formatVolume(periodStats.volume)}</p>
               </div>
             </>
           )}
