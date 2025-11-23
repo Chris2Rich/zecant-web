@@ -46,14 +46,22 @@ interface StockChartProps {
   showVolumeChart?: boolean;
 }
 
-type TimeRange = "7" | "30" | "90" | "180" | "365";
+type TimeRange = "1" | "7" | "30" | "90" | "365" | "all";
 
-const TIME_RANGES: { label: string; value: TimeRange }[] = [
-  { label: "1W", value: "7" },
-  { label: "1M", value: "30" },
-  { label: "3M", value: "90" },
-  { label: "6M", value: "180" },
-  { label: "1Y", value: "365" },
+interface TimeRangeConfig {
+  label: string;
+  value: TimeRange;
+  days: number;
+  interval: string;
+}
+
+const TIME_RANGES: TimeRangeConfig[] = [
+  { label: "1D", value: "1", days: 1, interval: "5m" },      // 5-min data for 1 day
+  { label: "1W", value: "7", days: 7, interval: "1h" },      // Hourly data for 1 week
+  { label: "1M", value: "30", days: 30, interval: "1d" },    // Daily data for 1 month
+  { label: "3M", value: "90", days: 90, interval: "1d" },    // Daily data for 3 months
+  { label: "1Y", value: "365", days: 365, interval: "1wk" }, // Weekly data for 1 year
+  { label: "All", value: "all", days: 3650, interval: "1mo" }, // Monthly data for all time (~10 years)
 ];
 
 // Utility functions
@@ -69,8 +77,13 @@ const formatPrice = (price: number): string => {
   return `$${price.toFixed(2)}`;
 };
 
-const formatDate = (dateStr: string, includeYear = false): string => {
+const formatDate = (dateStr: string, includeYear = false, isIntraday = false): string => {
   const date = new Date(dateStr);
+  
+  if (isIntraday) {
+    return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+  
   const options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
   if (includeYear) options.year = "numeric";
   return date.toLocaleDateString(undefined, options);
@@ -132,15 +145,28 @@ const CandleShape = memo(function CandleShape(props: any) {
 });
 
 // Custom Tooltip
-const CustomTooltip = memo(function CustomTooltip({ active, payload }: any) {
+const CustomTooltip = memo(function CustomTooltip({ active, payload, isIntraday }: any) {
   if (!active || !payload?.[0]) return null;
   
   const data = payload[0].payload as CandleData;
   const isPositive = data.close >= data.open;
   
+  const formatTooltipDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    if (isIntraday) {
+      return date.toLocaleString(undefined, { 
+        month: "short", 
+        day: "numeric", 
+        hour: "numeric", 
+        minute: "2-digit" 
+      });
+    }
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  };
+  
   return (
     <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
-      <p className="text-xs text-muted-foreground mb-2">{formatDate(data.date, true)}</p>
+      <p className="text-xs text-muted-foreground mb-2">{formatTooltipDate(data.date)}</p>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
         <span className="text-muted-foreground">Open:</span>
         <span className="font-medium text-right">{formatPrice(data.open)}</span>
@@ -169,15 +195,19 @@ export const StockChart = memo(function StockChart({
   const [stockInfo, setStockInfo] = useState<StockInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRange, setSelectedRange] = useState<TimeRange>(String(initialDays) as TimeRange);
+  const [selectedRange, setSelectedRange] = useState<TimeRange>("30");
   
   const fetchedRef = useRef<string>("");
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const days = parseInt(selectedRange, 10);
+  // Get the config for the selected range
+  const rangeConfig = useMemo(() => 
+    TIME_RANGES.find(r => r.value === selectedRange) || TIME_RANGES[2],
+    [selectedRange]
+  );
 
   useEffect(() => {
-    const fetchKey = `${ticker}-${days}`;
+    const fetchKey = `${ticker}-${rangeConfig.days}-${rangeConfig.interval}`;
     if (fetchedRef.current === fetchKey) return;
 
     // Cancel any in-flight request
@@ -193,9 +223,9 @@ export const StockChart = memo(function StockChart({
         const token = await getToken();
         if (!token || controller.signal.aborted) return;
 
-        const response = await fetch(
-          `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${days}&interval=1d`,
-          {
+        const url = `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${rangeConfig.days}&interval=${rangeConfig.interval}`;
+
+        const response = await fetch(url, {
             headers: { Authorization: `Bearer ${token}` },
             signal: controller.signal,
           }
@@ -209,6 +239,7 @@ export const StockChart = memo(function StockChart({
         if (controller.signal.aborted) return;
 
         const candleData: CandleData[] = result.data || [];
+        
         setData(candleData);
         fetchedRef.current = fetchKey;
 
@@ -240,7 +271,7 @@ export const StockChart = memo(function StockChart({
     fetchData();
 
     return () => controller.abort();
-  }, [ticker, days, getToken]);
+  }, [ticker, rangeConfig, getToken]);
 
   // Calculate price domain with padding
   const priceDomain = useMemo(() => {
@@ -266,6 +297,9 @@ export const StockChart = memo(function StockChart({
       setSelectedRange(range);
     }
   }, [selectedRange]);
+
+  // Determine if we're showing intraday data
+  const isIntraday = rangeConfig.interval === "5m" || rangeConfig.interval === "1h";
 
   const isPositive = stockInfo ? stockInfo.change >= 0 : true;
   const latestCandle = data.length > 0 ? data[data.length - 1] : null;
@@ -312,10 +346,11 @@ export const StockChart = memo(function StockChart({
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {selectedRange === "7" ? "Past week" : 
+              {selectedRange === "1" ? "Today" :
+               selectedRange === "7" ? "Past week" : 
                selectedRange === "30" ? "Past month" :
                selectedRange === "90" ? "Past 3 months" :
-               selectedRange === "180" ? "Past 6 months" : "Past year"}
+               selectedRange === "365" ? "Past year" : "All time"}
             </p>
           </div>
 
@@ -345,7 +380,7 @@ export const StockChart = memo(function StockChart({
             <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
             <XAxis
               dataKey="date"
-              tickFormatter={(d) => formatDate(d)}
+              tickFormatter={(d) => formatDate(d, false, isIntraday)}
               stroke="#71717a"
               fontSize={11}
               tickMargin={8}
@@ -360,7 +395,7 @@ export const StockChart = memo(function StockChart({
               width={55}
               tickCount={6}
             />
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#525252", strokeDasharray: "4 4" }} />
+            <Tooltip content={<CustomTooltip isIntraday={isIntraday} />} cursor={{ stroke: "#525252", strokeDasharray: "4 4" }} />
             {latestCandle && (
               <ReferenceLine y={latestCandle.close} stroke="#525252" strokeDasharray="2 2" />
             )}
