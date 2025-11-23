@@ -22,11 +22,13 @@ interface Message {
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "search_performed";
   content?: string;
   chatid?: string;
   message_id?: string;
   error?: string;
+  query?: string;
+  results?: any;
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -83,6 +85,8 @@ export function ChatPage({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
   const [enabledTools, setEnabledTools] = useState<any[]>(lmtools.filter(t => t.enabled));
@@ -106,6 +110,8 @@ export function ChatPage({
     setCurrentStreamingMessage("");
     streamingMessageRef.current = "";
     setIsStreaming(false);
+    setIsSearching(false);
+    setSearchQuery(null);
     setError(null);
     setInput("");
     textareaRef.current?.focus();
@@ -189,7 +195,7 @@ export function ChatPage({
     if (shouldAutoScrollRef.current) {
       scrollToBottom();
     }
-  }, [messages, currentStreamingMessage]);
+  }, [messages, currentStreamingMessage, isSearching]);
 
   const getAuthToken = async (): Promise<string | null> => {
     try {
@@ -237,6 +243,8 @@ export function ChatPage({
 
     // Start streaming
     setIsStreaming(true);
+    setIsSearching(false);
+    setSearchQuery(null);
     streamingMessageRef.current = "";
     setCurrentStreamingMessage("");
 
@@ -291,7 +299,15 @@ export function ChatPage({
                 if (parsed.chatid) {
                   setCurrentChatId(parsed.chatid);
                 }
+              } else if (parsed.type === "search_performed") {
+                // Show search indicator
+                setIsSearching(true);
+                setSearchQuery(parsed.query || null);
               } else if (parsed.type === "token") {
+                // Clear search indicator when tokens start
+                if (isSearching) {
+                  setIsSearching(false);
+                }
                 // Accumulate tokens
                 streamingMessageRef.current += parsed.content || "";
                 setCurrentStreamingMessage(prev => prev + (parsed.content || ""));
@@ -311,6 +327,8 @@ export function ChatPage({
                 streamingMessageRef.current = "";
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
+                setIsSearching(false);
+                setSearchQuery(null);
                 shouldAutoScrollRef.current = true;
                 userHasScrolledRef.current = false;
               } else if (parsed.type === "error") {
@@ -318,6 +336,8 @@ export function ChatPage({
                 streamingMessageRef.current = "";
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
+                setIsSearching(false);
+                setSearchQuery(null);
               } else if (parsed.type === "tool_call") {
                 // Future: Handle tool calls in UI
                 console.log("Tool call:", parsed);
@@ -338,6 +358,8 @@ export function ChatPage({
       streamingMessageRef.current = "";
       setCurrentStreamingMessage("");
       setIsStreaming(false);
+      setIsSearching(false);
+      setSearchQuery(null);
     }
   };
 
@@ -389,7 +411,7 @@ export function ChatPage({
       >
         <div className="w-full mx-auto px-6 py-8">
           {/* Welcome Message */}
-          {messages.length === 0 && !currentStreamingMessage && (
+          {messages.length === 0 && !currentStreamingMessage && !isSearching && (
             <div className="text-center py-16">
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Bot className="w-8 h-8 text-primary" />
@@ -434,6 +456,32 @@ export function ChatPage({
                 </motion.div>
               ))}
 
+              {/* Search Indicator */}
+              {isSearching && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-4"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Search className="w-5 h-5 text-primary animate-pulse" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">
+                        Searching the web
+                      </span>
+                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                    </div>
+                    {searchQuery && (
+                      <p className="text-sm text-muted-foreground">
+                        Query: <span className="italic">{searchQuery}</span>
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
               {/* Streaming Message */}
               {currentStreamingMessage && (
                 <motion.div
@@ -459,6 +507,7 @@ export function ChatPage({
               )}
             </AnimatePresence>
           </div>
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
