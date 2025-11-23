@@ -1,13 +1,10 @@
 import { 
-    Search,
-    TrendingUp,
-    BarChart3,
-    Calculator,
-    FileText,
     FilePlus,
     ChartCandlestick,
     FolderSearch,
-    Globe
+    Globe,
+    ChartPie,
+    TrendingUpDown
   } from "lucide-react"
 
 export interface Tool {
@@ -23,13 +20,13 @@ export const lmtools: Tool[] = [
     {
     id: "search",
     name: "Basic Search",
-    description: "Search the internet for up to date information",
+    description: "Search the internet to improve responses",
     icon: Globe,
     enabled: true,
     premium: false
     },
     {
-    id: "advsearch",
+    id: "adv_search",
     name: "Advanced Search",
     description: "Search through trusted news sources, SEC filings and more",
     icon: FolderSearch,
@@ -38,43 +35,43 @@ export const lmtools: Tool[] = [
     },
     {
     id: "stock_chart",
-    name: "Market Info",
-    description: "Interactive embedded financial diagrams",
+    name: "Market Panel",
+    description: "Interactive graphs showing historical market data",
     icon: ChartCandlestick,
     enabled: true,
+    premium: false
+    },
+    {
+    id: "market_data",
+    name: "Market Data",
+    description: "Use real market data to improve responses",
+    icon: ChartCandlestick,
+    enabled: false,
     premium: false
     },
     {
     id: "graph",
     name: "Graph Generator",
     description: "Create charts and data visualizations",
-    icon: TrendingUp,
+    icon: ChartPie,
     enabled: false,
     premium: false
     },
     {
     id: "backtest",
     name: "Backtest",
-    description: "Run trading strategy backtests",
-    icon: BarChart3,
+    description: "Run simple backtests",
+    icon: TrendingUpDown,
     enabled: false,
     premium: false
     },
     {
-    id: "advbacktest",
+    id: "adv_backtest",
     name: "Advanced Backtest",
     description: "Create powerful trading models",
-    icon: BarChart3,
+    icon: TrendingUpDown,
     enabled: false,
     premium: true
-    },
-    {
-    id: "calculator",
-    name: "Calculator",
-    description: "Perform complex financial calculations",
-    icon: Calculator,
-    enabled: false,
-    premium: false
     },
     {
     id: "report",

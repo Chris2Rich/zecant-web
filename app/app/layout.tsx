@@ -82,6 +82,12 @@ export default function AppLayout({children, sidebarItems = []} : {
                         active={
                             pathname.startsWith('/app/chat')
                         }/>
+                    <NavItem icon={PieChart}
+                        label="Portfolio"
+                        link="/app/portfolio"
+                        active={
+                            pathname.startsWith('/app/portfolio')
+                        }/>
                     <NavItem icon={BarChart3}
                         label="Strategies"
                         link="/app/strategies"
