@@ -26,13 +26,6 @@ interface CandleData {
   volume: number;
 }
 
-interface ProcessedCandle extends CandleData {
-  isPositive: boolean;
-  candleHeight: number;
-  wickHigh: number;
-  wickLow: number;
-}
-
 interface StockInfo {
   currentPrice: number;
   change: number;
@@ -56,15 +49,14 @@ interface TimeRangeConfig {
 }
 
 const TIME_RANGES: TimeRangeConfig[] = [
-  { label: "1D", value: "1", days: 1, interval: "5m" },      // 5-min data for 1 day
-  { label: "1W", value: "7", days: 7, interval: "1h" },      // Hourly data for 1 week
-  { label: "1M", value: "30", days: 30, interval: "1d" },    // Daily data for 1 month
-  { label: "3M", value: "90", days: 90, interval: "1d" },    // Daily data for 3 months
-  { label: "1Y", value: "365", days: 365, interval: "1wk" }, // Weekly data for 1 year
-  { label: "All", value: "all", days: 3650, interval: "1mo" }, // Monthly data for all time (~10 years)
+  { label: "1D", value: "1", days: 1, interval: "5m" },
+  { label: "1W", value: "7", days: 7, interval: "1h" },
+  { label: "1M", value: "30", days: 30, interval: "1d" },
+  { label: "3M", value: "90", days: 90, interval: "1d" },
+  { label: "1Y", value: "365", days: 365, interval: "1wk" },
+  { label: "All", value: "all", days: 3650, interval: "1mo" },
 ];
 
-// Utility functions
 const formatVolume = (vol: number): string => {
   if (vol >= 1e9) return `${(vol / 1e9).toFixed(2)}B`;
   if (vol >= 1e6) return `${(vol / 1e6).toFixed(2)}M`;
@@ -73,23 +65,34 @@ const formatVolume = (vol: number): string => {
 };
 
 const formatPrice = (price: number): string => {
-  if (price >= 1000) return `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  return `$${price.toFixed(2)}`;
+  if (price >= 1000) return `${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `${price.toFixed(2)}`;
 };
 
-const formatDate = (dateStr: string, includeYear = false, isIntraday = false): string => {
+// Format X-axis based on the selected time range
+const formatXAxis = (dateStr: string, range: TimeRange, dataLength: number): string => {
   const date = new Date(dateStr);
   
-  if (isIntraday) {
-    return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  switch (range) {
+    case "1": // 1D - show hours
+      return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    case "7": // 1W - show day names
+      return date.toLocaleDateString(undefined, { weekday: "short" });
+    case "30": // 1M - show day of month
+    case "90": // 3M - show day of month
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    case "365": // 1Y - show months
+      return date.toLocaleDateString(undefined, { month: "short" });
+    case "all": // All time - show month/year or just year depending on data
+      if (dataLength > 60) {
+        return date.toLocaleDateString(undefined, { year: "numeric" });
+      }
+      return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+    default:
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
-  
-  const options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
-  if (includeYear) options.year = "numeric";
-  return date.toLocaleDateString(undefined, options);
 };
 
-// Custom Candlestick Shape - uses price domain for positioning
 const CandleShape = memo(function CandleShape(props: any) {
   const { x, width, payload, priceDomain, chartHeight, chartTop } = props;
   if (!payload || !priceDomain) return null;
@@ -101,7 +104,6 @@ const CandleShape = memo(function CandleShape(props: any) {
   const [minPrice, maxPrice] = priceDomain;
   const priceRange = maxPrice - minPrice;
 
-  // Convert price to Y coordinate (Y increases downward)
   const priceToY = (price: number) => {
     const ratio = (maxPrice - price) / priceRange;
     return chartTop + ratio * chartHeight;
@@ -120,32 +122,13 @@ const CandleShape = memo(function CandleShape(props: any) {
 
   return (
     <g>
-      {/* Wick */}
-      <line
-        x1={wickX}
-        y1={highY}
-        x2={wickX}
-        y2={lowY}
-        stroke={color}
-        strokeWidth={1.5}
-      />
-      {/* Body */}
-      <rect
-        x={bodyX}
-        y={bodyTop}
-        width={bodyWidth}
-        height={bodyHeight}
-        fill={color}
-        stroke={color}
-        strokeWidth={1}
-        rx={1}
-      />
+      <line x1={wickX} y1={highY} x2={wickX} y2={lowY} stroke={color} strokeWidth={1.5} />
+      <rect x={bodyX} y={bodyTop} width={bodyWidth} height={bodyHeight} fill={color} stroke={color} strokeWidth={1} rx={1} />
     </g>
   );
 });
 
-// Custom Tooltip
-const CustomTooltip = memo(function CustomTooltip({ active, payload, isIntraday }: any) {
+const CustomTooltip = memo(function CustomTooltip({ active, payload, range }: any) {
   if (!active || !payload?.[0]) return null;
   
   const data = payload[0].payload as CandleData;
@@ -153,13 +136,8 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, isIntraday 
   
   const formatTooltipDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    if (isIntraday) {
-      return date.toLocaleString(undefined, { 
-        month: "short", 
-        day: "numeric", 
-        hour: "numeric", 
-        minute: "2-digit" 
-      });
+    if (range === "1") {
+      return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
     }
     return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
   };
@@ -187,7 +165,6 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, isIntraday 
 
 export const StockChart = memo(function StockChart({ 
   ticker, 
-  days: initialDays = 30,
   showVolumeChart = true 
 }: StockChartProps) {
   const { getToken } = useAuth();
@@ -200,7 +177,6 @@ export const StockChart = memo(function StockChart({
   const fetchedRef = useRef<string>("");
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Get the config for the selected range
   const rangeConfig = useMemo(() => 
     TIME_RANGES.find(r => r.value === selectedRange) || TIME_RANGES[2],
     [selectedRange]
@@ -210,7 +186,6 @@ export const StockChart = memo(function StockChart({
     const fetchKey = `${ticker}-${rangeConfig.days}-${rangeConfig.interval}`;
     if (fetchedRef.current === fetchKey) return;
 
-    // Cancel any in-flight request
     abortControllerRef.current?.abort();
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -226,20 +201,16 @@ export const StockChart = memo(function StockChart({
         const url = `${API_URL}/data/tickerdata?action=trading&ticker=${ticker}&days=${rangeConfig.days}&interval=${rangeConfig.interval}`;
 
         const response = await fetch(url, {
-            headers: { Authorization: `Bearer ${token}` },
-            signal: controller.signal,
-          }
-        );
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: Failed to fetch data`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch data`);
 
         const result = await response.json();
         if (controller.signal.aborted) return;
 
         const candleData: CandleData[] = result.data || [];
-        
         setData(candleData);
         fetchedRef.current = fetchKey;
 
@@ -262,18 +233,14 @@ export const StockChart = memo(function StockChart({
           setError(err.message || "Failed to load data");
         }
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchData();
-
     return () => controller.abort();
   }, [ticker, rangeConfig, getToken]);
 
-  // Calculate price domain with padding
   const priceDomain = useMemo(() => {
     if (data.length === 0) return [0, 100];
     const highs = data.map(d => d.high);
@@ -284,7 +251,6 @@ export const StockChart = memo(function StockChart({
     return [Math.floor(min - padding), Math.ceil(max + padding)];
   }, [data]);
 
-  // Calculate volume domain
   const volumeDomain = useMemo(() => {
     if (data.length === 0) return [0, 1];
     const maxVol = Math.max(...data.map(d => d.volume));
@@ -293,13 +259,10 @@ export const StockChart = memo(function StockChart({
 
   const handleRangeChange = useCallback((range: TimeRange) => {
     if (range !== selectedRange) {
-      fetchedRef.current = ""; // Clear cache to force refetch
+      fetchedRef.current = "";
       setSelectedRange(range);
     }
   }, [selectedRange]);
-
-  // Determine if we're showing intraday data
-  const isIntraday = rangeConfig.interval === "5m" || rangeConfig.interval === "1h";
 
   const isPositive = stockInfo ? stockInfo.change >= 0 : true;
   const latestCandle = data.length > 0 ? data[data.length - 1] : null;
@@ -325,13 +288,10 @@ export const StockChart = memo(function StockChart({
 
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden mx-8">
-      {/* Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">
-              {ticker.toUpperCase()}
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">{ticker.toUpperCase()}</h3>
             <div className="flex items-baseline gap-3">
               <span className="text-4xl font-bold text-foreground">
                 {latestCandle ? formatPrice(latestCandle.close) : "--"}
@@ -354,7 +314,6 @@ export const StockChart = memo(function StockChart({
             </p>
           </div>
 
-          {/* Time Range Selector */}
           <div className="flex gap-1 bg-muted rounded-lg p-1">
             {TIME_RANGES.map(({ label, value }) => (
               <button
@@ -373,19 +332,18 @@ export const StockChart = memo(function StockChart({
         </div>
       </div>
 
-      {/* Candlestick Chart */}
       <div className="p-6 pb-2">
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
             <XAxis
               dataKey="date"
-              tickFormatter={(d) => formatDate(d, false, isIntraday)}
+              tickFormatter={(d) => formatXAxis(d, selectedRange, data.length)}
               stroke="#71717a"
               fontSize={11}
               tickMargin={8}
               interval="preserveStartEnd"
-              minTickGap={50}
+              minTickGap={selectedRange === "1" ? 60 : selectedRange === "all" ? 80 : 50}
             />
             <YAxis
               domain={priceDomain}
@@ -395,19 +353,12 @@ export const StockChart = memo(function StockChart({
               width={55}
               tickCount={6}
             />
-            <Tooltip content={<CustomTooltip isIntraday={isIntraday} />} cursor={{ stroke: "#525252", strokeDasharray: "4 4" }} />
-            {latestCandle && (
-              <ReferenceLine y={latestCandle.close} stroke="#525252" strokeDasharray="2 2" />
-            )}
+            <Tooltip content={<CustomTooltip range={selectedRange} />} cursor={{ stroke: "#525252", strokeDasharray: "4 4" }} />
+            {latestCandle && <ReferenceLine y={latestCandle.close} stroke="#525252" strokeDasharray="2 2" />}
             <Bar 
               dataKey="high" 
               shape={(props: any) => (
-                <CandleShape 
-                  {...props} 
-                  priceDomain={priceDomain} 
-                  chartHeight={250} 
-                  chartTop={10} 
-                />
+                <CandleShape {...props} priceDomain={priceDomain} chartHeight={250} chartTop={10} />
               )} 
               isAnimationActive={false} 
             />
@@ -415,7 +366,6 @@ export const StockChart = memo(function StockChart({
         </ResponsiveContainer>
       </div>
 
-      {/* Volume Chart */}
       {showVolumeChart && (
         <div className="px-6 pb-4">
           <p className="text-xs text-muted-foreground mb-2">Volume</p>
@@ -425,10 +375,7 @@ export const StockChart = memo(function StockChart({
               <YAxis domain={volumeDomain} hide />
               <Bar dataKey="volume" isAnimationActive={false} radius={[2, 2, 0, 0]}>
                 {data.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.close >= entry.open ? "#10b98140" : "#ef444440"}
-                  />
+                  <Cell key={`cell-${index}`} fill={entry.close >= entry.open ? "#10b98140" : "#ef444440"} />
                 ))}
               </Bar>
             </ComposedChart>
@@ -436,7 +383,6 @@ export const StockChart = memo(function StockChart({
         </div>
       )}
 
-      {/* Stats Footer */}
       <div className="px-6 pb-6 pt-2 border-t border-border">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {latestCandle && (

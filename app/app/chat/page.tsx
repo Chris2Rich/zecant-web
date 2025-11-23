@@ -11,6 +11,7 @@ import { MemoizedMessage } from "@/components/MemoizedMarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { defaultChatOptions } from "@/business/constants";
+import { lmtools } from "@/business/tools";
 
 const API_URL = "https://api.zecant.com";
 
@@ -84,7 +85,7 @@ export function ChatPage({
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
-  const [enabledTools, setEnabledTools] = useState<any[]>([]);
+  const [enabledTools, setEnabledTools] = useState<any[]>([lmtools.filter(t => t.enabled)]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
