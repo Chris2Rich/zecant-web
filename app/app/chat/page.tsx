@@ -85,7 +85,7 @@ export function ChatPage({
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
-  const [enabledTools, setEnabledTools] = useState<any[]>([lmtools.filter(t => t.enabled)]);
+  const [enabledTools, setEnabledTools] = useState<any[]>(lmtools.filter(t => t.enabled));
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
