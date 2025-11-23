@@ -442,7 +442,7 @@ export const StockChart = memo(function StockChart({
             />
             <YAxis
               domain={priceDomain}
-              tickFormatter={(v) => `$${v.toFixed(0)}`}
+              tickFormatter={(v) => `${v.toFixed(0)}`}
               stroke="#71717a"
               fontSize={11}
               width={55}
