@@ -125,18 +125,9 @@ export default function OnboardingPage() {
                     `}
                     onClick={() => handleSelect(tier.name)}
                   >
-                    <div className="mb-6">
+                    <div className="mb-4">
                       <h3 className="text-2xl font-bold mb-2">{tier.name}</h3>
                       <p className="text-muted-foreground">{tier.description}</p>
-                    </div>
-
-                    <div className="mb-4">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-5xl font-bold">${tier.price}</span>
-                        {tier.period && (
-                          <span className="text-muted-foreground text-sm">{tier.period}</span>
-                        )}
-                      </div>
                     </div>
 
                     <div className="container mx-auto mb-4 px-4">
@@ -144,10 +135,14 @@ export default function OnboardingPage() {
                     </div>
 
                     <div className="mb-4">
-                      <div className="flex items-baseline font-bold ml-[50%] -translate-x-1/2">
-                        {tier.credits} Credits
+                      <div className="flex items-baseline gap-1 whitespace-nowrap">
+                        <span className="text-5xl font-bold">${tier.price}</span>
+                        {tier.period && (
+                          <span className="text-muted-foreground text-sm">{tier.period}</span>
+                        )}
                       </div>
                     </div>
+
                   </div>
                 </motion.div>
               ))}

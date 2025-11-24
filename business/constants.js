@@ -1,7 +1,7 @@
 export const pricingTiers = [
     {
       name: "Free",
-      description: "Perfect for getting started",
+      description: "Perfect for testing",
       price: "0",
       period: "/month",
       credits: "3",

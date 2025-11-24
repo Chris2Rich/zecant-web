@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server"
+import { clerkClient } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -14,10 +15,27 @@ const isOnboardingRoute = createRouteMatcher(['/onboarding(.*)']);
 const isApiRoute = createRouteMatcher(['/api/(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   const url = req.nextUrl.clone();
-
-  const onboarded = sessionClaims?.publicMetadata?.onboarded === true;
+  
+  // Allow API routes to pass through without onboarding checks
+  if (isApiRoute(req)) {
+    if (!isPublicRoute(req)) {
+      await auth.protect();
+    }
+    return NextResponse.next();
+  }
+  
+  // Fetch user directly to get fresh metadata
+  let onboarded = false;
+  if (userId) {
+    try {
+      const user = await (await clerkClient()).users.getUser(userId);
+      onboarded = user.publicMetadata?.onboarded === true;
+    } catch (error) {
+      console.error('Error fetching user:', error);
+    }
+  }
 
   // 1. Redirect unauthenticated users from /app routes to sign-up
   if (!userId && isAppRoute(req)) {
@@ -30,7 +48,7 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // 3. Redirect authenticated but not onboarded users to onboarding (except if already there)
-  if (userId && !onboarded && !isOnboardingRoute(req) && !isApiRoute) {
+  if (userId && !onboarded && !isOnboardingRoute(req)) {
     return NextResponse.redirect(new URL('/onboarding', req.url));
   }
 
@@ -48,15 +66,12 @@ export default clerkMiddleware(async (auth, req) => {
   const res = NextResponse.next();
   res.headers.set("x-url", url.toString());
   res.headers.set("x-pathname", url.pathname);
-
   return res;
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
     "/(api|trpc)(.*)",
   ],
 };
