@@ -28,7 +28,6 @@ interface SSEMessage {
   message_id?: string;
   error?: string;
   query?: string;
-  results?: any;
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
