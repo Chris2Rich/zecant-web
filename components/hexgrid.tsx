@@ -1,78 +1,78 @@
-import React from 'react';
+"use client"
+import React, { useEffect, useRef } from "react";
 
 interface HexGridProps {
   scale?: number;
   strokeWidth?: number;
-  /** The base color class for the faint grid lines */
-  baseColorClass?: string;
-  /** The highlight color class for the random segments */
-  highlightColorClass?: string;
+  strokeColor?: string;
   className?: string;
 }
 
 export default function HexGrid({
-  scale = 30,
+  scale = 40,
   strokeWidth = 1,
-  baseColorClass = "stroke-muted-foreground/20", // Very faint base
-  highlightColorClass = "stroke-primary",        // Bright highlights
+  strokeColor = "rgba(156, 163, 175, 0.15)", // subtle muted foreground
   className = "absolute inset-0 -z-10",
 }: HexGridProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const s = scale;
   const w = Math.sqrt(3) * s;
-  const h = 2 * s;
 
-  const patternId = `hex-grid-pattern-${scale}`;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  // This creates the "random" look.
-  // The numbers represent: [Draw Length, Gap Length, Draw Length, Gap Length...]
-  // We make the gaps huge so only small segments of primary color show up.
-  const dashArray = `${s} ${s * 5} ${s / 2} ${s * 8}`;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const cols = Math.ceil(width / w) + 2;
+    const rows = Math.ceil(height / (1.5 * s)) + 2;
+
+    const drawHex = (x: number, y: number) => {
+      const vertices: [number, number][] = [
+        [x + w / 2, y],
+        [x + w, y + s / 2],
+        [x + w, y + s * 1.5],
+        [x + w / 2, y + s * 2],
+        [x, y + s * 1.5],
+        [x, y + s / 2],
+      ];
+
+      ctx.beginPath();
+      vertices.forEach(([vx, vy], i) => {
+        if (i === 0) ctx.moveTo(vx, vy);
+        else ctx.lineTo(vx, vy);
+      });
+      ctx.closePath();
+
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = strokeWidth;
+      ctx.stroke();
+    };
+
+    // Draw all hexes
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const x = col * w + (row % 2) * (w / 2);
+        const y = row * 1.5 * s;
+        drawHex(x, y);
+      }
+    }
+  }, [s, w, strokeWidth, strokeColor]);
 
   return (
-    <svg
-      className={`pointer-events-none w-full h-full ${className} fixed`}
+    <canvas
+      ref={canvasRef}
+      className={`pointer-events-none ${className}`}
       aria-hidden="true"
-    >
-      <defs>
-        <pattern
-          id={patternId}
-          width={w}
-          height={3 * s}
-          patternUnits="userSpaceOnUse"
-          patternTransform={`translate(-${w / 2}, 0)`}
-        >
-          {/* SHARED PATH DATA: The shape of the hex grid tile */}
-          {/* Note: We define the path once here to reuse it, but React requires us to render it twice for the layers */}
-          
-          {/* LAYER 1: The Base Grid (Muted, full opacity lines) */}
-          <path
-            d={`
-              M ${w / 2} 0 L ${w} ${s / 2} L ${w} ${s * 1.5} L ${w / 2} ${s * 2} L 0 ${s * 1.5} L 0 ${s / 2} Z
-              M ${w / 2} ${3 * s} L ${w} ${s * 3.5} L ${w} ${s * 4.5} L ${w / 2} ${s * 5} L 0 ${s * 4.5} L 0 ${s * 3.5} Z
-            `}
-            fill="none"
-            className={baseColorClass}
-            strokeWidth={strokeWidth}
-          />
-
-          {/* LAYER 2: The Highlight Grid (Primary, dashed lines) */}
-          <path
-            d={`
-              M ${w / 2} 0 L ${w} ${s / 2} L ${w} ${s * 1.5} L ${w / 2} ${s * 2} L 0 ${s * 1.5} L 0 ${s / 2} Z
-              M ${w / 2} ${3 * s} L ${w} ${s * 3.5} L ${w} ${s * 4.5} L ${w / 2} ${s * 5} L 0 ${s * 4.5} L 0 ${s * 3.5} Z
-            `}
-            fill="none"
-            className={highlightColorClass}
-            strokeWidth={strokeWidth}
-            // This creates the "broken line" effect
-            strokeDasharray={dashArray}
-            // Offset the dashes slightly so they don't look too uniform
-            strokeDashoffset={s} 
-            strokeLinecap="round"
-          />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill={`url(#${patternId})`} />
-    </svg>
+      style={{ width: "100%", height: "100%" }}
+    />
   );
 }
