@@ -10,11 +10,7 @@ import { PricingCards } from './pricing/page'
 export default function HomePage() {
   return (
     /* Replaced slate colors with semantic tokens */
-    <main className="min-h-screen bg-gradient-to-br from-background to-muted/50">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/80 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
+    <>
       <Header />
       <ScrollReveal>
         <HeroSection />
@@ -43,9 +39,7 @@ export default function HomePage() {
       <ScrollReveal delay={0.2}>
         <CTASection />
       </ScrollReveal>
-      <ScrollReveal delay={0.2}>
-        <Footer />
-      </ScrollReveal>
-    </main>
+      <Footer />
+    </>
   )
 }

@@ -141,7 +141,7 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
           {/* Your dropdown content remains exactly the same */}
           <div className="p-2">
             {/* User Info Header */}
-            <div className="px-3 py-2 border-b border-border">
+            <div className="px-3 py-2">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
                   {user.imageUrl ? (
@@ -166,6 +166,8 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
                 </div>
               </div>
             </div>
+
+            <div className="my-2 h-px bg-border" />
 
             {/* Menu Items */}
             <div className="py-1">
@@ -193,7 +195,7 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
                 <span>Security</span>
               </button>
 
-              <div className="my-1 h-px bg-border" />
+              <div className="my-2 h-px bg-border" />
 
               <button
                 onClick={handleSignOut}
