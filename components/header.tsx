@@ -10,10 +10,6 @@ import {
   X,
   ChevronDown,
   ArrowRight,
-  BookOpen,
-  AlertCircle,
-  Newspaper,
-  GitPullRequestArrow,
 } from "lucide-react"
 
 export function Header() {
@@ -25,25 +21,21 @@ export function Header() {
 
   const moreItems = [
     {
-      icon: BookOpen,
       name: "Blog",
       description: "The latest from our team and product innovations",
       href: "#",
     },
     {
-      icon: AlertCircle,
       name: "Issues",
       description: "Report bugs and request new features",
       href: "#",
     },
     {
-      icon: Newspaper,
       name: "News",
       description: "Stay updated with financial news and insights",
       href: "/app/news",
     },
     {
-      icon: GitPullRequestArrow,
       name: "Updates",
       description: "Hotfixes, new features and more",
       href: "#",
@@ -104,17 +96,17 @@ export function Header() {
               <button 
                 className="flex items-center space-x-1 text-foreground hover:text-primary transition-colors duration-200 cursor-pointer"
               >
-                <span>More</span>
+                <span className={isMoreOpen ? "text-primary" : ""}>Resources</span>
                 <ChevronDown 
                   className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
-                    isMoreOpen ? 'rotate-180' : ''
+                    isMoreOpen ? 'rotate-180 text-primary' : ''
                   }`} 
                 />
               </button>
               
               <div
                 ref={dropdownRef}
-                className={`absolute top-full left-0 w-80 bg-card/95 border border-border rounded-lg shadow-2xl z-50 transition-all duration-300 ease-in-out ${
+                className={`absolute top-full left-0 w-80 bg-card/80 border border-border rounded-lg shadow-2xl z-50 transition-all duration-300 ease-in-out ${
                   isMoreOpen 
                     ? 'opacity-100 visible translate-y-0 mt-2' 
                     : 'opacity-0 invisible -translate-y-2 mt-4 pointer-events-none'
@@ -126,11 +118,10 @@ export function Header() {
                       <Link
                         key={index}
                         href={item.href}
-                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-all duration-200 group/item"
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-all duration-200 group/item"
                       >
-                        <item.icon className="w-5 h-5 text-primary mt-0.5 group-hover/item:scale-110 transition-transform duration-200 shrink-0" />
                         <div className="flex-1">
-                          <div className="font-medium text-foreground group-hover/item:text-primary transition-colors duration-200">
+                          <div className="font-medium text-foreground transition-colors duration-200">
                             {item.name}
                           </div>
                           <div className="text-sm text-muted-foreground mt-0.5">{item.description}</div>
@@ -181,13 +172,28 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden text-foreground hover:text-primary transition-colors ml-auto"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile User Button */}
+        <div className="md:hidden flex items-center">
+          {!isLoaded ? (
+            <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />
+          ) : !isSignedIn ? (
+            <button
+              className="text-foreground hover:text-primary transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          ) : (
+            <>
+              <button
+                className="text-foreground hover:text-primary transition-colors ml-2"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {isMenuOpen && (
@@ -198,14 +204,13 @@ export function Header() {
               Pricing
             </a>
             <div className="space-y-2 border-t border-border pt-4">
-              <div className="text-sm font-semibold text-muted-foreground uppercase mb-2">More</div>
+              <div className="text-sm font-semibold text-muted-foreground uppercase mb-2">Resources</div>
               {moreItems.map((item, index) => (
                 <Link
                 key={index}
                 href={item.href}
-                className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group/item"
                 >
-                  <item.icon className="w-5 h-5 text-primary mt-0.5 shrink-0" />
                   <div>
                     <div className="font-medium text-foreground">{item.name}</div>
                     <div className="text-sm text-muted-foreground">{item.description}</div>

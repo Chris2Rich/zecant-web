@@ -86,7 +86,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
           style={floatingStyles}
           {...getFloatingProps()}
           className={`
-            absolute w-80 bg-card/95 backdrop-blur-lg border border-border rounded-lg shadow-2xl z-50
+            absolute w-80 bg-card/80 border border-border rounded-lg shadow-2xl z-50
             origin-top-left
             transition-all duration-200 ease-in-out
             ${context.isPositioned ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
@@ -96,7 +96,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
             {/* Header */}
             <div className="px-3 py-3 border-b border-border">
               <div className="flex items-center space-x-2">
-                <Settings2 className="w-5 h-5 text-primary" />
+                <Settings2 className="w-5 h-5 text-muted-foreground" />
                 <div>
                   <h3 className="font-semibold text-foreground">Tools & Features</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -125,11 +125,15 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                     <div className={`
                       w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
                       ${tool.enabled 
-                        ? 'bg-primary/20 text-primary' 
-                        : 'bg-muted text-muted-foreground group-hover:text-foreground'
+                        ? 'bg-primary/20' 
+                        : 'bg-muted'
                       }
                     `}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className={`w-5 h-5 transition-colors ${
+                        tool.enabled 
+                          ? 'text-primary' 
+                          : 'text-muted-foreground group-hover:text-primary'
+                      }`} />
                     </div>
                     
                     <div className="flex-1 text-left min-w-0">
@@ -141,7 +145,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                           {tool.name}
                         </span>
                         {tool.enabled && (
-                          <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                          <Check className="w-4 h-4 text-primary flex-shrink-0 transition-colors" />
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">

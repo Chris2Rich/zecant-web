@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect  } from "react"
+import { useState, useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import { useUser, useClerk } from '@clerk/nextjs'
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import {
   useFloating,
-  useClick,
+  useHover,
   useDismiss,
   useInteractions,
   flip,
@@ -32,9 +32,18 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
   const { signOut } = useClerk()
   const [isOpen, setIsOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
   }, [])
 
   // --- Floating UI Setup ---
@@ -51,10 +60,12 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
   });
 
   // --- Interaction Hooks ---
-  const click = useClick(context);
+  const hover = useHover(context, {
+    delay: { open: 0, close: 150 }
+  });
   const dismiss = useDismiss(context);
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    click,
+    hover,
     dismiss,
   ]);
   // --- End of Floating UI Setup ---
@@ -90,8 +101,8 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
       <Button
         ref={refs.setReference} // Set the reference element (the trigger)
         {...getReferenceProps()} // Spread the interaction props
-        variant="ghost"
-        className="flex items-center space-x-2 p-2 h-auto hover:bg-muted/50 transition-all duration-300 hover:scale-105"
+        variant={null}
+        className="flex bg-transparent hover:bg-transparent items-center space-x-2 p-2 h-auto transition-all duration-300 group"
       >
         <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
           {user.imageUrl ? (
@@ -108,8 +119,8 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
         </div>
         {full && (
           <>
-          <div className="hidden md:block text-left">
-            <div className="text-sm font-medium text-foreground truncate max-w-24">
+          <div className="text-left">
+            <div className={`text-sm font-medium text-foreground truncate max-w-24 transition-colors duration-300 ${isOpen ? 'text-primary' : ''}`}>
               {displayName}
             </div>
             <div className="text-xs text-muted-foreground">
@@ -119,11 +130,11 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
         
         <ChevronDown 
           className={`w-4 h-4 text-muted-foreground transition-transform duration-300 ${
-            isOpen ? 'rotate-180' : ''
+            isOpen ? 'rotate-180 text-primary' : ''
           }`} 
           />
           </>
-      )}
+        )}
       </Button>
 
       {isOpen && isMounted && createPortal(
@@ -132,11 +143,23 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
           style={floatingStyles} // Apply the dynamic styles
           {...getFloatingProps()} // Spread the interaction props
           className={`
-            absolute w-64 bg-card/95 backdrop-blur-lg border border-border rounded-lg shadow-2xl z-50
+            absolute w-64 bg-card/80 border border-border rounded-lg shadow-2xl z-50
             origin-top-right
             transition-all duration-200 ease-in-out
             ${context.isPositioned ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
           `}
+          onMouseEnter={() => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current)
+              timeoutRef.current = null
+            }
+            setIsOpen(true)
+          }}
+          onMouseLeave={() => {
+            timeoutRef.current = setTimeout(() => {
+              setIsOpen(false)
+            }, 150)
+          }}
         >
           {/* Your dropdown content remains exactly the same */}
           <div className="p-2">
