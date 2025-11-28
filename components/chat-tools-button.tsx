@@ -70,7 +70,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
         {...getReferenceProps()}
         size="default"
         variant="outline"
-        className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 hover:scale-105 cursor-pointer relative"
+        className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 cursor-pointer relative"
       >
         <Settings2 className="w-4 h-4" />
         {enabledCount > 0 && (

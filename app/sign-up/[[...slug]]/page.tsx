@@ -123,7 +123,7 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 disabled={isLoading || !isLoaded}
-                className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
+                className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
                 >
                 {isLoading ? 'Verifying...' : 'Verify email'}
               </Button>
@@ -252,7 +252,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               disabled={isLoading || !isLoaded}
-              className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
+              className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
             >
               {isLoading ? 'Creating account...' : 'Create account'}
             </Button>

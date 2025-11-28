@@ -224,7 +224,7 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
                 onClick={handleSignOut}
                 className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors group"
               >
-                <LogOut className="w-4 h-4 text-destructive group-hover:scale-110 transition-transform" />
+                <LogOut className="w-4 h-4 text-destructive group-transition-transform" />
                 <span>Sign out</span>
               </button>
             </div>

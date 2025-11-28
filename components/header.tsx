@@ -147,23 +147,21 @@ export function Header() {
         </Link>
 
         {/* Right Box: User Buttons */}
-        <div className="hidden md:flex items-center px-4 h-[56px] bg-card/70 border border-border rounded-lg">
+        <div className="hidden md:flex items-center px-2 h-[56px] bg-card/70 border border-border rounded-lg">
           {!isLoaded ? (
             <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />
           ) : !isSignedIn ? (
             <div className="flex items-center gap-3">
-              <Link href="/contact">
+              <Link href="/sign-up">
                 <Button
-                  variant="outline"
-                  className="border-border bg-transparent text-foreground hover:bg-card hover:border-primary/70 transition-all cursor-pointer"
+                  className="bg-primary hover:bg-primary/70 text-primary-foreground font-semibold glow-primary-intense hover:transition-all duration-300 cursor-pointer"
                 >
-                  Contact Sales
+                  Sign Up
                 </Button>
               </Link>
               <Link href="/sign-in">
-                <Button className="bg-background border border-border text-foreground hover:bg-muted transition-all cursor-pointer flex items-center gap-2">
-                  <ArrowRight className="w-4 h-4" />
-                  Login
+                <Button variant="outline" className="border-border text-foreground hover:border-primary hover:text-primary hover:bg-primary/10 font-semibold hover:glow-primary transition-all duration-300 bg-transparent cursor-pointer">
+                  Sign In
                 </Button>
               </Link>
             </div>

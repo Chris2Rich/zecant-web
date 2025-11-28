@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
+import { PricingTable } from "@/components/pricingtable"
 
 import { pricingTiers } from "@/business/constants.js"
 
@@ -129,7 +130,7 @@ export function PricingCards() {
                     }
             `}
                 >
-                  {isSignedIn ? "Switch Tier" : tier.cta}
+                  {isSignedIn ? "Change Your Plan" : tier.cta}
                   <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                 </Button>
               </Link>
@@ -154,6 +155,14 @@ export default function PricingPage() {
 
       <ScrollReveal>
         <PricingCards />
+      </ScrollReveal>
+
+      <div className="container mx-auto px-4">
+        <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+      </div>
+
+      <ScrollReveal>
+        <PricingTable></PricingTable>
       </ScrollReveal>
 
         <Footer />

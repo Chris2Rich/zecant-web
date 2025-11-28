@@ -10,6 +10,8 @@ export const pricingTiers = [
         "Historical data (1 year)",
         "Community support",
         "Basic analytics dashboard",
+        "Access to ZECA",
+        "Portfolio management tools"
       ],
       cta: "Get Started",
       highlighted: false,
@@ -42,7 +44,7 @@ export const pricingTiers = [
       badge: "Best Value",
       features: [
         "Everything in Plus",
-        "Historical data (10+ years)",
+        "Historical data (5+ years)",
         "Faster generations",
         "Priority email support",
         "Advanced analytics & reporting",
@@ -69,6 +71,152 @@ export const pricingTiers = [
       highlighted: false,
     },
   ]
+
+  export const pricingTiersTable = {
+    dataAccess: {
+      label: "Data Access",
+      items: {
+        historicalData: {
+          label: "Historical Data",
+          Free: "1 year",
+          Plus: "2+ years",
+          Pro: "5+ years",
+          Enterprise: "5+ years",
+        },
+      },
+    },
+  
+    analyticsAndTools: {
+      label: "Analytics & Tools",
+      items: {
+        basicAnalytics: {
+          label: "Analytics Dashboard",
+          Free: true,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        advancedAnalytics: {
+          label: "Advanced Analytics & Reporting",
+          Free: false,
+          Plus: false,
+          Pro: true,
+          Enterprise: true,
+        },
+        aiStrategyOptimization: {
+          label: "AI Enhanced Strategy Optimization",
+          Free: false,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        customIndicators: {
+          label: "Custom Indicators & Signals",
+          Free: false,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        portfolioManagement: {
+          label: "Portfolio Management Tools",
+          Free: true,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        fasterGenerations: {
+          label: "Faster Generations",
+          Free: false,
+          Plus: false,
+          Pro: true,
+          Enterprise: true,
+        },
+      },
+    },
+  
+    integrations: {
+      label: "Integrations",
+      items: {
+        bringYourOwnKey: {
+          label: "Bring Your Own Key",
+          Free: false,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        bringYourOwnData: {
+          label: "Bring Your Own Data",
+          Free: false,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        apiAccess: {
+          label: "API Access",
+          Free: false,
+          Plus: false,
+          Pro: true,
+          Enterprise: true,
+        },
+        customIntegrations: {
+          label: "Custom Integrations",
+          Free: false,
+          Plus: false,
+          Pro: false,
+          Enterprise: true,
+        },
+      },
+    },
+  
+    platformAndSupport: {
+      label: "Platform & Support",
+      items: {
+        accessToZECA: {
+          label: "Access to ZECA",
+          Free: true,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        communitySupport: {
+          label: "Community Support",
+          Free: true,
+          Plus: true,
+          Pro: true,
+          Enterprise: true,
+        },
+        priorityEmailSupport: {
+          label: "Priority Email Support",
+          Free: false,
+          Plus: false,
+          Pro: true,
+          Enterprise: true,
+        },
+        teamCollaboration: {
+          label: "Team Collaboration Tools",
+          Free: false,
+          Plus: false,
+          Pro: false,
+          Enterprise: true,
+        },
+        securityCompliance: {
+          label: "Advanced Security & Compliance",
+          Free: false,
+          Plus: false,
+          Pro: false,
+          Enterprise: true,
+        },
+        slaGuarantee: {
+          label: "SLA Guarantee",
+          Free: false,
+          Plus: false,
+          Pro: false,
+          Enterprise: true,
+        },
+      },
+    },
+  };
+  
 
   export const billingTiers = {
     Free: {

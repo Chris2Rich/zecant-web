@@ -27,7 +27,7 @@ export function ArticleOverview({article, index=0} : {article: ArticleHeader, in
                       <img
                         src={article.urlToImage}
                         alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover group-transition-transform duration-300"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
@@ -70,7 +70,7 @@ export function ArticleEmphasised({article} : {article: ArticleHeader}){
       <img
         src={article.urlToImage}
         alt={article.title}
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        className="w-full h-full object-cover group-transition-transform duration-500"
       />
     ) : (
       <div className="w-full h-full bg-muted flex items-center justify-center">

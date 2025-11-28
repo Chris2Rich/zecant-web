@@ -2,7 +2,7 @@ import HeroButtons from "./herobuttons"
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto space-y-8 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">

@@ -106,7 +106,7 @@ export default function OnboardingPage() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 mx-auto px-4">
-              {pricingTiers.map((tier, index) => (
+              {pricingTiers.map((tier, index) => { return (tier.name == "free") ?
                 <motion.div
                   key={tier.name}
                   initial={{ opacity: 0, y: 20 }}
@@ -144,8 +144,8 @@ export default function OnboardingPage() {
                     </div>
 
                   </div>
-                </motion.div>
-              ))}
+                </motion.div> : <></>
+              })}
             </div>
 
             <Button
@@ -355,7 +355,7 @@ function PaymentForm({
         <Button
           type="submit"
           disabled={isPaying || !stripe}
-          className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
+          className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
         >
           {isPaying ? 'Processing...' : 'Pay Now'}
         </Button>
