@@ -13,8 +13,8 @@ export default function HexGrid({
   scale = 15,
   strokeWidth = 1,
   strokeColor = "oklch(0.25 0.01 240)",
-  pointSize = 0.75,
-  className = "fixed opacity-75 inset-0 [mask-image:radial-gradient(circle_at_center,rgba(255,255,255,0.35)_20%,white_80%,rgba(255,255,255,0.25)_100%)] -z-10",
+  pointSize = 1,
+  className = "fixed opacity-75 inset-0 [mask-image:radial-gradient(circle_at_center,rgba(255,255,255,0.35)_20%,white_70%,white_80%,rgba(255,255,255,0.25)_100%)] -z-10 bg-radial from-transparent to-primary/5",
 }: HexGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
