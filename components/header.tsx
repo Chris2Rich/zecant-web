@@ -1,119 +1,152 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { useUser, SignedIn, SignedOut } from '@clerk/nextjs'
 import { CustomUserButton } from '@/components/custom-user-button'
 import Link from "next/link"
 import {
-  ChevronDown,
   Menu,
   X,
-  TrendingUp,
-  BarChart3,
-  Brain,
-  FileText,
+  ChevronDown,
+  ArrowRight,
   BookOpen,
-  MessageCircle,
-  Phone,
-  Mail,
+  AlertCircle,
+  Newspaper,
+  GitPullRequestArrow,
 } from "lucide-react"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMoreOpen, setIsMoreOpen] = useState(false)
   const { isSignedIn, isLoaded } = useUser()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const solutionsDropdown = [
+  const moreItems = [
     {
-      category: "BY STRATEGY TYPE",
-      items: [
-        { icon: TrendingUp, name: "Momentum Trading", description: "Trend-following algorithms" },
-        { icon: BarChart3, name: "Mean Reversion", description: "Statistical arbitrage strategies" },
-        { icon: Brain, name: "ML Strategies", description: "Machine learning models" },
-      ],
+      icon: BookOpen,
+      name: "Blog",
+      description: "The latest from our team and product innovations",
+      href: "#",
     },
     {
-      category: "BY ASSET CLASS",
-      items: [
-        { icon: TrendingUp, name: "Equities", description: "Stock trading strategies" },
-        { icon: BarChart3, name: "Options", description: "Derivatives and volatility" },
-        { icon: Brain, name: "Crypto", description: "Digital asset strategies" },
-      ],
+      icon: AlertCircle,
+      name: "Issues",
+      description: "Report bugs and request new features",
+      href: "#",
+    },
+    {
+      icon: Newspaper,
+      name: "News",
+      description: "Stay updated with financial news and insights",
+      href: "/app/news",
+    },
+    {
+      icon: GitPullRequestArrow,
+      name: "Updates",
+      description: "Hotfixes, new features and more",
+      href: "#",
     },
   ]
 
-  const resourcesDropdown = [
-    {
-      category: "LEARN",
-      items: [
-        { icon: BookOpen, name: "Documentation", description: "API guides and tutorials" },
-        { icon: FileText, name: "Strategy Library", description: "Pre-built trading strategies" },
-        { icon: BarChart3, name: "Backtesting Guide", description: "Historical performance testing" },
-      ],
-    },
-    {
-      category: "DATA SOURCES",
-      items: [
-        { icon: TrendingUp, name: "Market Data", description: "Real-time price feeds" },
-        { icon: FileText, name: "SEC Filings", description: "Corporate disclosures" },
-        { icon: Brain, name: "News Sentiment", description: "AI-powered news analysis" },
-      ],
-    },
-  ]
+  const handleMoreEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+    setIsMoreOpen(true)
+  }
 
-  const supportDropdown = [
-    {
-      category: "GET HELP",
-      items: [
-        { icon: MessageCircle, name: "Live Chat", description: "24/7 technical support" },
-        { icon: Phone, name: "Phone Support", description: "Speak with our experts" },
-        { icon: Mail, name: "Email Support", description: "Get detailed assistance" },
-      ],
-    },
-  ]
+  const handleMoreLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsMoreOpen(false)
+    }, 150) // Small delay before closing
+  }
 
-  const DropdownMenu = ({ items, className = "" }: { items: any[]; className?: string }) => (
-    <div
-      className={`absolute top-full left-0 mt-2 w-96 bg-card/95 backdrop-blur-lg border border-border rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 ${className}`}
-    >
-      <div className="p-6">
-        {items.map((category, categoryIndex) => (
-          <div key={categoryIndex} className={categoryIndex > 0 ? "mt-6 pt-6 border-t border-border" : ""}>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              {category.category}
-            </h3>
-            <div className="space-y-2">
-              {category.items.map((item: any, itemIndex: number) => (
-                <a
-                  key={itemIndex}
-                  href="#"
-                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group/item"
-                >
-                  <item.icon className="w-5 h-5 text-primary mt-0.5 group-hover/item:scale-110 transition-transform" />
-                  <div>
-                    <div className="font-medium text-foreground group-hover/item:text-primary transition-colors">
-                      {item.name}
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-0.5">{item.description}</div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-nav border-b border-border">
-      <div className="w-full bg-red-700 text-foreground text-center text-bold text-xs">
-        <p>
-          DO NOT BUY ANYTHING HERE. THIS SITE AND SERVICE ARE IN DEVELOPMENT!
-        </p>
-      </div>
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href={!isSignedIn ? "/" : "/app"}>
+    <header className="fixed top-0 left-0 right-0 z-50 py-4">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        {/* Left Box: Logo, Pricing, More */}
+        <div className="hidden md:flex items-center gap-6 px-4 h-[56px] bg-card/50 border border-border rounded-lg">
+          <Link href={!isSignedIn ? "/" : "/app"}>
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">Z</span>
+              </div>
+              <span className="text-xl font-bold gradient-text">Zecant</span>
+            </div>
+          </Link>
+
+          <div className="h-6 w-px bg-border" />
+
+          <nav className="flex items-center gap-6">
+            <a
+              href="/pricing"
+              className="text-foreground hover:text-primary transition-colors cursor-pointer"
+            >
+              Pricing
+            </a>
+            
+            <div 
+              className="relative group"
+              onMouseEnter={handleMoreEnter}
+              onMouseLeave={handleMoreLeave}
+            >
+              <button 
+                className="flex items-center space-x-1 text-foreground hover:text-primary transition-colors duration-200 cursor-pointer"
+              >
+                <span>More</span>
+                <ChevronDown 
+                  className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
+                    isMoreOpen ? 'rotate-180' : ''
+                  }`} 
+                />
+              </button>
+              
+              <div
+                ref={dropdownRef}
+                className={`absolute top-full left-0 w-80 bg-card/95 border border-border rounded-lg shadow-2xl z-50 transition-all duration-300 ease-in-out ${
+                  isMoreOpen 
+                    ? 'opacity-100 visible translate-y-0 mt-2' 
+                    : 'opacity-0 invisible -translate-y-2 mt-4 pointer-events-none'
+                }`}
+              >
+                <div className="p-4">
+                  <div className="space-y-2">
+                    {moreItems.map((item, index) => (
+                      <Link
+                        key={index}
+                        href={item.href}
+                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-all duration-200 group/item"
+                      >
+                        <item.icon className="w-5 h-5 text-primary mt-0.5 group-hover/item:scale-110 transition-transform duration-200 shrink-0" />
+                        <div className="flex-1">
+                          <div className="font-medium text-foreground group-hover/item:text-primary transition-colors duration-200">
+                            {item.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground mt-0.5">{item.description}</div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-muted-foreground group-hover/item:text-primary group-hover/item:translate-x-1 transition-all duration-200 shrink-0" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        {/* Mobile Logo */}
+        <Link href={!isSignedIn ? "/" : "/app"} className="md:hidden">
           <div className="flex items-center space-x-2 cursor-pointer">
             <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">Z</span>
@@ -122,65 +155,35 @@ export function Header() {
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-8">
-          <div className="relative group">
-            <button className="flex items-center space-x-1 text-foreground hover:text-primary hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
-              <span>Solutions</span>
-              <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-            </button>
-            <DropdownMenu items={solutionsDropdown} />
-          </div>
-
-          <div className="relative group">
-            <button className="flex items-center space-x-1 text-foreground hover:text-primary hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
-              <span>Resources</span>
-              <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-            </button>
-            <DropdownMenu items={resourcesDropdown} />
-          </div>
-
-          <div className="relative group">
-            <button className="flex items-center space-x-1 text-foreground hover:text-primary hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
-              <span>Support</span>
-              <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform duration-300" />
-            </button>
-            <DropdownMenu items={supportDropdown} />
-          </div>
-
-          <a
-            href="/pricing"
-            className="text-foreground hover:text-primary hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-          >
-            Pricing
-          </a>
-        </nav>
-
-        <div className="hidden md:flex items-center space-x-4">
+        {/* Right Box: User Buttons */}
+        <div className="hidden md:flex items-center px-4 h-[56px] bg-card/50 border border-border rounded-lg">
           {!isLoaded ? (
             <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />
           ) : !isSignedIn ? (
-            <>
-            <Link href="/sign-in">
-              <Button
-                variant="outline"
-                className="border-border text-foreground hover:border-primary hover:text-primary hover:glow-primary transition-all duration-300 hover:scale-105 bg-transparent cursor-pointer"
+            <div className="flex items-center gap-3">
+              <Link href="/contact">
+                <Button
+                  variant="outline"
+                  className="border-border bg-transparent text-foreground hover:bg-card hover:border-primary/50 transition-all cursor-pointer"
                 >
-                Log In
-              </Button>
-            </Link>
-            <Link href="/sign-up">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold hover:glow-primary-intense transition-all duration-300 hover:scale-105 cursor-pointer">
-                Sign Up
-              </Button>
-            </Link>
-            </>
+                  Contact Sales
+                </Button>
+              </Link>
+              <Link href="/sign-in">
+                <Button className="bg-background border border-border text-foreground hover:bg-muted transition-all cursor-pointer flex items-center gap-2">
+                  <ArrowRight className="w-4 h-4" />
+                  Login
+                </Button>
+              </Link>
+            </div>
           ) : (
             <CustomUserButton full={true} />
           )}
         </div>
 
+        {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-foreground hover:text-primary transition-colors"
+          className="md:hidden text-foreground hover:text-primary transition-colors ml-auto"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -188,47 +191,56 @@ export function Header() {
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur-nav border-t border-border">
+        <div className="md:hidden border-t border-border">
+          <div className="bg-background/95 backdrop-blur-nav -z-2 fixed w-[100%] h-[100%] -translate-y-[49%]" />
           <div className="container mx-auto px-4 py-4 space-y-4">
-            <a href="#solutions" className="block text-foreground hover:text-primary transition-colors">
-              Solutions
-            </a>
-            <a href="#resources" className="block text-foreground hover:text-primary transition-colors">
-              Resources
-            </a>
-            <a href="#support" className="block text-foreground hover:text-primary transition-colors">
-              Support
-            </a>
-            <a href="#pricing" className="block text-foreground hover:text-primary transition-colors">
+            <a href="/pricing" className="block text-foreground hover:text-primary transition-colors">
               Pricing
             </a>
-            <div className="pt-4 space-y-2">
+            <div className="space-y-2 border-t border-border pt-4">
+              <div className="text-sm font-semibold text-muted-foreground uppercase mb-2">More</div>
+              {moreItems.map((item, index) => (
+                <Link
+                key={index}
+                href={item.href}
+                className="flex items-start space-x-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <item.icon className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                  <div>
+                    <div className="font-medium text-foreground">{item.name}</div>
+                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="pt-4 space-y-2 border-t border-border">
               {!isLoaded ? (
                 <div className="w-full h-10 bg-muted rounded-lg animate-pulse" />
               ) : !isSignedIn ? (
                 <>
-                <Link href="/sign-in">
+                <Link href="/contact">
                   <Button
                     variant="outline"
                     className="w-full border-border text-foreground hover:border-primary hover:text-primary bg-transparent"
-                  >
-                    Log In
+                    >
+                    Contact Sales
                   </Button>
                 </Link>
-                <Link href="/sign-up">
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-                    Sign Up
+                <Link href="/sign-in">
+                  <Button className="w-full bg-background border border-border text-foreground hover:bg-muted flex items-center justify-center gap-2">
+                    <ArrowRight className="w-4 h-4" />
+                    Login
                   </Button>
                 </Link>
                 </>
               ) : (
                 <div className="flex justify-center">
-                  <CustomUserButton full={false} />
+                  <CustomUserButton full={true} />
                 </div>
               )}
             </div>
           </div>
-        </div>
+      </div>
       )}
     </header>
   )

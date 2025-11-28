@@ -1,7 +1,7 @@
 "use client"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
-import { Play, ArrowRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export default function HeroButtons(){
@@ -14,18 +14,19 @@ export default function HeroButtons(){
           size="lg"
           className="group bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg px-8 py-4 glow-primary-intense hover:transition-all duration-300 hover:scale-105 cursor-pointer"
           >
-          Start Building
+          Get Started Free
           <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
         </Button>
         </Link>
+        <Link href="/pricing">
         <Button
           size="lg"
           variant="outline"
           className="group border-border text-foreground hover:border-primary hover:text-primary hover:bg-primary/10 font-semibold text-lg px-8 py-4 hover:glow-primary transition-all duration-300 hover:scale-105 bg-transparent cursor-pointer"
         >
-          View Demo
-          <Play className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+          View Plans
         </Button>
+        </Link>
         </>
       ) : (
         <>

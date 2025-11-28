@@ -1,4 +1,3 @@
-import { Shield, TrendingUp, FileChartColumn } from "lucide-react"
 import HeroButtons from "./herobuttons"
 
 export function HeroSection() {
@@ -15,20 +14,6 @@ export function HeroSection() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <HeroButtons></HeroButtons>
-          </div>
-          <div className="flex items-center justify-center space-x-6 pt-4">
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <TrendingUp className="w-4 h-4 text-primary" />
-              <span>Run Backtests</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <FileChartColumn className="w-4 h-4 text-primary" />
-              <span>AI Reports</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <Shield className="w-4 h-4 text-primary" />
-              <span>SOC 2 Security</span>
-            </div>
           </div>
         </div>
       </div>
