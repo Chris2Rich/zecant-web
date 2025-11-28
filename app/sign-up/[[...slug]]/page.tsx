@@ -86,9 +86,9 @@ export default function SignUpPage() {
             </Button>
           </Link>
 
-          <div className="bg-card/95 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
+          <div className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
             <div className="text-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Check className="w-6 h-6 text-primary-foreground" />
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">Verify your email</h1>
@@ -123,7 +123,7 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 disabled={isLoading || !isLoaded}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
+                className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
                 >
                 {isLoading ? 'Verifying...' : 'Verify email'}
               </Button>
@@ -134,7 +134,7 @@ export default function SignUpPage() {
                 Didn't receive the code?{' '}
                 <button
                   onClick={() => signUp?.prepareEmailAddressVerification({ strategy: 'email_code' })}
-                  className="text-primary hover:text-primary/80 font-medium transition-colors cursor-pointer"
+                  className="text-primary hover:text-primary/70 font-medium transition-colors cursor-pointer"
                   >
                   Resend
                 </button>
@@ -150,7 +150,7 @@ export default function SignUpPage() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 flex items-center justify-center p-4">
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/80 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/70 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       <div className="relative w-full max-w-md">
@@ -166,9 +166,9 @@ export default function SignUpPage() {
         </Link>
 
         {/* Sign Up Form */}
-        <div className="bg-card/95 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
+        <div className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mx-auto mb-4">
               <span className="text-primary-foreground font-bold text-xl">Z</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Create your account</h1>
@@ -252,7 +252,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               disabled={isLoading || !isLoaded}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
+              className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense hover:scale-[1.02] transition-all duration-300"
             >
               {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
@@ -261,7 +261,7 @@ export default function SignUpPage() {
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">
               Already have an account?{' '}
-              <Link className="text-primary hover:text-primary/80 font-medium transition-colors" href="/sign-in">Sign in</Link>
+              <Link className="text-primary hover:text-primary/70 font-medium transition-colors" href="/sign-in">Sign in</Link>
             </p>
           </div>
         </div>

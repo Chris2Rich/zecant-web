@@ -109,8 +109,8 @@ export function PricingCards() {
               w-full mt-auto py-3 px-6 rounded-lg font-semibold
               transition-all duration-300 cursor-pointer group 
               ${tier.highlighted
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/70 shadow-lg hover:shadow-xl"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/70 border border-border"
                   }
             `}
               >
@@ -124,8 +124,8 @@ export function PricingCards() {
               w-full mt-auto py-3 px-6 rounded-lg font-semibold
               transition-all duration-300 cursor-pointer group 
               ${tier.highlighted
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/70 shadow-lg hover:shadow-xl"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/70 border border-border"
                     }
             `}
                 >

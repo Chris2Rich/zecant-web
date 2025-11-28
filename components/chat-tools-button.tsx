@@ -86,7 +86,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
           style={floatingStyles}
           {...getFloatingProps()}
           className={`
-            absolute w-80 bg-card/80 border border-border rounded-lg shadow-2xl z-50
+            absolute w-80 bg-card/70 border border-border rounded-lg shadow-2xl z-50
             origin-top-left
             transition-all duration-200 ease-in-out
             ${context.isPositioned ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
@@ -140,7 +140,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                       <div className="flex items-center justify-between">
                         <span className={`
                           text-sm font-medium transition-colors
-                          ${tool.enabled ? 'text-foreground' : 'text-foreground/80'}
+                          ${tool.enabled ? 'text-foreground' : 'text-foreground/70'}
                         `}>
                           {tool.name}
                         </span>

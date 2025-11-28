@@ -50,13 +50,13 @@ export default function AppLayout({children, sidebarItems = []} : {
     const pathname = usePathname()
     return (
         <SidebarProvider>
-        <div className="flex h-screen bg-background text-foreground overflow-hidden">
+        <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
             <aside className="w-16 bg-card border-r border-border flex flex-col items-center py-6 space-y-6">
                 {/* Logo */}
                 <Link href="/">
                     <div className="flex items-center space-x-2 cursor-pointer">
-                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
                             <span className="text-primary-foreground font-bold text-sm">Z</span>
                         </div>
                     </div>
