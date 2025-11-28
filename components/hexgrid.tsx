@@ -1,18 +1,20 @@
-"use client"
+"use client";
 import React, { useEffect, useRef } from "react";
 
 interface HexGridProps {
   scale?: number;
   strokeWidth?: number;
   strokeColor?: string;
+  pointSize?: number;
   className?: string;
 }
 
 export default function HexGrid({
-  scale = 40,
-  strokeWidth = 1,
-  strokeColor = "rgba(156, 163, 175, 0.15)", // subtle muted foreground
-  className = "absolute inset-0 -z-10",
+  scale = 20,
+  strokeWidth = 2,
+  strokeColor = "oklch(0.25 0.01 240)",
+  pointSize = 1,
+  className = "fixed opacity-75 inset-0 [mask-image:radial-gradient(circle_at_center,rgba(255,255,255,0.35)_20%,white_80%,rgba(255,255,255,0.25)_100%)] -z-10",
 }: HexGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -35,37 +37,33 @@ export default function HexGrid({
     const cols = Math.ceil(width / w) + 2;
     const rows = Math.ceil(height / (1.5 * s)) + 2;
 
-    const drawHex = (x: number, y: number) => {
-      const vertices: [number, number][] = [
-        [x + w / 2, y],
-        [x + w, y + s / 2],
-        [x + w, y + s * 1.5],
-        [x + w / 2, y + s * 2],
-        [x, y + s * 1.5],
-        [x, y + s / 2],
-      ];
+    const hexVertices = (x: number, y: number): [number, number][] => [
+      [x + w / 2, y],
+      [x + w, y + s / 2],
+      [x + w, y + s * 1.5],
+      [x + w / 2, y + s * 2],
+      [x, y + s * 1.5],
+      [x, y + s / 2],
+    ];
 
+    const drawPoint = (x: number, y: number) => {
       ctx.beginPath();
-      vertices.forEach(([vx, vy], i) => {
-        if (i === 0) ctx.moveTo(vx, vy);
-        else ctx.lineTo(vx, vy);
-      });
-      ctx.closePath();
-
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = strokeWidth;
-      ctx.stroke();
+      ctx.arc(x, y, pointSize, 0, Math.PI * 2);
+      ctx.fillStyle = strokeColor;
+      ctx.fill();
     };
 
-    // Draw all hexes
+    // Draw only vertices
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const x = col * w + (row % 2) * (w / 2);
         const y = row * 1.5 * s;
-        drawHex(x, y);
+
+        const vertices = hexVertices(x, y);
+        vertices.forEach(([vx, vy]) => drawPoint(vx, vy));
       }
     }
-  }, [s, w, strokeWidth, strokeColor]);
+  }, [s, w, strokeWidth, strokeColor, pointSize]);
 
   return (
     <canvas
