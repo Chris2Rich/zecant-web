@@ -206,7 +206,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                 >
                   <button
                     onClick={() => handleSelectChat(chat.chat_id)}
-                    className="w-full p-4 rounded-xl border border-border bg-card/70 backdrop-blur-md hover:bg-accent hover:border-accent-foreground/20 transition-colors text-left hover:cursor-pointer">
+                    className="w-full p-4 rounded-xl border border-border bg-card/70 backdrop-blur-sm hover:bg-accent hover:border-accent-foreground/20 transition-colors text-left hover:cursor-pointer">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <MessageSquare className="w-5 h-5 text-primary" />

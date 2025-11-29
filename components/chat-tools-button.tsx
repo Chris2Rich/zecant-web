@@ -70,7 +70,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
         {...getReferenceProps()}
         size="default"
         variant="outline"
-        className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 cursor-pointer relative backdrop-blur-md "
+        className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 cursor-pointer relative backdrop-blur-sm "
       >
         <Settings2 className="w-4 h-4" />
         {enabledCount > 0 && (
@@ -86,7 +86,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
           style={floatingStyles}
           {...getFloatingProps()}
           className={`
-            absolute w-80 bg-card/70 backdrop-blur-md  border border-border rounded-lg shadow-2xl z-50
+            absolute w-80 bg-card/70 backdrop-blur-sm  border border-border rounded-lg shadow-2xl z-50
             origin-top-left
             transition-all duration-200 ease-in-out
             ${context.isPositioned ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
@@ -140,7 +140,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                       <div className="flex items-center justify-between">
                         <span className={`
                           text-sm font-medium transition-colors
-                          ${tool.enabled ? 'text-foreground' : 'text-foreground/70 backdrop-blur-md '}
+                          ${tool.enabled ? 'text-foreground' : 'text-foreground/70 backdrop-blur-sm '}
                         `}>
                           {tool.name}
                         </span>

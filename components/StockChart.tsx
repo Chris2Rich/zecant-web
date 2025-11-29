@@ -364,7 +364,7 @@ export const StockChart = memo(function StockChart({
 
   if (loading && data.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-md p-8 flex items-center justify-center mx-8 min-h-[400px]">
+      <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm p-8 flex items-center justify-center mx-8 min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -372,7 +372,7 @@ export const StockChart = memo(function StockChart({
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-md p-8 mx-8">
+      <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm p-8 mx-8">
         <div className="text-center">
           <p className="text-destructive mb-2">Failed to load chart data</p>
           <p className="text-sm text-muted-foreground">{error}</p>
@@ -382,7 +382,7 @@ export const StockChart = memo(function StockChart({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-md overflow-hidden mx-8">
+    <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm overflow-hidden mx-8">
       <div className="p-6 border-b border-border">
         <div className="flex items-start justify-between">
           <div>

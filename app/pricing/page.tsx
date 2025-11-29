@@ -40,7 +40,7 @@ export function PricingCards() {
               <span className={`px-4 py-1 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300
             ${tier.highlighted
                   ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                  : "bg-card/70 backdrop-blur-md text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                  : "bg-card/70 backdrop-blur-sm text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
                 }
             `}>
                 {tier.badge}
@@ -52,7 +52,7 @@ export function PricingCards() {
           <div
             className={`
             relative h-full rounded-2xl p-8 
-            bg-card/70 backdrop-blur-md border transition-all duration-300 flex flex-col
+            bg-card/70 backdrop-blur-sm border transition-all duration-300 flex flex-col
             ${tier.highlighted
                 ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
                 : "border-border group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
@@ -110,8 +110,8 @@ export function PricingCards() {
               w-full mt-auto py-3 px-6 rounded-lg font-semibold
               transition-all duration-300 cursor-pointer group 
               ${tier.highlighted
-                    ? "bg-primary text-primary-foreground hover:bg-primary/70 backdrop-blur-md  shadow-lg hover:shadow-xl"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/70 backdrop-blur-md  border border-border"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/70 backdrop-blur-sm  shadow-lg hover:shadow-xl"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/70 backdrop-blur-sm  border border-border"
                   }
             `}
               >
@@ -125,8 +125,8 @@ export function PricingCards() {
               w-full mt-auto py-3 px-6 rounded-lg font-semibold
               transition-all duration-300 cursor-pointer group 
               ${tier.highlighted
-                      ? "bg-primary text-primary-foreground hover:bg-primary/70 backdrop-blur-md  shadow-lg hover:shadow-xl"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/70 backdrop-blur-md  border border-border"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/70 backdrop-blur-sm  shadow-lg hover:shadow-xl"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/70 backdrop-blur-sm  border border-border"
                     }
             `}
                 >

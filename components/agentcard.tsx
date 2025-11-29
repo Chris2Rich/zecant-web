@@ -8,7 +8,7 @@ export default function AgentCard({ name, status, lastActive, icon: Icon }) {
     }
   
     return (
-      <div className="group p-3 rounded-lg border border-border bg-card/70 backdrop-blur-md hover:bg-muted/50 transition-colors cursor-pointer">
+      <div className="group p-3 rounded-lg border border-border bg-card/70 backdrop-blur-sm hover:bg-muted/50 transition-colors cursor-pointer">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
             <Icon className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
