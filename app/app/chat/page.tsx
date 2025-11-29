@@ -405,7 +405,7 @@ export function ChatPage({
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto scrollbar-thin "
       >
-        <div className="relative w-full mx-auto px-4 py-8">
+        <div className="relative w-full mx-auto px-4 pt-8">
           {/* Welcome Message */}
           {messages.length === 0 && !currentStreamingMessage && !isSearching && (
             <div className="text-center py-16">
@@ -434,7 +434,7 @@ export function ChatPage({
           )}
 
           {/* Messages */}
-          <div className="space-y-6 overflow-x-hidden">
+          <div className="space-y-6 overflow-x-hidden mb-8">
             <AnimatePresence mode="popLayout">
               {messages.map((message, index) => (
                 <motion.div
@@ -523,8 +523,8 @@ export function ChatPage({
       )}
 
       {/* Input Area */}
-      <div className="sticky bottom-8 left-0 right-0 max-w-5xl mx-auto px-6 pt-4">
-          <div className="flex items-center">
+      <div className="sticky bottom-4 left-0 right-0 max-w-5xl mx-auto px-6 py-4">
+          <div className="flex items-center rounded-lg bg-card/70 backdrop-blur-md px-2 py-2">
             <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
               ref={textareaRef}

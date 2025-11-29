@@ -86,7 +86,7 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.4 }}
-            className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl w-full max-w-6xl"
+            className="bg-card/70 backdrop-blur-md border border-border rounded-2xl p-8 shadow-2xl w-full max-w-6xl"
           >
             <div className="text-center mb-8">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-xl flex items-center justify-center mx-auto mb-4">
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.4 }}
-            className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl w-full max-w-lg"
+            className="bg-card/70 backdrop-blur-md border border-border rounded-2xl p-8 shadow-2xl w-full max-w-lg"
           >
             <Elements stripe={stripePromise} options={{
               clientSecret,

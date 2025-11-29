@@ -62,7 +62,7 @@ export default function SignInPage() {
         </Link>
 
         {/* Sign In Form */}
-        <div className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
+        <div className="bg-card/70 backdrop-blur-md border border-border rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-xl flex items-center justify-center mx-auto mb-4">
               <span className="text-primary-foreground font-bold text-xl">Z</span>
