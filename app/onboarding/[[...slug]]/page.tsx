@@ -74,7 +74,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 flex items-center justify-center p-4 relative">
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/70 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/70 backdrop-blur-md  rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
 
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
             className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl w-full max-w-6xl"
           >
             <div className="text-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-xl flex items-center justify-center mx-auto mb-4">
                 <span className="text-primary-foreground font-bold text-xl">Z</span>
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">Choose Your Plan</h1>
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
                   <div
                     className={`
                       relative h-full rounded-2xl p-8 cursor-pointer
-                      bg-card border transition-all duration-300 flex flex-col
+                      bg-card/70 backdrop-blur-md border transition-all duration-300 flex flex-col
                       ${selectedTier === tier.name
                         ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
                         : "border-border group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
@@ -284,7 +284,7 @@ function PaymentForm({
   return (
     <div>
       <div className="text-center mb-8">
-        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mx-auto mb-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-xl flex items-center justify-center mx-auto mb-4">
           <span className="text-primary-foreground font-bold text-xl">Z</span>
         </div>
         <h1 className="text-2xl font-bold text-foreground mb-2">Complete Your Payment</h1>
@@ -355,7 +355,7 @@ function PaymentForm({
         <Button
           type="submit"
           disabled={isPaying || !stripe}
-          className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
+          className="w-full bg-primary hover:bg-primary/70 backdrop-blur-md  text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
         >
           {isPaying ? 'Processing...' : 'Pay Now'}
         </Button>

@@ -17,10 +17,10 @@ export function PricingTable() {
         </p>
       </div>
 
-      <div className="overflow-x-auto border border-border rounded-2xl bg-card shadow-xl mx-48 mb-16 sm:mx-32 scrollbar-thin">
+      <div className="overflow-x-auto border border-border rounded-2xl bg-card/70 backdrop-blur-md shadow-xl mx-48 mb-16 sm:mx-32 scrollbar-thin">
         <table className="w-full border-collapse text-left text-sm">
           {/* Header */}
-          <thead className="sticky top-0 bg-muted/40 backdrop-blur-md">
+          <thead className="sticky top-0 bg-muted/40 backdrop-blur-md ">
             <tr className="border-b border-border">
               <th className="p-4 font-medium text-muted-foreground w-56">Feature</th>
               {tierNames.map((tier) => (

@@ -12,7 +12,7 @@ export default function HeroButtons(){
         <Link href="/sign-up">
         <Button
           size="lg"
-          className="group bg-primary hover:bg-primary/70 text-primary-foreground font-semibold text-lg px-8 py-4 glow-primary-intense hover:transition-all duration-300 cursor-pointer"
+          className="group bg-primary hover:bg-primary/70 backdrop-blur-md  text-primary-foreground font-semibold text-lg px-8 py-4 glow-primary-intense hover:transition-all duration-300 cursor-pointer"
           >
           Get Started Free
           <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
@@ -33,7 +33,7 @@ export default function HeroButtons(){
         <Link href="/app">
         <Button
           size="lg"
-          className="group bg-primary hover:bg-primary/70 text-primary-foreground font-semibold text-lg px-8 py-4 glow-primary-intense hover:transition-all duration-300 cursor-pointer"
+          className="group bg-primary hover:bg-primary/70 backdrop-blur-md  text-primary-foreground font-semibold text-lg px-8 py-4 glow-primary-intense hover:transition-all duration-300 cursor-pointer"
           >
           Get Back To Building
           <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />

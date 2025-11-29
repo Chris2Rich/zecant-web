@@ -68,10 +68,10 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Left Box: Logo, Pricing, More */}
-        <div className="hidden md:flex items-center gap-6 px-4 h-[56px] bg-card/70 border border-border rounded-lg">
+        <div className="hidden md:flex items-center gap-6 px-4 h-[56px] bg-card/70 backdrop-blur-md  border border-border rounded-lg">
           <Link href={!isSignedIn ? "/" : "/app"}>
             <div className="flex items-center space-x-2 cursor-pointer">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">Z</span>
               </div>
               <span className="text-xl font-bold gradient-text">Zecant</span>
@@ -106,7 +106,7 @@ export function Header() {
               
               <div
                 ref={dropdownRef}
-                className={`absolute top-full left-0 w-80 bg-card/70 border border-border rounded-lg shadow-2xl z-50 transition-all duration-300 ease-in-out ${
+                className={`absolute top-full left-0 w-80 bg-card/70 backdrop-blur-md  border border-border rounded-lg shadow-2xl z-50 transition-all duration-300 ease-in-out ${
                   isMoreOpen 
                     ? 'opacity-100 visible translate-y-0 mt-2' 
                     : 'opacity-0 invisible -translate-y-2 mt-4 pointer-events-none'
@@ -118,7 +118,7 @@ export function Header() {
                       <Link
                         key={index}
                         href={item.href}
-                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/70 transition-all duration-200 group/item"
+                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/70 backdrop-blur-md  transition-all duration-200 group/item"
                       >
                         <div className="flex-1">
                           <div className="font-medium text-foreground transition-colors duration-200">
@@ -139,7 +139,7 @@ export function Header() {
         {/* Mobile Logo */}
         <Link href={!isSignedIn ? "/" : "/app"} className="md:hidden">
           <div className="flex items-center space-x-2 cursor-pointer">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">Z</span>
             </div>
             <span className="text-xl font-bold gradient-text">Zecant</span>
@@ -147,14 +147,14 @@ export function Header() {
         </Link>
 
         {/* Right Box: User Buttons */}
-        <div className="hidden md:flex items-center px-2 h-[56px] bg-card/70 border border-border rounded-lg">
+        <div className="hidden md:flex items-center px-2 h-[56px] bg-card/70 backdrop-blur-md  border border-border rounded-lg">
           {!isLoaded ? (
             <div className="w-8 h-8 bg-muted rounded-lg animate-pulse" />
           ) : !isSignedIn ? (
             <div className="flex items-center gap-3">
               <Link href="/sign-up">
                 <Button
-                  className="bg-primary hover:bg-primary/70 text-primary-foreground font-semibold glow-primary-intense hover:transition-all duration-300 cursor-pointer"
+                  className="bg-primary hover:bg-primary/70 backdrop-blur-md  text-primary-foreground font-semibold glow-primary-intense hover:transition-all duration-300 cursor-pointer"
                 >
                   Sign Up
                 </Button>
@@ -196,7 +196,7 @@ export function Header() {
 
       {isMenuOpen && (
         <div className="md:hidden border-t border-border">
-          <div className="bg-background/70 backdrop-blur-nav -z-2 fixed w-[100%] h-[100%] -translate-y-[49%]" />
+          <div className="bg-background/70 backdrop-blur-md  backdrop-blur-nav -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]" />
           <div className="container mx-auto px-4 py-4 space-y-4">
             <a href="/pricing" className="block text-foreground hover:text-primary transition-colors">
               Pricing
@@ -207,7 +207,7 @@ export function Header() {
                 <Link
                 key={index}
                 href={item.href}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/70 transition-colors group/item"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/70 backdrop-blur-md  transition-colors group/item"
                 >
                   <div>
                     <div className="font-medium text-foreground">{item.name}</div>
@@ -216,26 +216,24 @@ export function Header() {
                 </Link>
               ))}
             </div>
-            <div className="pt-4 space-y-2 border-t border-border">
+            <div className="pt-4 space-y-2 border-t border-b border-border mb-2">
               {!isLoaded ? (
                 <div className="w-full h-10 bg-muted rounded-lg animate-pulse" />
               ) : !isSignedIn ? (
-                <>
-                <Link href="/contact">
-                  <Button
-                    variant="outline"
-                    className="w-full border-border text-foreground hover:border-primary hover:text-primary bg-transparent"
-                    >
-                    Contact Sales
-                  </Button>
-                </Link>
-                <Link href="/sign-in">
-                  <Button className="w-full bg-background border border-border text-foreground hover:bg-muted flex items-center justify-center gap-2">
-                    <ArrowRight className="w-4 h-4" />
-                    Login
-                  </Button>
-                </Link>
-                </>
+                <div className="flex flex-row justify-center space-x-16">
+                <Link href="/sign-up">
+                <Button
+                  className="flex-1 mb-4 bg-primary hover:bg-primary/70 backdrop-blur-md  text-primary-foreground font-semibold glow-primary-intense hover:transition-all duration-300 cursor-pointer"
+                >
+                  Sign Up
+                </Button>
+              </Link>
+              <Link href="/sign-in">
+                <Button variant="outline" className="flex-1 mb-4 border-border text-foreground hover:border-primary hover:text-primary hover:bg-primary/10 font-semibold hover:glow-primary transition-all duration-300 bg-transparent cursor-pointer">
+                  Sign In
+                </Button>
+              </Link>
+                </div>
               ) : (
                 <div className="flex justify-center">
                   <CustomUserButton full={true} />

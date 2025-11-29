@@ -52,11 +52,11 @@ export default function AppLayout({children, sidebarItems = []} : {
         <SidebarProvider>
         <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
-            <aside className="w-16 bg-card border-r border-border flex flex-col items-center py-6 space-y-6">
+            <aside className="w-16 bg-card/70 backdrop-blur-md border-r border-border flex flex-col items-center py-6 space-y-6">
                 {/* Logo */}
                 <Link href="/">
                     <div className="flex items-center space-x-2 cursor-pointer">
-                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-lg flex items-center justify-center">
                             <span className="text-primary-foreground font-bold text-sm">Z</span>
                         </div>
                     </div>
@@ -121,7 +121,7 @@ export default function AppLayout({children, sidebarItems = []} : {
             </main>
 
             {/* Agent Panel - Right Side */}
-            <aside className="w-80 bg-card border-l border-border flex flex-col">
+            <aside className="w-80 bg-card/70 backdrop-blur-md border-l border-border flex flex-col">
                 {/* Panel Header */}
                 <div className="p-4 border-b border-border">
                     <div className="flex items-center justify-between mb-3">

@@ -14,7 +14,7 @@ export default function NavFunction({ icon: Icon, label = "", active = false, fn
         <Icon className="w-5 h-5" />
         
         {/* Tooltip */}
-        <span className="absolute left-full ml-2 px-2 py-1 bg-card/70 text-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-border">
+        <span className="absolute left-full ml-2 px-2 py-1 bg-card/70 backdrop-blur-md  text-foreground text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-border">
           {label}
         </span>
       </button>

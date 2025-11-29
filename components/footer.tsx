@@ -16,13 +16,13 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-card border-t border-border">
+    <footer className="bg-card/70 backdrop-blur-md border-t border-border">
       <div className="container mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-lg flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">Z</span>
               </div>
               <span className="text-xl font-bold gradient-text">Zecant</span>
@@ -36,7 +36,7 @@ export function Footer() {
                 <a
                   key={index}
                   href={social.href}
-                  className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted/70 transition-all duration-300 "
+                  className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted/70 backdrop-blur-md  transition-all duration-300 "
                   aria-label={social.label}
                 >
                   <social.icon className="w-5 h-5" />

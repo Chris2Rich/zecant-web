@@ -64,7 +64,7 @@ export default function SignInPage() {
         {/* Sign In Form */}
         <div className="bg-card/70 backdrop-blur-lg border border-border rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-md  rounded-xl flex items-center justify-center mx-auto mb-4">
               <span className="text-primary-foreground font-bold text-xl">Z</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Welcome back</h1>
@@ -126,7 +126,7 @@ export default function SignInPage() {
             <Button
               type="submit"
               disabled={isLoading || !isLoaded}
-              className="w-full bg-primary hover:bg-primary/70 text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
+              className="w-full bg-primary hover:bg-primary/70 backdrop-blur-md  text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
@@ -135,7 +135,7 @@ export default function SignInPage() {
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">
               Don't have an account?{' '}
-              <Link className="text-primary hover:text-primary/70 font-medium transition-colors" href="/sign-up">Sign up</Link>
+              <Link className="text-primary hover:text-primary/70 backdrop-blur-md  font-medium transition-colors" href="/sign-up">Sign up</Link>
             </p>
           </div>
         </div>

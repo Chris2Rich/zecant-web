@@ -405,7 +405,7 @@ export function ChatPage({
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto scrollbar-thin"
       >
-        <div className="w-full mx-auto px-6 py-8">
+        <div className="relative w-full mx-auto px-4 py-8">
           {/* Welcome Message */}
           {messages.length === 0 && !currentStreamingMessage && !isSearching && (
             <div className="text-center py-16">
@@ -505,9 +505,7 @@ export function ChatPage({
               )}
             </AnimatePresence>
           </div>
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
+          <div ref={messagesEndRef} className="overflow-y-auto scrollbar-thin"/>
 
       {/* Error Message */}
       {error && (
@@ -519,13 +517,13 @@ export function ChatPage({
           <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium text-destructive">Error</p>
-            <p className="text-sm text-destructive/70 mt-1">{error}</p>
+            <p className="text-sm text-destructive/70 backdrop-blur-md  mt-1">{error}</p>
           </div>
         </motion.div>
       )}
 
       {/* Input Area */}
-      <div>
+      <div className="sticky bottom-8 left-0 right-0">
         <div className="max-w-5xl mx-auto px-6 pt-4">
           <div className="flex items-center">
             <ChatToolsButton onToolsChange={handleToolsChange} />
@@ -559,6 +557,9 @@ export function ChatPage({
           </p>
         </div>
       </div>
+        </div>
+      </div>
+
     </div>
   );
 }
