@@ -196,7 +196,7 @@ export function Header() {
 
       {isMenuOpen && (
         <div className="md:hidden border-t border-border">
-          <div className="bg-background/70 backdrop-blur-sm  backdrop-blur-nav -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]" />
+          <div className="bg-background/70 backdrop-blur-sm -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]" />
           <div className="container mx-auto px-4 py-4 space-y-4">
             <a href="/pricing" className="block text-foreground hover:text-primary transition-colors">
               Pricing
@@ -207,7 +207,7 @@ export function Header() {
                 <Link
                 key={index}
                 href={item.href}
-                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/70 backdrop-blur-sm  transition-colors group/item"
+                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/70 backdrop-blur-sm transition-colors group/item"
                 >
                   <div>
                     <div className="font-medium text-foreground">{item.name}</div>
@@ -223,7 +223,7 @@ export function Header() {
                 <div className="flex flex-row justify-center space-x-16">
                 <Link href="/sign-up">
                 <Button
-                  className="flex-1 mb-4 bg-primary hover:bg-primary/70 backdrop-blur-sm  text-primary-foreground font-semibold glow-primary-intense hover:transition-all duration-300 cursor-pointer"
+                  className="flex-1 mb-4 bg-primary hover:bg-primary/70 backdrop-blur-sm text-primary-foreground font-semibold glow-primary-intense hover:transition-all duration-300 cursor-pointer"
                 >
                   Sign Up
                 </Button>

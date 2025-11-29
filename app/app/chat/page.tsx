@@ -521,7 +521,7 @@ export function ChatPage({
 
       {/* Input Area */}
       <div className="sticky bottom-4 left-0 right-0 max-w-5xl mx-auto px-6 py-4">
-          <div className="flex items-center rounded-lg bg-card/70 backdrop-blur-sm px-2 py-2">
+          <div className="flex items-center rounded-lg bg-card/70 backdrop-blur-sm px-3 py-3 border-border border-1">
             <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
               ref={textareaRef}
@@ -548,9 +548,11 @@ export function ChatPage({
               )}
             </Button>
           </div>
+          {messages.length == 0 &&
           <p className="text-xs text-muted-foreground mt-2 text-center select-none">
             Press Enter to send, Shift + Enter for new line
           </p>
+          }
         </div>
     </div>
   );
