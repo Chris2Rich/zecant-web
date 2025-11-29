@@ -403,7 +403,7 @@ export function ChatPage({
       {/* Messages Container */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto scrollbar-thin"
+        className="flex-1 overflow-y-auto scrollbar-thin "
       >
         <div className="relative w-full mx-auto px-4 py-8">
           {/* Welcome Message */}
@@ -523,8 +523,7 @@ export function ChatPage({
       )}
 
       {/* Input Area */}
-      <div className="sticky bottom-8 left-0 right-0">
-        <div className="max-w-5xl mx-auto px-6 pt-4">
+      <div className="sticky bottom-8 left-0 right-0 max-w-5xl mx-auto px-6 pt-4">
           <div className="flex items-center">
             <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
@@ -557,9 +556,7 @@ export function ChatPage({
           </p>
         </div>
       </div>
-        </div>
       </div>
-
     </div>
   );
 }
