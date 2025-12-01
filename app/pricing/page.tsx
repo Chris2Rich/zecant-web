@@ -54,7 +54,7 @@ export function PricingCards() {
             relative h-full rounded-sm p-8 
             bg-card/70 backdrop-blur-glass border transition-all duration-300 flex flex-col
             ${tier.highlighted
-                ? "border-primary group-hover:inner-light-primary"
+                ? "border-primary group-hover:inner-light-primary group-hover:border-primary/50"
                 : "border-border-divider group-hover:border-primary/50 group-hover:inner-light-subtle"
               }
           `}
