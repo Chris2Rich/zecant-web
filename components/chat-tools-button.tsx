@@ -70,7 +70,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
         {...getReferenceProps()}
         size="default"
         variant="outline"
-        className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 cursor-pointer relative backdrop-blur-sm "
+        className="group bg-background hover:bg-muted text-foreground font-semibold px-4 py-2 hover:transition-all duration-300 cursor-pointer relative"
       >
         <Settings2 className="w-4 h-4" />
         {enabledCount > 0 && (
@@ -86,7 +86,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
           style={floatingStyles}
           {...getFloatingProps()}
           className={`
-            absolute w-80 bg-card/70 backdrop-blur-sm  border border-border rounded-lg shadow-2xl z-50
+            absolute w-80 bg-card/95 backdrop-blur-glass border border-border-glass rounded-sm shadow-2xl z-50
             origin-top-left
             transition-all duration-200 ease-in-out
             ${context.isPositioned ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
@@ -94,7 +94,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
         >
           <div className="p-2">
             {/* Header */}
-            <div className="px-3 py-3 border-b border-border">
+            <div className="px-3 py-3 border-b border-border-divider">
               <div className="flex items-center space-x-2">
                 <Settings2 className="w-5 h-5 text-muted-foreground" />
                 <div>
@@ -115,15 +115,15 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                     key={tool.id}
                     onClick={() => toggleTool(tool.id)}
                     className={`
-                      w-full flex items-start space-x-3 mb-2 px-3 py-2.5 rounded-lg transition-all group
+                      w-full flex items-start space-x-3 mb-2 px-3 py-2.5 rounded-sm transition-all group
                       ${tool.enabled 
-                        ? 'bg-primary/10 hover:bg-primary/20' 
-                        : 'hover:bg-muted/50'
+                        ? 'bg-primary/10 hover:bg-primary/20 hover:inner-light-subtle' 
+                        : 'hover:bg-muted/95 hover:inner-light-subtle'
                       }
                     `}
                   >
                     <div className={`
-                      w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors
+                      w-9 h-9 rounded-sm flex items-center justify-center flex-shrink-0 transition-colors
                       ${tool.enabled 
                         ? 'bg-primary/20' 
                         : 'bg-muted'
@@ -140,7 +140,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                       <div className="flex items-center justify-between">
                         <span className={`
                           text-sm font-medium transition-colors
-                          ${tool.enabled ? 'text-foreground' : 'text-foreground/70 backdrop-blur-sm '}
+                          ${tool.enabled ? 'text-foreground' : 'text-foreground/50 group-hover:text-foreground'}
                         `}>
                           {tool.name}
                         </span>
@@ -148,7 +148,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
                           <Check className="w-4 h-4 text-primary flex-shrink-0 transition-colors" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-xs text-muted-foreground/50 group-hover:text-muted-foreground mt-0.5 transition-colors">
                         {tool.description}
                       </p>
                     </div>
@@ -158,7 +158,7 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
             </div>
 
             {/* Footer */}
-            <div className="px-3 pt-3 pb-1 border-t border-border">
+            <div className="px-3 pt-3 pb-1 border-t border-border-divider">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{enabledCount} {enabledCount === 1 ? 'tool' : 'tools'} enabled</span>
                 <button

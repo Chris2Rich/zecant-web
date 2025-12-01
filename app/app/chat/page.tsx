@@ -406,7 +406,7 @@ export function ChatPage({
           {/* Welcome Message */}
           {messages.length === 0 && !currentStreamingMessage && !isSearching && (
             <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-sm bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Bot className="w-8 h-8 text-primary" />
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
@@ -458,7 +458,7 @@ export function ChatPage({
                   transition={{ duration: 0.3 }}
                   className="flex gap-4"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Search className="w-5 h-5 text-primary animate-pulse" />
                   </div>
                   <div className="flex-1 space-y-2">
@@ -484,7 +484,7 @@ export function ChatPage({
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-4"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <Bot className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1 space-y-2">
@@ -509,19 +509,19 @@ export function ChatPage({
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-6 mb-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+          className="mx-6 mb-4 p-4 rounded-sm bg-destructive/10 border border-destructive/20 flex items-start gap-3"
         >
           <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium text-destructive">Error</p>
-            <p className="text-sm text-destructive/70 backdrop-blur-sm  mt-1">{error}</p>
+            <p className="text-sm text-destructive/70 backdrop-blur-glass  mt-1">{error}</p>
           </div>
         </motion.div>
       )}
 
       {/* Input Area */}
       <div className="sticky bottom-4 left-0 right-0 max-w-5xl mx-auto px-6 py-4">
-          <div className="flex items-center rounded-lg bg-card/70 backdrop-blur-sm px-3 py-3 border-border border-1">
+          <div className="flex items-center rounded-sm bg-card/70 backdrop-blur-glass px-3 py-3 border-border border-1">
             <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
               ref={textareaRef}
@@ -530,7 +530,7 @@ export function ChatPage({
               onKeyDown={handleKeyDown}
               placeholder="Ask anything..."
               disabled={isStreaming}
-              className="no-scrollbar w-full resize-none rounded-2xl bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed mx-4"
+              className="no-scrollbar w-full resize-none rounded-sm bg-muted border border-border px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed mx-4"
               rows={1}
               style={{ minHeight: "3em", maxHeight: "9.375em" }}
             />

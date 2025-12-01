@@ -37,10 +37,10 @@ export function PricingCards() {
           {/* Badge */}
           {tier.badge && (
             <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-              <span className={`px-4 py-1 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300
+              <span className={`px-4 py-1 rounded-sm text-sm font-semibold whitespace-nowrap transition-all duration-300
             ${tier.highlighted
-                  ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
-                  : "bg-card/70 backdrop-blur-sm text-secondary-foreground border-border border-1 group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                  ? "bg-primary text-primary-foreground group-hover:border-primary/50 group-hover:inner-light-primary"
+                  : "bg-card/70 backdrop-blur-glass text-secondary-foreground border-border-divider border-1 group-hover:border-primary/50 group-hover:inner-light-subtle"
                 }
             `}>
                 {tier.badge}
@@ -51,11 +51,11 @@ export function PricingCards() {
           {/* Card */}
           <div
             className={`
-            relative h-full rounded-2xl p-8 
-            bg-card/70 backdrop-blur-sm border transition-all duration-300 flex flex-col
+            relative h-full rounded-sm p-8 
+            bg-card/70 backdrop-blur-glass border transition-all duration-300 flex flex-col
             ${tier.highlighted
-                ? "border-primary shadow-[0_0_30px_rgba(6,182,212,0.3)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.5)]"
-                : "border-border group-hover:border-primary/50 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)]"
+                ? "border-primary group-hover:inner-light-primary"
+                : "border-border-divider group-hover:border-primary/50 group-hover:inner-light-subtle"
               }
           `}
           >
@@ -74,7 +74,7 @@ export function PricingCards() {
             </div>
 
             <div className="container mx-auto mb-4 px-4">
-              <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+              <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border-divider to-transparent"></div>
             </div>
 
             {/* Credits */}
@@ -89,7 +89,7 @@ export function PricingCards() {
             </div>
 
             <div className="container mx-auto mb-4 px-4">
-              <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+              <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border-divider to-transparent"></div>
             </div>
 
             {/* Features */}
@@ -107,11 +107,11 @@ export function PricingCards() {
             <Link href={'/sign-up'}>
               <Button
                 className={`
-              w-full mt-auto py-3 px-6 rounded-lg font-semibold
+              w-full mt-auto py-3 px-6 rounded-sm font-semibold
               transition-all duration-300 cursor-pointer group 
               ${tier.highlighted
-                    ? "bg-primary text-primary-foreground hover:bg-primary/70 backdrop-blur-sm  shadow-lg hover:shadow-xl"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/70 backdrop-blur-sm  border border-border"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/95 hover:inner-light-primary"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/95 border border-border-divider hover:inner-light-subtle"
                   }
             `}
               >
@@ -122,11 +122,11 @@ export function PricingCards() {
               <Link href={"/settings#plan-" + tier.name}>
                 <Button
                   className={`
-              w-full mt-auto py-3 px-6 rounded-lg font-semibold
+              w-full mt-auto py-3 px-6 rounded-sm font-semibold
               transition-all duration-300 cursor-pointer group 
               ${tier.highlighted
-                      ? "bg-primary text-primary-foreground hover:bg-primary/70 backdrop-blur-sm  shadow-lg hover:shadow-xl"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/70 backdrop-blur-sm  border border-border"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/95 hover:inner-light-primary"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/95 border border-border-divider hover:inner-light-subtle"
                     }
             `}
                 >
@@ -158,7 +158,7 @@ export default function PricingPage() {
       </ScrollReveal>
 
       <div className="container mx-auto px-4">
-        <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border to-transparent"></div>
+        <div className="h-[2.5px] bg-gradient-to-r from-transparent via-border-divider to-transparent"></div>
       </div>
 
       <ScrollReveal>

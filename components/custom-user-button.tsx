@@ -104,12 +104,12 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
         variant={null}
         className="flex bg-transparent hover:bg-transparent items-center space-x-2 p-2 h-auto transition-all duration-300 group"
       >
-        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-sm  rounded-lg flex items-center justify-center">
+        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-sm flex items-center justify-center">
           {user.imageUrl ? (
             <img
               src={user.imageUrl}
               alt={displayName}
-              className="w-8 h-8 rounded-lg object-cover"
+              className="w-8 h-8 rounded-sm object-cover"
             />
           ) : (
             <span className="text-primary-foreground font-semibold text-sm">
@@ -143,7 +143,7 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
           style={floatingStyles} // Apply the dynamic styles
           {...getFloatingProps()} // Spread the interaction props
           className={`
-            absolute w-64 bg-card/70 backdrop-blur-sm  border border-border rounded-lg shadow-2xl z-50
+            absolute w-64 bg-card/95 backdrop-blur-glass border border-border-glass rounded-sm shadow-2xl z-50
             origin-top-right
             transition-all duration-200 ease-in-out
             ${context.isPositioned ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
@@ -166,12 +166,12 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
             {/* User Info Header */}
             <div className="px-3 py-2">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-sm  rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-sm flex items-center justify-center">
                   {user.imageUrl ? (
                     <img
                       src={user.imageUrl}
                       alt={displayName}
-                      className="w-10 h-10 rounded-lg object-cover"
+                      className="w-10 h-10 rounded-sm object-cover"
                     />
                   ) : (
                     <span className="text-primary-foreground font-semibold">
@@ -190,13 +190,13 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
               </div>
             </div>
 
-            <div className="my-2 h-px bg-border" />
+            <div className="my-2 h-px bg-border-divider" />
 
             {/* Menu Items */}
             <div className="py-1">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors group"
+                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/95 hover:inner-light-subtle rounded-sm transition-colors group"
               >
                 <UserCircle className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>Profile</span>
@@ -204,7 +204,7 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
 
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors group"
+                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/95 hover:inner-light-subtle rounded-sm transition-colors group"
               >
                 <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>Settings</span>
@@ -212,17 +212,17 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
 
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/50 rounded-lg transition-colors group"
+                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/95 hover:inner-light-subtle rounded-sm transition-colors group"
               >
                 <Shield className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>Security</span>
               </button>
 
-              <div className="my-2 h-px bg-border" />
+              <div className="my-2 h-px bg-border-divider" />
 
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors group"
+                className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-sm transition-colors group"
               >
                 <LogOut className="w-4 h-4 text-destructive group-transition-transform" />
                 <span>Sign out</span>

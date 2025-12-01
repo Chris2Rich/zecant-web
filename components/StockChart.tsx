@@ -143,7 +143,7 @@ const CustomTooltip = memo(function CustomTooltip({ active, payload, range }: an
   };
   
   return (
-    <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
+    <div className="bg-popover border border-border-divider rounded-sm p-3 shadow-lg">
       <p className="text-xs text-muted-foreground mb-2">{formatTooltipDate(data.date)}</p>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
         <span className="text-muted-foreground">Open:</span>
@@ -364,7 +364,7 @@ export const StockChart = memo(function StockChart({
 
   if (loading && data.length === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm p-8 flex items-center justify-center mx-8 min-h-[400px]">
+      <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass p-8 flex items-center justify-center mx-8 min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -372,7 +372,7 @@ export const StockChart = memo(function StockChart({
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm p-8 mx-8">
+      <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass p-8 mx-8">
         <div className="text-center">
           <p className="text-destructive mb-2">Failed to load chart data</p>
           <p className="text-sm text-muted-foreground">{error}</p>
@@ -382,8 +382,8 @@ export const StockChart = memo(function StockChart({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card/70 backdrop-blur-sm overflow-hidden mx-8">
-      <div className="p-6 border-b border-border">
+    <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass overflow-hidden mx-8">
+      <div className="p-6 border-b border-border-divider">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-1">{ticker.toUpperCase()}</h3>
@@ -409,12 +409,12 @@ export const StockChart = memo(function StockChart({
             </p>
           </div>
 
-          <div className="flex gap-1 bg-muted rounded-lg p-1">
+          <div className="flex gap-1 bg-muted rounded-sm p-1">
             {TIME_RANGES.map(({ label, value }) => (
               <button
                 key={value}
                 onClick={() => handleRangeChange(value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-sm transition-colors ${
                   selectedRange === value
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"

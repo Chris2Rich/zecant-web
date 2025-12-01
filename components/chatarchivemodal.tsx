@@ -122,7 +122,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/50 backdrop-blur-hud"
           onClick={onClose}
         />
 
@@ -132,10 +132,10 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="relative bg-background border border-border rounded-2xl shadow-2xl w-full mx-12 flex flex-col h-[85%]"
+          className="relative bg-background border border-border-glass rounded-sm shadow-2xl w-full mx-12 flex flex-col h-[85%]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
+          <div className="flex items-center justify-between p-6 border-b border-border-divider">
             <div>
               <h2 className="text-2xl font-bold text-foreground">Chat History</h2>
               <p className="text-sm text-muted-foreground mt-1">
@@ -153,7 +153,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           </div>
 
           {/* Search Bar */}
-          <div className="p-6 border-b border-border">
+          <div className="p-6 border-b border-border-divider">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -161,7 +161,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                 placeholder="Search chats..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-muted border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full pl-10 pr-4 py-3 bg-muted border border-border-divider rounded-xs text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-border-glass"
               />
             </div>
           </div>
@@ -206,9 +206,9 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                 >
                   <button
                     onClick={() => handleSelectChat(chat.chat_id)}
-                    className="w-full p-4 rounded-xl border border-border bg-card/70 backdrop-blur-sm hover:bg-accent hover:border-accent-foreground/20 transition-colors text-left hover:cursor-pointer">
+                    className="w-full p-4 rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass hover:bg-accent hover:border-accent-foreground/20 hover:inner-light-subtle transition-colors text-left hover:cursor-pointer">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <MessageSquare className="w-5 h-5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -229,7 +229,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
                     {/* Delete Button */}
                     <button
                       onClick={(e) => handleDeleteChat(chat.chat_id, e)}
-                      className="absolute bottom-2 right-2 p-2 rounded-lg bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all opacity-50 hover:opacity-100 z-10 hover:cursor-pointer"
+                      className="absolute bottom-2 right-2 p-2 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all opacity-50 hover:opacity-100 z-10 hover:cursor-pointer"
                       title="Delete chat"
                     >
                       <Trash2 className="w-4 h-4" />

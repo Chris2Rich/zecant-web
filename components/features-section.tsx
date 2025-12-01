@@ -48,10 +48,10 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group p-6 bg-card/50 rounded-xl border border-border hover:border-primary/50 hover:bg-card/70 backdrop-blur-sm  transition-all duration-300 2.5%] hover:glow-primary"
+              className="group p-6 bg-card/50 rounded-sm border border-border-divider hover:border-primary/50 hover:bg-card/95 hover:inner-light-subtle transition-all duration-300"
             >
               <div className="mb-4">
-                <feature.icon className="w-8 h-8 text-primary group-hover:text-primary/70 backdrop-blur-sm  transition-colors duration-300" />
+                <feature.icon className="w-8 h-8 text-primary group-hover:text-primary/95 transition-colors duration-300" />
               </div>
               <h3 className="text-xl font-semibold mb-3">
                 <span className="gradient-text">{feature.title.split(" ")[0]}</span>{" "}
@@ -60,7 +60,7 @@ export function FeaturesSection() {
               <p className="text-foreground mb-4 leading-relaxed">{feature.description}</p>
               <a
                 href="#"
-                className="text-primary hover:text-primary/70 backdrop-blur-sm  text-sm font-medium inline-flex items-center transition-transform duration-300 cursor-pointer"
+                className="text-primary hover:text-primary/95 text-sm font-medium inline-flex items-center transition-transform duration-300 cursor-pointer"
               >
                 {feature.link} →
               </a>

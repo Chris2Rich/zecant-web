@@ -22,7 +22,7 @@ export function ArticleOverview({article, index=0} : {article: ArticleHeader, in
                   className="group cursor-pointer"
                   onClick={() => window.open(article.url, '_blank')}
                 >
-                  <div className="relative h-48 rounded-xl overflow-hidden mb-3">
+                  <div className="relative h-48 rounded-sm overflow-hidden mb-3">
                     {article.urlToImage ? (
                       <img
                         src={article.urlToImage}
@@ -65,7 +65,7 @@ export function ArticleEmphasised({article} : {article: ArticleHeader}){
   className="mb-12 group cursor-pointer"
   onClick={() => window.open(article.url, '_blank')}
 >
-  <div className="relative h-96 rounded-2xl overflow-hidden mb-6">
+  <div className="relative h-96 rounded-sm overflow-hidden mb-6">
     {article.urlToImage ? (
       <img
         src={article.urlToImage}
@@ -81,7 +81,7 @@ export function ArticleEmphasised({article} : {article: ArticleHeader}){
     
     {/* Overlay Content */}
     <div className="absolute bottom-0 left-0 right-0 p-8">
-      <div className="flex items-center gap-2 text-xs text-white/70 backdrop-blur-sm  mb-3">
+      <div className="flex items-center gap-2 text-xs text-white/70 mb-3">
         <span className="font-semibold">{article.source.name}</span>
         <span>•</span>
         <div className="flex items-center gap-1">
@@ -92,7 +92,7 @@ export function ArticleEmphasised({article} : {article: ArticleHeader}){
       <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 line-clamp-2">
         {article.title}
       </h1>
-      <p className="text-white/70 backdrop-blur-sm  text-base line-clamp-2 max-w-3xl">
+      <p className="text-white/70 text-base line-clamp-2 max-w-3xl">
         {article.description}
       </p>
     </div>

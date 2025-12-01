@@ -52,11 +52,11 @@ export default function AppLayout({children, sidebarItems = []} : {
         <SidebarProvider>
         <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
-            <aside className="w-16 bg-card/70 backdrop-blur-sm border-r border-border flex flex-col items-center py-6 space-y-6">
+            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6">
                 {/* Logo */}
                 <Link href="/">
                     <div className="flex items-center space-x-2 cursor-pointer">
-                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-sm  rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center">
                             <span className="text-primary-foreground font-bold text-sm">Z</span>
                         </div>
                     </div>
@@ -115,13 +115,13 @@ export default function AppLayout({children, sidebarItems = []} : {
             <main className="flex-1 overflow-hidden">
                 <div className="h-full p-2 scrollbar-thin">
                     {/* Empty grid container */}
-                    <div className="h-full rounded-lg border border-border bg-card/30 p-4 select-text scrollbar-thin">
+                    <div className="h-full rounded-sm border border-border bg-card/30 p-4 select-text scrollbar-thin">
                         {children} </div>
                 </div>
             </main>
 
             {/* Agent Panel - Right Side */}
-            <aside className="w-80 bg-card/70 backdrop-blur-sm border-l border-border flex flex-col">
+            <aside className="w-80 bg-card/70 backdrop-blur-glass border-l border-border flex flex-col">
                 {/* Panel Header */}
                 <div className="p-4 border-b border-border">
                     <div className="flex items-center justify-between mb-3">
@@ -149,7 +149,7 @@ export default function AppLayout({children, sidebarItems = []} : {
 
                 {/* Panel Footer */}
                 <div className="p-4 border-t border-border">
-                    <button className="w-full py-2 px-4 rounded-lg border border-border hover:bg-muted text-sm font-medium transition-colors">
+                    <button className="w-full py-2 px-4 rounded-sm border border-border hover:bg-muted text-sm font-medium transition-colors">
                         View All Workflows
                     </button>
                 </div>

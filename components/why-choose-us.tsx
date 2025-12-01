@@ -38,10 +38,10 @@ export function WhyChooseUs() {
           {reasons.map((reason, index) => (
             <div
               key={index}
-              className="group p-8 bg-card/30 rounded-2xl border border-border hover:border-primary/50 hover:bg-card/50 transition-all duration-300 hover:glow-primary"
+              className="group p-8 bg-card/30 rounded-sm border border-border-divider hover:border-primary/50 hover:bg-card/95 hover:inner-light-subtle transition-all duration-300"
             >
               <div className="mb-6">
-                <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/30 transition-colors duration-300">
+                <div className="w-16 h-16 bg-primary/20 rounded-sm flex items-center justify-center mb-4 group-hover:bg-primary/30 transition-colors duration-300">
                   <reason.icon className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{reason.title}</h3>

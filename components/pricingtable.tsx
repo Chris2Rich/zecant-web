@@ -17,11 +17,11 @@ export function PricingTable() {
         </p>
       </div>
 
-      <div className="overflow-x-auto border border-border rounded-2xl bg-card/70 backdrop-blur-sm shadow-xl mx-48 mb-16 sm:mx-32 scrollbar-thin">
+      <div className="overflow-x-auto border border-border-divider rounded-sm bg-card/70 backdrop-blur-glass shadow-xl mx-48 mb-16 sm:mx-32 scrollbar-thin">
         <table className="w-full border-collapse text-left text-sm">
           {/* Header */}
-          <thead className="sticky top-0 bg-muted/40 backdrop-blur-sm ">
-            <tr className="border-b border-border">
+          <thead className="sticky top-0 bg-muted/40 backdrop-blur-glass">
+            <tr className="border-b border-border-divider">
               <th className="p-4 font-medium text-muted-foreground w-56">Feature</th>
               {tierNames.map((tier) => (
                 <th
@@ -52,7 +52,7 @@ export function PricingTable() {
                 {Object.values(section.items).map((item: any) => (
                   <tr
                     key={item.label}
-                    className="border-b border-border/60 hover:bg-muted/10 transition-colors"
+                    className="border-b border-border-grid hover:bg-muted/10 transition-colors"
                   >
                     {/* Feature label */}
                     <td className="p-4 text-foreground">{item.label}</td>

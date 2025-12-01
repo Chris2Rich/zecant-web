@@ -86,9 +86,9 @@ export default function SignUpPage() {
             </Button>
           </Link>
 
-          <div className="bg-card/70 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-2xl">
+          <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
             <div className="text-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-sm  rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center mx-auto mb-4">
                 <Check className="w-6 h-6 text-primary-foreground" />
               </div>
               <h1 className="text-2xl font-bold text-foreground mb-2">Verify your email</h1>
@@ -99,7 +99,7 @@ export default function SignUpPage() {
 
             <form onSubmit={handleVerification} className="space-y-6">
               {error && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg">
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xs">
                   {error}
                 </div>
               )}
@@ -114,7 +114,7 @@ export default function SignUpPage() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200 text-center text-lg tracking-widest"
+                  className="w-full px-4 py-3 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200 text-center text-lg tracking-widest"
                   placeholder="Enter 6-digit code"
                   maxLength={6}
                   />
@@ -123,7 +123,7 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 disabled={isLoading || !isLoaded}
-                className="w-full bg-primary hover:bg-primary/70 backdrop-blur-sm  text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
+                className="w-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold py-3 rounded-sm hover:inner-light-primary active:inner-light-primary transition-all duration-300"
                 >
                 {isLoading ? 'Verifying...' : 'Verify email'}
               </Button>
@@ -134,7 +134,7 @@ export default function SignUpPage() {
                 Didn't receive the code?{' '}
                 <button
                   onClick={() => signUp?.prepareEmailAddressVerification({ strategy: 'email_code' })}
-                  className="text-primary hover:text-primary/70 backdrop-blur-sm  font-medium transition-colors cursor-pointer"
+                  className="text-primary hover:text-primary/70 backdrop-blur-glass  font-medium transition-colors cursor-pointer"
                   >
                   Resend
                 </button>
@@ -162,9 +162,9 @@ export default function SignUpPage() {
         </Link>
 
         {/* Sign Up Form */}
-        <div className="bg-card/70 backdrop-blur-sm border border-border rounded-2xl p-8 shadow-2xl">
+        <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-sm  rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center mx-auto mb-4">
               <span className="text-primary-foreground font-bold text-xl">Z</span>
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Create your account</h1>
@@ -173,7 +173,7 @@ export default function SignUpPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg">
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-xs">
                 {error}
               </div>
             )}
@@ -191,7 +191,7 @@ export default function SignUpPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
                   placeholder="Enter your username"
                   />
                 </div>
@@ -209,7 +209,7 @@ export default function SignUpPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -227,7 +227,7 @@ export default function SignUpPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full pl-10 pr-12 py-3 bg-background border border-input rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
+                    className="w-full pl-10 pr-12 py-3 bg-background border border-input rounded-xs text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200"
                     placeholder="Create a strong password"
                   />
                   <button
@@ -248,7 +248,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               disabled={isLoading || !isLoaded}
-              className="w-full bg-primary hover:bg-primary/70 backdrop-blur-sm  text-primary-foreground font-semibold py-3 rounded-lg glow-primary-intense 02] transition-all duration-300"
+              className="w-full bg-primary hover:bg-primary/70 backdrop-blur-glass  text-primary-foreground font-semibold py-3 rounded-xs glow-primary-intense 02] transition-all duration-300"
             >
               {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
@@ -257,7 +257,7 @@ export default function SignUpPage() {
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">
               Already have an account?{' '}
-              <Link className="text-primary hover:text-primary/70 backdrop-blur-sm  font-medium transition-colors" href="/sign-in">Sign in</Link>
+              <Link className="text-primary hover:text-primary/70 backdrop-blur-glass  font-medium transition-colors" href="/sign-in">Sign in</Link>
             </p>
           </div>
         </div>
