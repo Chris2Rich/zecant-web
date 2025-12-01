@@ -35,7 +35,6 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   const { register, unregister } = useSidebarContext()
   const [isArchiveOpen, setIsArchiveOpen] = useState(false);
 
-  // Create a ref to store the new chat handler
   const newChatHandlerRef = useRef<(() => void) | null>(null);
   const loadChatHandlerRef = useRef<((chatId: string) => void) | null>(null);
 
@@ -60,17 +59,17 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     return () => unregister(regId)
   }, [register, unregister])
 
-  return     <>
-  <ChatPage 
-    newChatHandlerRef={newChatHandlerRef}
-    loadChatHandlerRef={loadChatHandlerRef}
-  />
-  <ChatArchiveModal 
-    isOpen={isArchiveOpen}
-    onClose={() => setIsArchiveOpen(false)}
-    onSelectChat={handleLoadChat}
-  />
-</>
+  return <>
+    <ChatPage 
+      newChatHandlerRef={newChatHandlerRef}
+      loadChatHandlerRef={loadChatHandlerRef}
+    />
+    <ChatArchiveModal 
+      isOpen={isArchiveOpen}
+      onClose={() => setIsArchiveOpen(false)}
+      onSelectChat={handleLoadChat}
+    />
+  </>
 }
 
 export function ChatPage({ 
@@ -91,18 +90,37 @@ export function ChatPage({
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
   const [enabledTools, setEnabledTools] = useState<any[]>(lmtools.filter(t => t.enabled));
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [inputHeight, setInputHeight] = useState(0);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
   
-  // Track streaming message
   const streamingMessageRef = useRef("");
-  
-  // Track if user has manually scrolled up
   const userHasScrolledRef = useRef(false);
   const shouldAutoScrollRef = useRef(true);
+
+  // Measure input container height and apply padding
+  useEffect(() => {
+    const updateInputHeight = () => {
+      if (inputContainerRef.current) {
+        const height = inputContainerRef.current.offsetHeight;
+        setInputHeight(height);
+      }
+    };
+
+    updateInputHeight();
+    
+    // Use ResizeObserver to track height changes
+    const resizeObserver = new ResizeObserver(updateInputHeight);
+    if (inputContainerRef.current) {
+      resizeObserver.observe(inputContainerRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   const handleNewChat = () => {
     setCurrentChatId(null);
@@ -132,7 +150,6 @@ export function ChatPage({
 
       const data = await response.json();
       
-      // Convert database messages to UI format
       const loadedMessages: Message[] = data.messages
         .filter((msg: any) => msg.role === "user" || msg.role === "assistant")
         .map((msg: any) => ({
@@ -154,17 +171,15 @@ export function ChatPage({
     loadChatHandlerRef.current = handleLoadChat;
   }, []);
 
-  // Function to check if user is near bottom
   const isNearBottom = () => {
     if (!messagesContainerRef.current) return false;
     
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    const threshold = 800; // pixels from bottom
+    const threshold = 800;
     
     return scrollHeight - scrollTop - clientHeight < threshold;
   };
 
-  // Function to scroll to bottom
   const scrollToBottom = (smooth = true) => {
     messagesEndRef.current?.scrollIntoView({ 
       behavior: smooth ? 'smooth' : 'auto',
@@ -172,13 +187,11 @@ export function ChatPage({
     });
   };
 
-  // Handle scroll events to detect manual scrolling
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
-      // If streaming, check if user scrolled away from bottom
       if (isStreaming) {
         const nearBottom = isNearBottom();
         userHasScrolledRef.current = !nearBottom;
@@ -190,7 +203,6 @@ export function ChatPage({
     return () => container.removeEventListener('scroll', handleScroll);
   }, [isStreaming]);
 
-  // Auto-scroll when messages change or streaming updates
   useEffect(() => {
     if (shouldAutoScrollRef.current) {
       scrollToBottom();
@@ -218,7 +230,6 @@ export function ChatPage({
       return;
     }
 
-    // Add user message to UI
     const userMessage: Message = {
       role: "user",
       content: input.trim(),
@@ -227,28 +238,23 @@ export function ChatPage({
 
     setMessages((prev) => [...prev, userMessage]);
     
-    // Enable auto-scroll for new user message
     shouldAutoScrollRef.current = true;
     userHasScrolledRef.current = false;
     
-    // Clear input
     const messageToSend = input.trim();
     setInput("");
     setError(null);
 
-    // Reset textarea height
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
 
-    // Start streaming
     setIsStreaming(true);
     setIsSearching(false);
     setSearchQuery(null);
     streamingMessageRef.current = "";
     setCurrentStreamingMessage("");
 
-    // Create abort controller for this request
     abortControllerRef.current = new AbortController();
 
     try {
@@ -275,7 +281,6 @@ export function ChatPage({
         throw new Error("No response body");
       }
 
-      // Process SSE stream
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
@@ -289,26 +294,22 @@ export function ChatPage({
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const data = line.slice(6); // Remove 'data: ' prefix
+            const data = line.slice(6);
             
             try {
               const parsed: SSEMessage = JSON.parse(data);
 
               if (parsed.type === "metadata") {
-                // Store chat ID from metadata
                 if (parsed.chatid) {
                   setCurrentChatId(parsed.chatid);
                 }
               } else if (parsed.type === "search_performed") {
-                // Show search indicator
                 setIsSearching(true);
                 setSearchQuery(parsed.query || null);
               } else if (parsed.type === "token") {
-                // Accumulate tokens
                 streamingMessageRef.current += parsed.content || "";
                 setCurrentStreamingMessage(prev => prev + (parsed.content || ""));
               } else if (parsed.type === "done") {
-                // Streaming complete - add assistant message
                 const finalMessage = streamingMessageRef.current;
                 if (finalMessage) {
                   setMessages((prev) => [
@@ -335,7 +336,6 @@ export function ChatPage({
                 setIsSearching(false);
                 setSearchQuery(null);
               } else if (parsed.type === "tool_call") {
-                // Future: Handle tool calls in UI
                 console.log("Tool call:", parsed);
               }
             } catch (parseErr) {
@@ -369,7 +369,6 @@ export function ChatPage({
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     
-    // Auto-resize textarea
     const textarea = e.target;
     textarea.style.height = "auto";
     textarea.style.height = Math.min(textarea.scrollHeight, 200) + "px";
@@ -389,7 +388,6 @@ export function ChatPage({
     }
   };
 
-  // Show loading state while Clerk loads
   if (!isLoaded) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -399,128 +397,138 @@ export function ChatPage({
   }
 
   return (
+    <div className="relative h-full w-full">
       <div 
         ref={messagesContainerRef}
-        className="relative overflow-y-auto scrollbar-thin h-full w-full px-4 pt-8"
+        className="absolute inset-0 overflow-y-auto scrollbar-thin px-4 pt-8"
+        style={{ 
+          paddingBottom: `${inputHeight + 16}px` // Add padding equal to input height + some spacing
+        }}
       >
-          {/* Welcome Message */}
-          {messages.length === 0 && !currentStreamingMessage && !isSearching && (
-            <div className="text-center py-16">
-              <div className="w-16 h-16 rounded-sm bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Bot className="w-8 h-8 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                Start a conversation
-              </h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Ask anything. <b>ZECA</b> is here to help with your questions.
-              </p>
-
-              {!input && <div className="max-w-xl w-fit flex flex-col items-center gap-4 mt-16 mx-auto">
-                {defaultChatOptions.map((prompt, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSuggestedPrompt(prompt)}
-                    className="hover:cursor-pointer w-full px-4 py-3 border-b border-border/50 hover:border-border/100 hover:text-foreground text-muted-foreground transition-colors"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>}
+        {/* Welcome Message */}
+        {messages.length === 0 && !currentStreamingMessage && !isSearching && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-sm bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Bot className="w-8 h-8 text-primary" />
             </div>
-          )}
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              Start a conversation
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Ask anything. <b>ZECA</b> is here to help with your questions.
+            </p>
 
-          {/* Messages */}
-          <div className="space-y-6 overflow-x-hidden mb-8">
-            <AnimatePresence mode="popLayout">
-              {messages.map((message, index) => (
-                <motion.div
-                  key={`${message.timestamp}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
+            {!input && <div className="max-w-xl w-fit flex flex-col items-center gap-4 mt-16 mx-auto">
+              {defaultChatOptions.map((prompt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSuggestedPrompt(prompt)}
+                  className="hover:cursor-pointer w-full px-4 py-3 border-b border-border/50 hover:border-border/100 hover:text-foreground text-muted-foreground transition-colors"
                 >
-                  <MemoizedMessage
-                    role={message.role}
-                    content={message.content}
-                    timestamp={message.timestamp}
-                  />
-                </motion.div>
+                  {prompt}
+                </button>
               ))}
-
-              {/* Search Indicator - only show when searching AND no streaming message yet */}
-              {isSearching && !currentStreamingMessage && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex gap-4"
-                >
-                  <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Search className="w-5 h-5 text-primary animate-pulse" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">
-                        Searching the web
-                      </span>
-                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                    </div>
-                    {searchQuery && (
-                      <p className="text-sm text-muted-foreground">
-                        Query: <span className="italic">{searchQuery}</span>
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Streaming Message */}
-              {currentStreamingMessage && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-4"
-                >
-                  <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-foreground">
-                        ZECA
-                      </span>
-                      <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                    </div>
-                    <div className="prose prose-sm max-w-none text-foreground">
-                      <MarkdownRender message={currentStreamingMessage}/>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            </div>}
           </div>
-          <div ref={messagesEndRef}/>
+        )}
 
-      {/* Error Message */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mx-6 mb-4 p-4 rounded-sm bg-destructive/10 border border-destructive/20 flex items-start gap-3"
-        >
-          <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-destructive">Error</p>
-            <p className="text-sm text-destructive/70 backdrop-blur-glass  mt-1">{error}</p>
-          </div>
-        </motion.div>
-      )}
+        {/* Messages */}
+        <div className="space-y-6 overflow-x-hidden">
+          <AnimatePresence mode="popLayout">
+            {messages.map((message, index) => (
+              <motion.div
+                key={`${message.timestamp}-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MemoizedMessage
+                  role={message.role}
+                  content={message.content}
+                  timestamp={message.timestamp}
+                />
+              </motion.div>
+            ))}
 
-      {/* Input Area */}
-      <div className="sticky bottom-4 left-0 right-0 max-w-5xl mx-auto px-6 py-4">
+            {/* Search Indicator */}
+            {isSearching && !currentStreamingMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="flex gap-4"
+              >
+                <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Search className="w-5 h-5 text-primary animate-pulse" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      Searching the web
+                    </span>
+                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                  </div>
+                  {searchQuery && (
+                    <p className="text-sm text-muted-foreground">
+                      Query: <span className="italic">{searchQuery}</span>
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Streaming Message */}
+            {currentStreamingMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex gap-4"
+              >
+                <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      ZECA
+                    </span>
+                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                  </div>
+                  <div className="prose prose-sm max-w-none text-foreground">
+                    <MarkdownRender message={currentStreamingMessage}/>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <div ref={messagesEndRef}/>
+      </div>
+
+      {/* Fixed Input Area - Positioned at bottom of viewport */}
+      <div 
+        ref={inputContainerRef}
+        className="absolute bottom-0 left-0 right-0 pt-4"
+      >
+        {/* Error Message */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-6 mb-4 p-4 rounded-sm bg-destructive/10 border border-destructive/20 flex items-start gap-3"
+          >
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-destructive">Error</p>
+              <p className="text-sm text-destructive/70 backdrop-blur-glass mt-1">{error}</p>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Input Box */}
+        <div className="max-w-5xl mx-auto px-6 pb-4">
           <div className="flex items-center rounded-sm bg-card/70 backdrop-blur-glass px-3 py-3 border-border border-1">
             <ChatToolsButton onToolsChange={handleToolsChange} />
             <textarea
@@ -548,12 +556,13 @@ export function ChatPage({
               )}
             </Button>
           </div>
-          {messages.length == 0 &&
-          <p className="text-xs text-muted-foreground mt-2 text-center select-none">
-            Press Enter to send, Shift + Enter for new line
-          </p>
+          {messages.length === 0 &&
+            <p className="text-xs text-muted-foreground mt-2 text-center select-none">
+              Press Enter to send, Shift + Enter for new line
+            </p>
           }
         </div>
+      </div>
     </div>
   );
 }
