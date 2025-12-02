@@ -112,7 +112,7 @@ export function Header() {
                     : 'opacity-0 invisible -translate-y-2 mt-4 pointer-events-none'
                 }`}
               >
-                <div className="p-4">
+                <div className="p-4 backdrop-blur-glass">
                   <div className="space-y-2">
                     {moreItems.map((item, index) => (
                       <Link
@@ -121,7 +121,7 @@ export function Header() {
                         className="flex items-center space-x-3 p-3 rounded-sm hover:bg-muted/95 hover:inner-light-subtle transition-all duration-200 group/item"
                       >
                         <div className="flex-1">
-                          <div className="font-medium text-foreground transition-colors duration-200">
+                          <div className="font-medium text-foreground group-hover/item:text-primary transition-colors duration-200">
                             {item.name}
                           </div>
                           <div className="text-sm text-muted-foreground mt-0.5">{item.description}</div>
@@ -196,7 +196,7 @@ export function Header() {
 
       {isMenuOpen && (
         <div className="md:hidden border-t border-border-divider">
-          <div className="bg-background/70 backdrop-blur-sm -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]" />
+          <div className="bg-background/70 backdrop-blur-glass -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]" />
           <div className="container mx-auto px-4 py-4 space-y-4">
             <a href="/pricing" className="block text-foreground hover:text-primary transition-colors">
               Pricing

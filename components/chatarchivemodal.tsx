@@ -132,7 +132,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.2 }}
-          className="relative bg-background border border-border-glass rounded-sm shadow-2xl w-full mx-12 flex flex-col h-[85%]"
+          className="relative bg-card/95 backdrop-blur-glass border border-border-glass rounded-sm shadow-2xl w-full mx-12 flex flex-col h-[85%]"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border-divider">

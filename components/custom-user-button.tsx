@@ -5,12 +5,9 @@ import { createPortal } from "react-dom"
 import { useUser, useClerk } from '@clerk/nextjs'
 import { Button } from "@/components/ui/button"
 import { 
-  User, 
-  Settings, 
-  LogOut, 
+  ArrowRight,
   ChevronDown,
-  UserCircle,
-  Shield
+  LogOut,
 } from "lucide-react"
 import {
   useFloating,
@@ -198,24 +195,24 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
                 onClick={() => setIsOpen(false)}
                 className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/95 hover:inner-light-subtle rounded-sm transition-colors group"
               >
-                <UserCircle className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span>Profile</span>
+                <span className="group-hover:text-primary transition-all duration-200">Profile</span>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-auto" />
               </button>
 
               <button
                 onClick={() => setIsOpen(false)}
                 className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/95 hover:inner-light-subtle rounded-sm transition-colors group"
               >
-                <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span>Settings</span>
+                <span className="group-hover:text-primary transition-all duration-200">Settings</span>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-auto" />
               </button>
 
               <button
                 onClick={() => setIsOpen(false)}
                 className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-foreground hover:bg-muted/95 hover:inner-light-subtle rounded-sm transition-colors group"
               >
-                <Shield className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span>Security</span>
+                <span className="group-hover:text-primary transition-all duration-200">Security</span>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-auto" />
               </button>
 
               <div className="my-2 h-px bg-border-divider" />
@@ -224,8 +221,8 @@ export function CustomUserButton({ full = false }: CustomUserButtonProps) {
                 onClick={handleSignOut}
                 className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-sm transition-colors group"
               >
-                <LogOut className="w-4 h-4 text-destructive group-transition-transform" />
                 <span>Sign out</span>
+                <LogOut className="w-4 h-4 text-destructive group-hover:translate-x-1 transition-all duration-200 shrink-0 ml-auto" />
               </button>
             </div>
           </div>
