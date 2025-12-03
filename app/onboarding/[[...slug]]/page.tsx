@@ -106,7 +106,7 @@ export default function OnboardingPage() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 mx-auto px-4">
-              {pricingTiers.map((tier, index) => { return (tier.name == "free") ?
+              {pricingTiers.map((tier, index) => { return (tier.name == "Free") ?
                 <motion.div
                   key={tier.name}
                   initial={{ opacity: 0, y: 20 }}
