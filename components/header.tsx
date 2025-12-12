@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { useUser, SignedIn, SignedOut } from '@clerk/nextjs'
 import { CustomUserButton } from '@/components/custom-user-button'
 import Link from "next/link"
+import Image from "next/image"
 import {
   Menu,
   X,
@@ -70,11 +71,15 @@ export function Header() {
         {/* Left Box: Logo, Pricing, More */}
         <div className="hidden md:flex items-center gap-6 px-4 h-[56px] bg-card/70 backdrop-blur-glass border border-border-glass rounded-sm">
           <Link href={!isSignedIn ? "/" : "/app"}>
-            <div className="flex items-center space-x-2 cursor-pointer">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-sm flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">Z</span>
-              </div>
-              <span className="text-xl font-bold gradient-text">Zecant</span>
+            <div className="flex items-center cursor-pointer">
+              <Image 
+                src="/Wordmark.png" 
+                alt="Zecant" 
+                width={120} 
+                height={32}
+                className="h-8 w-auto"
+                priority
+              />
             </div>
           </Link>
 
@@ -138,11 +143,15 @@ export function Header() {
 
         {/* Mobile Logo */}
         <Link href={!isSignedIn ? "/" : "/app"} className="md:hidden">
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-sm flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">Z</span>
-            </div>
-            <span className="text-xl font-bold gradient-text">Zecant</span>
+          <div className="flex items-center cursor-pointer">
+            <Image 
+              src="/Wordmark.png" 
+              alt="Zecant" 
+              width={120} 
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
           </div>
         </Link>
 

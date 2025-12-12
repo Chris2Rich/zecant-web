@@ -12,6 +12,7 @@ import {
     HomeIcon
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import {CustomUserButton} from '@/components/custom-user-button'
 import {usePathname} from "next/navigation"
 import NavItem from "@/components/navitem"
@@ -55,10 +56,15 @@ export default function AppLayout({children, sidebarItems = []} : {
             <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6">
                 {/* Logo */}
                 <Link href="/">
-                    <div className="flex items-center space-x-2 cursor-pointer">
-                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center">
-                            <span className="text-primary-foreground font-bold text-sm">Z</span>
-                        </div>
+                    <div className="flex items-center cursor-pointer">
+                        <Image 
+                            src="/Icon.png" 
+                            alt="Zecant Logo" 
+                            width={32} 
+                            height={32}
+                            className=" w-10 h-10"
+                            priority
+                        />
                     </div>
                 </Link>
 

@@ -25,6 +25,7 @@ export default function HeroButtons(){
           className="group border-border-divider text-foreground hover:border-primary hover:text-primary hover:bg-primary/10 hover:inner-light-subtle font-semibold text-lg px-8 py-4 transition-all duration-300 bg-transparent cursor-pointer"
         >
           View Plans
+          <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
         </Button>
         </Link>
         </>

@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Zecant - Advanced Financial Trading Platform",
   description:
     "Professional trading platform with advanced analytics, real-time execution, and comprehensive risk management tools.",
+  icons: {
+    icon: "/Icon Logo.png",
+  },
 }
 
 

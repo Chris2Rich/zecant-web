@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react'
+import Image from "next/image"
 
 export default function SignInPage() {
   const { signIn, isLoaded } = useSignIn()
@@ -64,8 +65,15 @@ export default function SignInPage() {
         {/* Sign In Form */}
         <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-bold text-xl">Z</span>
+          <div className="rounded-sm flex items-center justify-center mx-auto mb-4 select-none">
+          <Image 
+                  src="/Icon.png" 
+                  alt="Zecant Logo" 
+                  width={32} 
+                  height={32}
+                  className=" w-10 h-10"
+                  priority
+              />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Welcome back</h1>
             <p className="text-muted-foreground">Sign in to your Zecant account</p>

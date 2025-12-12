@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Check } from 'lucide-react'
+import Image from "next/image"
 
 export default function SignUpPage() {
   const { signUp, isLoaded } = useSignUp()
@@ -164,8 +165,15 @@ export default function SignUpPage() {
         {/* Sign Up Form */}
         <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center mx-auto mb-4">
-              <span className="text-primary-foreground font-bold text-xl">Z</span>
+          <div className="rounded-sm flex items-center justify-center mx-auto mb-4 select-none">
+              <Image 
+                  src="/Icon.png" 
+                  alt="Zecant Logo" 
+                  width={32} 
+                  height={32}
+                  className=" w-10 h-10"
+                  priority
+              />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">Create your account</h1>
             <p className="text-muted-foreground">Join Zecant and start building winning strategies</p>
