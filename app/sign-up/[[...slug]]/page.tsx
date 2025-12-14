@@ -256,7 +256,7 @@ export default function SignUpPage() {
             <Button
               type="submit"
               disabled={isLoading || !isLoaded}
-              className="w-full bg-primary hover:bg-primary/70 backdrop-blur-glass  text-primary-foreground font-semibold py-3 rounded-xs glow-primary-intense 02] transition-all duration-300"
+              className="w-full bg-primary hover:bg-primary/70 backdrop-blur-glass text-primary-foreground font-semibold py-3 rounded-xs glow-primary-intense transition-all duration-300"
             >
               {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
@@ -265,7 +265,7 @@ export default function SignUpPage() {
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">
               Already have an account?{' '}
-              <Link className="text-primary hover:text-primary/70 backdrop-blur-glass  font-medium transition-colors" href="/sign-in">Sign in</Link>
+              <Link className="text-primary hover:text-primary/70 backdrop-blur-glass font-medium transition-colors" href="/sign-in">Sign in</Link>
             </p>
           </div>
         </div>
