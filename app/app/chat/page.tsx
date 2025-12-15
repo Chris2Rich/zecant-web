@@ -22,13 +22,14 @@ interface Message {
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call" | "search_performed";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "search_performed" | "market_data_fetched";
   content?: string;
   chatid?: string;
   message_id?: string;
   error?: string;
   query?: string;
   results?: any;
+  tickers?: string[];
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -337,6 +338,8 @@ export function ChatPage({
                 setSearchQuery(null);
               } else if (parsed.type === "tool_call") {
                 console.log("Tool call:", parsed);
+              } else if (parsed.type === "market_data_fetched") {
+                console.log("Market data fetched for tickers:", parsed.tickers);
               }
             } catch (parseErr) {
               console.error("Failed to parse SSE message:", parseErr, data);
@@ -505,6 +508,11 @@ export function ChatPage({
           </AnimatePresence>
         </div>
         <div ref={messagesEndRef}/>
+        
+      {messages.length > 0 && (
+        <div className="h-24 relative"/>
+      )}
+
       </div>
 
       {/* Fixed Input Area - Positioned at bottom of viewport */}
