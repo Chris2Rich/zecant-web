@@ -44,6 +44,10 @@ export async function POST(req) {
                 billingTier: tier,
                 credits: newCredits,
                 onboarded: true,
+                // Initialize brokers to an empty list if none exists yet
+                brokers: Array.isArray(user.publicMetadata?.brokers)
+                    ? user.publicMetadata.brokers
+                    : [],
             },
             privateMetadata: {
                 ...user.privateMetadata,

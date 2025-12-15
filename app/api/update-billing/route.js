@@ -31,6 +31,9 @@ export async function POST(req) {
           billingTier,
           credits: tierData.credits,
           onboarded: true,
+          brokers: Array.isArray(user.publicMetadata?.brokers)
+          ? user.publicMetadata.brokers
+          : [],
         },
         privateMetadata: {
           ...user.privateMetadata,
