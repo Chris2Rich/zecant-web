@@ -5,6 +5,14 @@ const SNAPTRADE_BASE_URL = "https://api.snaptrade.com/api/v1";
 
 async function registerSnaptradeUser({ snaptradeClientId, snaptradeSecret, snaptradeUserId }) {
   const url = new URL(`${SNAPTRADE_BASE_URL}/snapTrade/registerUser`);
+  console.log("[SnapTrade] registerUser: url", url.toString());
+  console.log(
+    "[SnapTrade] registerUser: have clientId?",
+    !!snaptradeClientId,
+    "have secret?",
+    !!snaptradeSecret,
+  );
+
   const authHeader =
     "Basic " + Buffer.from(`${snaptradeClientId}:${snaptradeSecret}`).toString("base64");
 
@@ -19,6 +27,7 @@ async function registerSnaptradeUser({ snaptradeClientId, snaptradeSecret, snapt
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error("[SnapTrade] registerUser failed status", res.status, "body:", text);
     throw new Error(`SnapTrade registerUser failed (${res.status}): ${text || res.statusText}`);
   }
 
@@ -39,6 +48,14 @@ async function createSnaptradeConnectionUrl({
   const url = new URL(`${SNAPTRADE_BASE_URL}/snapTrade/login`);
   url.searchParams.set("userId", snaptradeUserId);
   url.searchParams.set("userSecret", snaptradeUserSecret);
+  console.log("[SnapTrade] login: url", url.toString());
+  console.log(
+    "[SnapTrade] login: have clientId?",
+    !!snaptradeClientId,
+    "have secret?",
+    !!snaptradeSecret,
+  );
+
   const authHeader =
     "Basic " + Buffer.from(`${snaptradeClientId}:${snaptradeSecret}`).toString("base64");
 
@@ -52,6 +69,7 @@ async function createSnaptradeConnectionUrl({
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error("[SnapTrade] login failed status", res.status, "body:", text);
     throw new Error(`SnapTrade login failed (${res.status}): ${text || res.statusText}`);
   }
 
@@ -72,6 +90,14 @@ export async function POST() {
 
     const snaptradeClientId = process.env.SNAPTRADE_CLIENT_ID;
     const snaptradeSecret = process.env.SNAPTRADE_SECRET;
+
+    console.log("[SnapTrade] /api/brokers/connect POST for user", userId);
+    console.log(
+      "[SnapTrade] env check SNAPTRADE_CLIENT_ID set?",
+      !!snaptradeClientId,
+      "SNAPTRADE_SECRET set?",
+      !!snaptradeSecret,
+    );
 
     if (!snaptradeClientId || !snaptradeSecret) {
       console.error("SnapTrade configuration missing: SNAPTRADE_CLIENT_ID or SNAPTRADE_SECRET");

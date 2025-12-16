@@ -13,6 +13,14 @@ async function fetchSnaptrade(path, { snaptradeClientId, snaptradeSecret, params
     });
   }
 
+  console.log("[SnapTrade] fetchSnaptrade:", path, "url", url.toString());
+  console.log(
+    "[SnapTrade] fetchSnaptrade: have clientId?",
+    !!snaptradeClientId,
+    "have secret?",
+    !!snaptradeSecret,
+  );
+
   const res = await fetch(url.toString(), {
     method: "GET",
     headers: {
@@ -24,6 +32,7 @@ async function fetchSnaptrade(path, { snaptradeClientId, snaptradeSecret, params
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error("[SnapTrade] GET", path, "failed status", res.status, "body:", text);
     throw new Error(`SnapTrade GET ${path} failed (${res.status}): ${text || res.statusText}`);
   }
 
@@ -58,6 +67,14 @@ export async function GET() {
 
     const snaptradeClientId = process.env.SNAPTRADE_CLIENT_ID;
     const snaptradeSecret = process.env.SNAPTRADE_SECRET;
+
+    console.log("[SnapTrade] /api/brokers/get GET for user", userId);
+    console.log(
+      "[SnapTrade] env check SNAPTRADE_CLIENT_ID set?",
+      !!snaptradeClientId,
+      "SNAPTRADE_SECRET set?",
+      !!snaptradeSecret,
+    );
 
     if (!snaptradeClientId || !snaptradeSecret) {
       console.error("SnapTrade configuration missing: SNAPTRADE_CLIENT_ID or SNAPTRADE_SECRET");
