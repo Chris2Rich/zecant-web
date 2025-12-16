@@ -1,49 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { Snaptrade } from "snaptrade-typescript-sdk";
 
-const SNAPTRADE_BASE_URL = "https://api.snaptrade.com/api/v1";
-
-async function fetchSnaptrade(path, { snaptradeClientId, snaptradeSecret, params }) {
-  const url = new URL(`${SNAPTRADE_BASE_URL}${path}`);
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.set(key, String(value));
-      }
-    });
-  }
-
-  console.log("[SnapTrade] fetchSnaptrade:", path, "url", url.toString());
-  console.log(
-    "[SnapTrade] fetchSnaptrade: have clientId?",
-    !!snaptradeClientId,
-    "have secret?",
-    !!snaptradeSecret,
-  );
-
-  const res = await fetch(url.toString(), {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization:
-        "Basic " + Buffer.from(`${snaptradeClientId}:${snaptradeSecret}`).toString("base64"),
-      "Client-Id": snaptradeClientId,
-      "Consumer-Key": snaptradeSecret,
-    },
+function getSnaptradeClient(clientId, consumerKey) {
+  return new Snaptrade({
+    clientId,
+    consumerKey,
   });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    console.error("[SnapTrade] GET", path, "failed status", res.status, "body:", text);
-    throw new Error(`SnapTrade GET ${path} failed (${res.status}): ${text || res.statusText}`);
-  }
-
-  const data = await res.json().catch(() => null);
-  if (!data) {
-    throw new Error(`SnapTrade GET ${path} returned empty body`);
-  }
-
-  return data;
 }
 
 function computeTotalNavFromBalances(balances) {
@@ -91,8 +54,8 @@ export async function GET() {
       });
     }
 
-    const client = await clerkClient();
-    const user = await client.users.getUser(userId);
+    const clerk = await clerkClient();
+    const user = await clerk.users.getUser(userId);
 
     const snaptradeUserId = user.privateMetadata?.snaptradeUserId || userId;
     const snaptradeUserSecret = user.privateMetadata?.snaptradeUserSecret;
@@ -110,38 +73,37 @@ export async function GET() {
     }
 
     try {
-      // These endpoints/paths are based on SnapTrade docs; if they change, errors are caught and surfaced as empty data.
-      const [accounts, balances, positions, trades] = await Promise.all([
-        fetchSnaptrade("/snapTrade/accounts", {
-          snaptradeClientId,
-          snaptradeSecret,
-          params: { userId: snaptradeUserId, userSecret: snaptradeUserSecret },
+      const snaptrade = getSnaptradeClient(snaptradeClientId, snaptradeSecret);
+      console.log("[SnapTrade] /api/brokers/get: fetching accounts/holdings/activities via SDK");
+
+      // Use SDK high-level endpoints; shape may vary slightly but we treat them as opaque lists.
+      const [accountsResp, holdingsResp, activitiesResp] = await Promise.all([
+        snaptrade.accountInformation.listUserAccounts({
+          userId: snaptradeUserId,
+          userSecret: snaptradeUserSecret,
         }),
-        fetchSnaptrade("/snapTrade/holdings", {
-          snaptradeClientId,
-          snaptradeSecret,
-          params: { userId: snaptradeUserId, userSecret: snaptradeUserSecret },
+        snaptrade.portfolioManagement.getAllUserHoldings({
+          userId: snaptradeUserId,
+          userSecret: snaptradeUserSecret,
         }),
-        fetchSnaptrade("/snapTrade/positions", {
-          snaptradeClientId,
-          snaptradeSecret,
-          params: { userId: snaptradeUserId, userSecret: snaptradeUserSecret },
-        }),
-        fetchSnaptrade("/snapTrade/activities", {
-          snaptradeClientId,
-          snaptradeSecret,
-          params: { userId: snaptradeUserId, userSecret: snaptradeUserSecret },
+        snaptrade.transactionsAndReporting.getActivities({
+          userId: snaptradeUserId,
+          userSecret: snaptradeUserSecret,
         }),
       ]);
 
-      const totalNav = computeTotalNavFromBalances(balances);
+      const accounts = accountsResp?.data ?? accountsResp ?? [];
+      const holdings = holdingsResp?.data ?? holdingsResp ?? [];
+      const trades = activitiesResp?.data ?? activitiesResp ?? [];
+
+      const totalNav = computeTotalNavFromBalances(holdings);
 
       return NextResponse.json({
         connected: true,
         snaptradeConfigured: true,
         accounts,
         totalNav,
-        positions,
+        positions: holdings,
         trades,
       });
     } catch (snapErr) {
