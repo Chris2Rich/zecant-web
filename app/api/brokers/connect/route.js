@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { Snaptrade } from "snaptrade-typescript-sdk";
+import Snaptrade from "snaptrade-typescript-sdk";
 
 const SNAPTRADE_BASE_URL = "https://api.snaptrade.com/api/v1";
 
