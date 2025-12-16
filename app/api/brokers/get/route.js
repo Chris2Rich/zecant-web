@@ -27,6 +27,8 @@ async function fetchSnaptrade(path, { snaptradeClientId, snaptradeSecret, params
       "Content-Type": "application/json",
       Authorization:
         "Basic " + Buffer.from(`${snaptradeClientId}:${snaptradeSecret}`).toString("base64"),
+      "Client-Id": snaptradeClientId,
+      "Consumer-Key": snaptradeSecret,
     },
   });
 

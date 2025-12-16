@@ -5,6 +5,9 @@ const SNAPTRADE_BASE_URL = "https://api.snaptrade.com/api/v1";
 
 async function registerSnaptradeUser({ snaptradeClientId, snaptradeSecret, snaptradeUserId }) {
   const url = new URL(`${SNAPTRADE_BASE_URL}/snapTrade/registerUser`);
+  // Send credentials redundantly: basic auth header + legacy headers + query params.
+  url.searchParams.set("clientId", snaptradeClientId);
+  url.searchParams.set("consumerKey", snaptradeSecret);
   console.log("[SnapTrade] registerUser: url", url.toString());
   console.log(
     "[SnapTrade] registerUser: have clientId?",
@@ -21,6 +24,8 @@ async function registerSnaptradeUser({ snaptradeClientId, snaptradeSecret, snapt
     headers: {
       "Content-Type": "application/json",
       Authorization: authHeader,
+      "Client-Id": snaptradeClientId,
+      "Consumer-Key": snaptradeSecret,
     },
     body: JSON.stringify({ userId: snaptradeUserId }),
   });
@@ -48,6 +53,9 @@ async function createSnaptradeConnectionUrl({
   const url = new URL(`${SNAPTRADE_BASE_URL}/snapTrade/login`);
   url.searchParams.set("userId", snaptradeUserId);
   url.searchParams.set("userSecret", snaptradeUserSecret);
+  // Send credentials redundantly: basic auth header + legacy headers + query params.
+  url.searchParams.set("clientId", snaptradeClientId);
+  url.searchParams.set("consumerKey", snaptradeSecret);
   console.log("[SnapTrade] login: url", url.toString());
   console.log(
     "[SnapTrade] login: have clientId?",
@@ -64,6 +72,8 @@ async function createSnaptradeConnectionUrl({
     headers: {
       "Content-Type": "application/json",
       Authorization: authHeader,
+      "Client-Id": snaptradeClientId,
+      "Consumer-Key": snaptradeSecret,
     },
   });
 
