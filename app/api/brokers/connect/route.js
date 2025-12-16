@@ -4,7 +4,12 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 const SNAPTRADE_BASE_URL = "https://api.snaptrade.com/api/v1";
 
 async function registerSnaptradeUser({ snaptradeClientId, snaptradeSecret, snaptradeUserId }) {
-  const res = await fetch(`${SNAPTRADE_BASE_URL}/snapTrade/registerUser`, {
+  const url = new URL(`${SNAPTRADE_BASE_URL}/snapTrade/registerUser`);
+  // Some SnapTrade deployments require credentials as query params; include them in addition to headers.
+  url.searchParams.set("clientId", snaptradeClientId);
+  url.searchParams.set("consumerKey", snaptradeSecret);
+
+  const res = await fetch(url.toString(), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -36,6 +41,9 @@ async function createSnaptradeConnectionUrl({
   const url = new URL(`${SNAPTRADE_BASE_URL}/snapTrade/login`);
   url.searchParams.set("userId", snaptradeUserId);
   url.searchParams.set("userSecret", snaptradeUserSecret);
+  // Include credentials as query params to satisfy servers expecting them here.
+  url.searchParams.set("clientId", snaptradeClientId);
+  url.searchParams.set("consumerKey", snaptradeSecret);
 
   const res = await fetch(url.toString(), {
     method: "POST",
