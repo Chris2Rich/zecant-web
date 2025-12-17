@@ -74,7 +74,8 @@ export async function POST() {
       // broker and other options can be provided later; for now use defaults (all brokers via portal)
     });
 
-    console.log("loginResp", JSON.stringify(loginResp, null, 2));
+    console.log("loginResp", loginResp);
+    console.log("loginResp.data", loginResp.data);
     const loginData = loginResp?.data || null;
     return NextResponse.json({ status: "ok", url: loginData as string });
   } catch (err) {
