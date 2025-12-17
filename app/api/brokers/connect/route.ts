@@ -74,10 +74,15 @@ export async function POST() {
       // broker and other options can be provided later; for now use defaults (all brokers via portal)
     });
 
-    console.log("loginResp", loginResp);
-    console.log("loginResp.data", loginResp.data);
     const loginData = loginResp?.data || null;
-    return NextResponse.json({ status: "ok", url: loginData as string });
+    let loginurl = "";
+    if (loginData) {
+      loginurl = loginData.redirectURI;
+    } else {
+      throw new Error("Failed to get login URL");
+    }
+    
+    return NextResponse.json({ status: "ok", url: loginurl as string });
   } catch (err) {
     console.error("Broker connection setup error:", err);
     return NextResponse.json(
