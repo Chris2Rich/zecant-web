@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {ErrorData, SnapTradeReact} from "snaptrade-react";
 
 interface BrokerData {
   connected: boolean;
@@ -21,43 +22,34 @@ export default function PortfolioPage() {
   const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
+  const [loginLink, setLoginLink] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Brokers metadata may be missing; treat missing/non-array as no brokers.
   const brokers = (user?.publicMetadata as any)?.brokers;
   const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
 
+  const loadBrokerData = async () => {
+    try {
+      setLoadingData(true);
+      setError(null);
+      const res = await fetch("/api/brokers/get", { method: "GET" });
+      if (!res.ok) {
+        throw new Error(`Request failed with status ${res.status}`);
+      }
+      const data = (await res.json()) as BrokerData;
+      setBrokerData(data);
+    } catch (err: any) {
+      console.error("Failed to load broker data:", err);
+      setError("Unable to load broker data right now.");
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
   useEffect(() => {
     if (!hasBrokers) return;
-
-    let cancelled = false;
-    const load = async () => {
-      try {
-        setLoadingData(true);
-        setError(null);
-        const res = await fetch("/api/brokers/get", { method: "GET" });
-        if (!res.ok) {
-          throw new Error(`Request failed with status ${res.status}`);
-        }
-        const data = (await res.json()) as BrokerData;
-        if (!cancelled) {
-          setBrokerData(data);
-        }
-      } catch (err: any) {
-        console.error("Failed to load broker data:", err);
-        if (!cancelled) {
-          setError("Unable to load broker data right now.");
-        }
-      } finally {
-        if (!cancelled) {
-          setLoadingData(false);
-        }
-      }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
+    loadBrokerData();
   }, [hasBrokers]);
 
   const handleConnectBroker = async () => {
@@ -66,17 +58,50 @@ export default function PortfolioPage() {
       setError(null);
       const res = await fetch("/api/brokers/connect", { method: "POST" });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.url) {
+      if (!res.ok || !data?.loginLink) {
         throw new Error(data?.error || "Failed to start broker connection.");
       }
-      // Redirect user to SnapTrade connection portal
-      window.location.href = data.url;
+      setLoginLink(data.loginLink);
+      setModalOpen(true);
     } catch (err: any) {
       console.error("Failed to start broker connection:", err);
       setError("Unable to start broker connection. Please try again.");
     } finally {
       setConnecting(false);
     }
+  };
+
+  const handleSuccess = async (authorizationId: string) => {
+    try {
+      setModalOpen(false);
+      setLoginLink(null);
+      const res = await fetch("/api/brokers/callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ authorizationId }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to save broker connection.");
+      }
+      // Reload user to get updated metadata
+      await user?.reload();
+      // Fetch broker data
+      await loadBrokerData();
+    } catch (err: any) {
+      console.error("Failed to handle broker success:", err);
+      setError("Broker connected but failed to save. Please try again.");
+    }
+  };
+
+  const handleError = (errorMessage: ErrorData) => {
+    setError(JSON.stringify(errorMessage));
+    setModalOpen(false);
+    setLoginLink(null);
+  };
+
+  const handleExit = () => {
+    setModalOpen(false);
+    setLoginLink(null);
   };
 
   if (!isLoaded) {
@@ -94,6 +119,16 @@ export default function PortfolioPage() {
           {connecting ? "Connecting..." : "Connect broker"}
         </Button>
         {error && <p className="text-sm text-red-500">{error}</p>}
+        {loginLink && (
+          <SnapTradeReact
+            loginLink={loginLink}
+            isOpen={modalOpen}
+            onSuccess={handleSuccess}
+            onError={handleError}
+            onExit={handleExit}
+            close={() => setModalOpen(false)}
+          />
+        )}
       </div>
     );
   }

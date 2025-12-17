@@ -75,14 +75,14 @@ export async function POST() {
     });
 
     const loginData = loginResp?.data || null;
-    let loginurl = "";
-    if (loginData) {
-      loginurl = loginData.redirectURI;
-    } else {
+    if (!loginData?.redirectURI) {
       throw new Error("Failed to get login URL");
     }
     
-    return NextResponse.json({ status: "ok", url: loginurl as string });
+    return NextResponse.json({
+      status: "ok",
+      loginLink: loginData.redirectURI,
+    });
   } catch (err) {
     console.error("Broker connection setup error:", err);
     return NextResponse.json(
