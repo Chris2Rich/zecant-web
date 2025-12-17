@@ -79,7 +79,7 @@
     "remark": "^15.0.1",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
-    "snaptrade-typescript-sdk": "^1.0.0",
+    "snaptrade-typescript-sdk": "^9.0.158",
     "sonner": "^1.7.4",
     "stripe": "^19.2.0",
     "tailwind-merge": "^2.5.5",

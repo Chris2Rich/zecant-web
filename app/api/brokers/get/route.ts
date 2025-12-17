@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import Snaptrade from "snaptrade-typescript-sdk";
+import { Snaptrade } from "snaptrade-typescript-sdk";
 
-function getSnaptradeClient(clientId, consumerKey) {
+function getSnaptradeClient(clientId: string, consumerKey: string) {
   return new Snaptrade({
-    clientId,
-    consumerKey,
+    clientId: clientId,
+    consumerKey: consumerKey,
   });
 }
 
-function computeTotalNavFromBalances(balances) {
+function computeTotalNavFromBalances(balances: any[]) {
   if (!Array.isArray(balances)) return 0;
   // SnapTrade balance schemas may vary; sum any numeric 'marketValue' or 'value' field as a best-effort NAV.
   return balances.reduce((total, b) => {
@@ -32,14 +32,6 @@ export async function GET() {
 
     const snaptradeClientId = process.env.SNAPTRADE_CLIENT_ID;
     const snaptradeSecret = process.env.SNAPTRADE_SECRET;
-
-    console.log("[SnapTrade] /api/brokers/get GET for user", userId);
-    console.log(
-      "[SnapTrade] env check SNAPTRADE_CLIENT_ID set?",
-      !!snaptradeClientId,
-      "SNAPTRADE_SECRET set?",
-      !!snaptradeSecret,
-    );
 
     if (!snaptradeClientId || !snaptradeSecret) {
       console.error("SnapTrade configuration missing: SNAPTRADE_CLIENT_ID or SNAPTRADE_SECRET");
@@ -74,27 +66,30 @@ export async function GET() {
 
     try {
       const snaptrade = getSnaptradeClient(snaptradeClientId, snaptradeSecret);
-      console.log("[SnapTrade] /api/brokers/get: fetching accounts/holdings/activities via SDK");
 
       // Use SDK high-level endpoints; shape may vary slightly but we treat them as opaque lists.
-      const [accountsResp, holdingsResp, activitiesResp] = await Promise.all([
+      const [accountsResp, activitiesResp] = await Promise.all([
         snaptrade.accountInformation.listUserAccounts({
-          userId: snaptradeUserId,
-          userSecret: snaptradeUserSecret,
-        }),
-        snaptrade.portfolioManagement.getAllUserHoldings({
-          userId: snaptradeUserId,
-          userSecret: snaptradeUserSecret,
+          userId: snaptradeUserId as string,
+          userSecret: snaptradeUserSecret as string,
         }),
         snaptrade.transactionsAndReporting.getActivities({
-          userId: snaptradeUserId,
-          userSecret: snaptradeUserSecret,
+          userId: snaptradeUserId as string,
+          userSecret: snaptradeUserSecret as string,
         }),
       ]);
-
+      
       const accounts = accountsResp?.data ?? accountsResp ?? [];
-      const holdings = holdingsResp?.data ?? holdingsResp ?? [];
+      const holdings: any[] = [];
       const trades = activitiesResp?.data ?? activitiesResp ?? [];
+      for (const account of accounts) {
+        const holdingsResp = await snaptrade.accountInformation.getUserAccountPositions({
+          userId: snaptradeUserId as string,
+          userSecret: snaptradeUserSecret as string,
+          accountId: account.id as string,
+        });
+        holdings.push(...(holdingsResp?.data ?? holdingsResp ?? []));
+      }
 
       const totalNav = computeTotalNavFromBalances(holdings);
 
