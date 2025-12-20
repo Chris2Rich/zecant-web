@@ -15,7 +15,6 @@ function computeTotalNavFromPositions(positions: any[]) {
   // SnapTrade positions have: price, quantity, and symbol
   // Calculate market value as price * quantity
   return positions.reduce((total, position) => {
-    console.log(position.price, position.fractional_units)
     const price = (position.price);
     const quantity = Number(position.fractional_units);
     const marketValue = price * Math.abs(quantity); // Use abs for short positions
@@ -130,7 +129,7 @@ export async function GET() {
           allPositions.push(...positions);
 
           // Get activities (trades) for this account
-          const activitiesResp = await snaptrade.transactionsAndReporting.getActivities({
+          const activitiesResp = await snaptrade.accountInformation.getAccountActivities({
             userId: snaptradeUserId as string,
             userSecret: snaptradeUserSecret as string,
             accountId: account.id as string, // Pass account ID to get account-specific activities
@@ -138,8 +137,10 @@ export async function GET() {
             // startDate: "2024-01-01",
             // endDate: new Date().toISOString().split('T')[0],
           });
-          const activities = activitiesResp?.data ?? activitiesResp ?? [];
-          allActivities.push(...activities);
+          const activities = activitiesResp?.data.data ?? [];
+          for(let activity in activities){
+            allActivities.push(activity)
+          }
         } catch (accountErr) {
           console.error(`Error fetching data for account ${account.id}:`, accountErr);
           // Continue with other accounts even if one fails

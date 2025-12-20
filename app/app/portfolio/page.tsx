@@ -195,18 +195,14 @@ export default function PortfolioPage() {
               <p className="text-sm">No positions found.</p>
             )}
           </div>
-          
+
           <div>
             <h2 className="text-lg font-semibold">Past trades</h2>
             {Array.isArray(brokerData.trades) && brokerData.trades.length > 0 ? (
               <ul className="list-disc list-inside text-sm space-y-1">
                 {brokerData.trades.map((t: any, idx: number) => (
                   <li key={t.id || idx}>
-                    {t.date || t.timestamp || "Unknown date"}:{" "}
-                    {t.side || t.type || "Trade"}{" "}
-                    {t.symbol || t.ticker || "Unknown symbol"} —{" "}
-                    {t.quantity ?? t.qty ?? "?"} @{" "}
-                    {t.price !== undefined ? t.price : "?"}
+                    {JSON.stringify(t)}
                   </li>
                 ))}
               </ul>
