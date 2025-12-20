@@ -182,6 +182,21 @@ export default function PortfolioPage() {
           </div>
 
           <div>
+            <h2 className="text-lg font-semibold">Current positions</h2>
+            {Array.isArray(brokerData.positions) && brokerData.positions.length > 0 ? (
+              <ul className="list-disc list-inside text-sm space-y-1">
+                {brokerData.positions.map((pos: any, idx: number) => (
+                  <li key={pos.id || idx}>
+                    {JSON.stringify(pos)}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm">No positions found.</p>
+            )}
+          </div>
+          
+          <div>
             <h2 className="text-lg font-semibold">Past trades</h2>
             {Array.isArray(brokerData.trades) && brokerData.trades.length > 0 ? (
               <ul className="list-disc list-inside text-sm space-y-1">

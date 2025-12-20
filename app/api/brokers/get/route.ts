@@ -9,18 +9,49 @@ function getSnaptradeClient(clientId: string, consumerKey: string) {
   });
 }
 
-function computeTotalNavFromBalances(balances: any[]) {
-  if (!Array.isArray(balances)) return 0;
-  // SnapTrade balance schemas may vary; sum any numeric 'marketValue' or 'value' field as a best-effort NAV.
-  return balances.reduce((total, b) => {
-    const v =
-      typeof b.marketValue === "number"
-        ? b.marketValue
-        : typeof b.value === "number"
-        ? b.value
-        : 0;
-    return total + v;
+function computeTotalNavFromPositions(positions: any[]) {
+  if (!Array.isArray(positions)) return 0;
+  
+  // SnapTrade positions have: price, quantity, and symbol
+  // Calculate market value as price * quantity
+  return positions.reduce((total, position) => {
+    console.log(position.price, position.fractional_units)
+    const price = (position.price);
+    const quantity = Number(position.fractional_units);
+    const marketValue = price * Math.abs(quantity); // Use abs for short positions
+    return total + marketValue;
   }, 0);
+}
+
+function formatTrades(activities: any[]) {
+  if (!Array.isArray(activities)) return [];
+  
+  // Filter for actual trades (buy/sell) and format them
+  return activities
+    .filter((activity: any) => {
+      const type = activity.type?.toLowerCase() || "";
+      return type.includes("buy") || type.includes("sell") || type.includes("trade");
+    })
+    .map((activity: any) => ({
+      date: activity.trade_date || activity.settlement_date || activity.date,
+      timestamp: activity.trade_date || activity.settlement_date,
+      side: activity.type,
+      type: activity.type,
+      symbol: activity.symbol?.symbol || activity.symbol,
+      ticker: activity.symbol?.symbol || activity.symbol,
+      quantity: Math.abs(activity.units || activity.quantity || 0),
+      qty: Math.abs(activity.units || activity.quantity || 0),
+      price: activity.price || 0,
+      amount: activity.amount || 0,
+      fee: activity.fee || 0,
+      description: activity.description,
+    }))
+    .sort((a, b) => {
+      // Sort by date descending (most recent first)
+      const dateA = new Date(a.timestamp || 0).getTime();
+      const dateB = new Date(b.timestamp || 0).getTime();
+      return dateB - dateA;
+    });
 }
 
 export async function GET() {
@@ -35,7 +66,6 @@ export async function GET() {
 
     if (!snaptradeClientId || !snaptradeSecret) {
       console.error("SnapTrade configuration missing: SNAPTRADE_CLIENT_ID or SNAPTRADE_SECRET");
-      // Still return a 200 with an empty payload so the frontend can handle gracefully.
       return NextResponse.json({
         connected: false,
         snaptradeConfigured: false,
@@ -48,12 +78,10 @@ export async function GET() {
 
     const clerk = await clerkClient();
     const user = await clerk.users.getUser(userId);
-
     const snaptradeUserId = user.privateMetadata?.snaptradeUserId || userId;
     const snaptradeUserSecret = user.privateMetadata?.snaptradeUserSecret;
 
     if (!snaptradeUserSecret) {
-      // User has not started/finished SnapTrade connection yet
       return NextResponse.json({
         connected: false,
         snaptradeConfigured: true,
@@ -67,47 +95,86 @@ export async function GET() {
     try {
       const snaptrade = getSnaptradeClient(snaptradeClientId, snaptradeSecret);
 
-      // Use SDK high-level endpoints; shape may vary slightly but we treat them as opaque lists.
-      const [accountsResp, activitiesResp] = await Promise.all([
-        snaptrade.accountInformation.listUserAccounts({
-          userId: snaptradeUserId as string,
-          userSecret: snaptradeUserSecret as string,
-        }),
-        snaptrade.transactionsAndReporting.getActivities({
-          userId: snaptradeUserId as string,
-          userSecret: snaptradeUserSecret as string,
-        }),
-      ]);
-      
+      // Fetch accounts first
+      const accountsResp = await snaptrade.accountInformation.listUserAccounts({
+        userId: snaptradeUserId as string,
+        userSecret: snaptradeUserSecret as string,
+      });
+
       const accounts = accountsResp?.data ?? accountsResp ?? [];
-      const holdings: any[] = [];
-      const trades = activitiesResp?.data ?? activitiesResp ?? [];
-      for (const account of accounts) {
-        const holdingsResp = await snaptrade.accountInformation.getUserAccountPositions({
-          userId: snaptradeUserId as string,
-          userSecret: snaptradeUserSecret as string,
-          accountId: account.id as string,
+      
+      if (accounts.length === 0) {
+        return NextResponse.json({
+          connected: true,
+          snaptradeConfigured: true,
+          accounts: [],
+          totalNav: 0,
+          positions: [],
+          trades: [],
         });
-        holdings.push(...(holdingsResp?.data ?? holdingsResp ?? []));
       }
 
-      const totalNav = computeTotalNavFromBalances(holdings);
+      // Fetch positions and activities for each account
+      const allPositions: any[] = [];
+      const allActivities: any[] = [];
+
+      for (const account of accounts) {
+        try {
+          // Get positions (holdings) for this account
+          const positionsResp = await snaptrade.accountInformation.getUserAccountPositions({
+            userId: snaptradeUserId as string,
+            userSecret: snaptradeUserSecret as string,
+            accountId: account.id as string,
+          });
+          const positions = positionsResp?.data ?? positionsResp ?? [];
+          allPositions.push(...positions);
+
+          // Get activities (trades) for this account
+          const activitiesResp = await snaptrade.transactionsAndReporting.getActivities({
+            userId: snaptradeUserId as string,
+            userSecret: snaptradeUserSecret as string,
+            accountId: account.id as string, // Pass account ID to get account-specific activities
+            // Optional: Add date range filters
+            // startDate: "2024-01-01",
+            // endDate: new Date().toISOString().split('T')[0],
+          });
+          const activities = activitiesResp?.data ?? activitiesResp ?? [];
+          allActivities.push(...activities);
+        } catch (accountErr) {
+          console.error(`Error fetching data for account ${account.id}:`, accountErr);
+          // Continue with other accounts even if one fails
+        }
+      }
+
+      // Calculate total NAV from all positions
+      const totalNav = computeTotalNavFromPositions(allPositions);
+
+      // Format and filter trades
+      const trades = formatTrades(allActivities);
 
       return NextResponse.json({
         connected: true,
         snaptradeConfigured: true,
-        accounts,
+        accounts: accounts.map((acc: any) => ({
+          id: acc.id,
+          name: acc.name,
+          accountNumber: acc.number,
+          brokerage: acc.institution_name || acc.brokerage_name,
+          type: acc.type,
+        })),
         totalNav,
-        positions: holdings,
+        positions: allPositions,
         trades,
       });
-    } catch (snapErr) {
+    } catch (snapErr: any) {
       console.error("Error fetching data from SnapTrade:", snapErr);
-      // If SnapTrade fails, indicate that it's unavailable but don't break the app.
+      console.error("Error details:", snapErr.response?.data || snapErr.message);
+      
       return NextResponse.json({
         connected: true,
         snaptradeConfigured: true,
         snaptradeError: true,
+        errorMessage: snapErr.message,
         accounts: [],
         totalNav: 0,
         positions: [],
@@ -122,5 +189,3 @@ export async function GET() {
     );
   }
 }
-
-
