@@ -50,6 +50,14 @@ export const lmtools: Tool[] = [
     premium: false
     },
     {
+    id: "portfolio",
+    name: "Portfolio Data",
+    description: "Use your portfolio as context",
+    icon: ChartPie,
+    enabled: false,
+    premium: false
+    },
+    {
     id: "graph",
     name: "Graph Generator",
     description: "Create charts and data visualizations",

@@ -125,41 +125,6 @@ export default function AppLayout({children, sidebarItems = []} : {
                         {children} </div>
                 </div>
             </main>
-
-            {/* Agent Panel - Right Side */}
-            <aside className="w-80 bg-card/70 backdrop-blur-glass border-l border-border flex flex-col">
-                {/* Panel Header */}
-                <div className="p-4 border-b border-border">
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-sm font-semibold text-foreground">Agent Workflows</h2>
-                        <button className="w-8 h-8 rounded-md hover:bg-muted flex items-center justify-center transition-colors">
-                            <Plus className="w-4 h-4 text-muted-foreground"/>
-                        </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                        Monitor and manage active trading agents
-                    </p>
-                </div>
-
-                {/* Active Agents */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    <AgentCard name="Momentum Scanner" status="Running" lastActive="2m Ago"
-                        icon={Search}/>
-                    <AgentCard name="Backtest Runner" status="Completed" lastActive="15m Ago"
-                        icon={Activity}/>
-                    <AgentCard name="Portfolio Analyzer" status="Idle" lastActive="1h Ago"
-                        icon={PieChart}/>
-                    <AgentCard name="News Monitor" status="Error" lastActive="Just Now"
-                        icon={FileText}/>
-                </div>
-
-                {/* Panel Footer */}
-                <div className="p-4 border-t border-border">
-                    <button className="w-full py-2 px-4 rounded-sm border border-border hover:bg-muted text-sm font-medium transition-colors">
-                        View All Workflows
-                    </button>
-                </div>
-            </aside>
         </div>
         </SidebarProvider>
     )

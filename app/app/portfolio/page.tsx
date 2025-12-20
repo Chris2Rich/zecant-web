@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {ErrorData, SnapTradeReact} from "snaptrade-react";
+import { ErrorData, SnapTradeReact } from "snaptrade-react";
+import { PortfolioDisplay } from "@/components/PortfolioDisplay"; // Adjust path as needed
 
 interface BrokerData {
   connected: boolean;
@@ -25,7 +26,6 @@ export default function PortfolioPage() {
   const [loginLink, setLoginLink] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Brokers metadata may be missing; treat missing/non-array as no brokers.
   const brokers = (user?.publicMetadata as any)?.brokers;
   const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
 
@@ -83,9 +83,7 @@ export default function PortfolioPage() {
       if (!res.ok) {
         throw new Error("Failed to save broker connection.");
       }
-      // Reload user to get updated metadata
       await user?.reload();
-      // Fetch broker data
       await loadBrokerData();
     } catch (err: any) {
       console.error("Failed to handle broker success:", err);
@@ -142,75 +140,29 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-semibold mb-4">Portfolio</h1>
-
-      {error && <p className="text-sm text-red-500">{error}</p>}
+    <div className="p-0 mx-0">
+      {error && (
+        <div className="mb-6 p-4 rounded-sm border border-red-500/20 bg-red-500/10 text-red-500">
+          {error}
+        </div>
+      )}
 
       {brokerData && !brokerData.connected && (
-        <p className="text-sm">
-          No SnapTrade-connected brokerage accounts were found yet. Once you
-          finish connecting a broker, your portfolio details will appear here.
-        </p>
+        <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass p-8 text-center">
+          <p className="text-muted-foreground">
+            No SnapTrade-connected brokerage accounts were found yet. Once you
+            finish connecting a broker, your portfolio details will appear here.
+          </p>
+        </div>
       )}
 
       {brokerData && brokerData.connected && (
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold">Connected brokerage accounts</h2>
-            {Array.isArray(brokerData.accounts) && brokerData.accounts.length > 0 ? (
-              <ul className="list-disc list-inside text-sm">
-                {brokerData.accounts.map((acct: any, idx: number) => (
-                  <li key={acct.id || idx}>
-                    {acct.name || acct.accountNumber || "Account"}{" "}
-                    {acct.brokerage && `(${acct.brokerage})`}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm">No accounts returned from broker.</p>
-            )}
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold">Total asset value (NAV)</h2>
-            <p className="text-sm">
-              {typeof brokerData.totalNav === "number"
-                ? `$${brokerData.totalNav.toFixed(2)}`
-                : "N/A"}
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold">Current positions</h2>
-            {Array.isArray(brokerData.positions) && brokerData.positions.length > 0 ? (
-              <ul className="list-disc list-inside text-sm space-y-1">
-                {brokerData.positions.map((pos: any, idx: number) => (
-                  <li key={pos.id || idx}>
-                    {JSON.stringify(pos)}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm">No positions found.</p>
-            )}
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold">Past trades</h2>
-            {Array.isArray(brokerData.trades) && brokerData.trades.length > 0 ? (
-              <ul className="list-disc list-inside text-sm space-y-1">
-                {brokerData.trades.map((t: any, idx: number) => (
-                  <li key={t.id || idx}>
-                    {JSON.stringify(t)}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm">No trades found.</p>
-            )}
-          </div>
-        </div>
+        <PortfolioDisplay
+          accounts={brokerData.accounts}
+          totalNav={brokerData.totalNav}
+          positions={brokerData.positions}
+          trades={brokerData.trades}
+        />
       )}
     </div>
   );
