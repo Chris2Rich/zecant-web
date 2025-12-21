@@ -62,7 +62,7 @@ export const lmtools: Tool[] = [
     name: "Graph Generator",
     description: "Create charts and data visualizations",
     icon: ChartPie,
-    enabled: false,
+    enabled: true,
     premium: false
     },
     {
