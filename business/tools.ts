@@ -76,7 +76,7 @@ export const lmtools: Tool[] = [
     {
     id: "adv_backtest",
     name: "Advanced Backtest",
-    description: "Create powerful trading models",
+    description: "Create powerful and robust trading models",
     icon: TrendingUpDown,
     enabled: false,
     premium: true
@@ -84,7 +84,7 @@ export const lmtools: Tool[] = [
     {
     id: "adv_report",
     name: "Advanced Report",
-    description: "Create reports that fit your firm",
+    description: "Synthesize reports that fit your firm",
     icon: FilePlus,
     enabled: false,
     premium: true
