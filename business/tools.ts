@@ -19,7 +19,7 @@ export interface Tool {
 export const lmtools: Tool[] = [
     {
     id: "search",
-    name: "Basic Search",
+    name: "Search",
     description: "Search the internet to improve responses",
     icon: Globe,
     enabled: true,
@@ -34,27 +34,27 @@ export const lmtools: Tool[] = [
     premium: true
     },
     {
-    id: "stock_chart",
-    name: "Market Panel",
-    description: "Interactive graphs showing historical market data",
-    icon: ChartCandlestick,
-    enabled: true,
-    premium: false
-    },
-    {
     id: "market_data",
     name: "Market Data",
     description: "Use real market data to improve responses",
     icon: ChartCandlestick,
-    enabled: false,
+    enabled: true,
     premium: false
     },
     {
     id: "portfolio",
     name: "Portfolio Data",
     description: "Use your portfolio as context",
-    icon: ChartPie,
+    icon: ChartCandlestick,
     enabled: false,
+    premium: false
+    },
+    {
+    id: "stock_chart",
+    name: "Market Panel",
+    description: "Interactive graphs showing historical market data",
+    icon: ChartPie,
+    enabled: true,
     premium: false
     },
     {
@@ -82,8 +82,16 @@ export const lmtools: Tool[] = [
     premium: true
     },
     {
+    id: "adv_report",
+    name: "Advanced Report",
+    description: "Create reports that fit your firm",
+    icon: FilePlus,
+    enabled: false,
+    premium: true
+    },
+    {
     id: "report",
-    name: "Create Report",
+    name: "Report",
     description: "Research and create a report",
     icon: FilePlus,
     enabled: false,

@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { 
   Settings2,
   Check,
+  Star,
+  
 } from "lucide-react"
 import {
   useFloating,
@@ -63,6 +65,53 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
 
   const enabledCount = tools.filter(t => t.enabled).length
 
+  function ToolItem({ tool }: { tool: Tool }) {
+    const Icon = tool.icon
+    return (
+      <button
+        key={tool.id}
+        onClick={() => toggleTool(tool.id)}
+        className={`
+          w-full flex items-start space-x-3 mb-2 px-3 py-2.5 rounded-sm transition-all group
+          ${tool.enabled 
+            ? 'bg-primary/10 hover:bg-primary/20 hover:inner-light-subtle' 
+            : 'hover:bg-muted/95 hover:inner-light-subtle'
+          }
+        `}
+      >
+        <div className={`
+          w-9 h-9 rounded-sm flex items-center justify-center flex-shrink-0 transition-colors
+          ${tool.enabled 
+            ? 'bg-primary/20' 
+            : 'bg-muted'
+          }
+        `}>
+          <Icon className={`w-5 h-5 transition-colors ${
+            tool.enabled 
+              ? 'text-primary' 
+              : 'text-muted-foreground group-hover:text-primary'
+          }`} />
+        </div>
+        
+        <div className="flex-1 text-left min-w-0">
+          <div className="flex items-center justify-between">
+            <span className={`
+              text-sm font-medium transition-colors
+              ${tool.enabled ? 'text-foreground' : 'text-foreground/50 group-hover:text-foreground'}
+            `}>
+              {tool.name}
+            </span>
+            {tool.enabled && (
+              <Check className="w-4 h-4 text-primary flex-shrink-0 transition-colors" />
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground/50 group-hover:text-muted-foreground mt-0.5 transition-colors">
+            {tool.description}
+          </p>
+        </div>
+      </button>
+    )}
+
   return (
     <>
       <Button
@@ -108,53 +157,16 @@ export function ChatToolsButton({ onToolsChange }: ChatToolsButtonProps) {
 
             {/* Tools List */}
             <div className="py-2 px-2 max-h-96 overflow-y-auto scrollbar-thin">
-              {tools.map((tool) => {
-                const Icon = tool.icon
-                return (
-                  <button
-                    key={tool.id}
-                    onClick={() => toggleTool(tool.id)}
-                    className={`
-                      w-full flex items-start space-x-3 mb-2 px-3 py-2.5 rounded-sm transition-all group
-                      ${tool.enabled 
-                        ? 'bg-primary/10 hover:bg-primary/20 hover:inner-light-subtle' 
-                        : 'hover:bg-muted/95 hover:inner-light-subtle'
-                      }
-                    `}
-                  >
-                    <div className={`
-                      w-9 h-9 rounded-sm flex items-center justify-center flex-shrink-0 transition-colors
-                      ${tool.enabled 
-                        ? 'bg-primary/20' 
-                        : 'bg-muted'
-                      }
-                    `}>
-                      <Icon className={`w-5 h-5 transition-colors ${
-                        tool.enabled 
-                          ? 'text-primary' 
-                          : 'text-muted-foreground group-hover:text-primary'
-                      }`} />
-                    </div>
-                    
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className={`
-                          text-sm font-medium transition-colors
-                          ${tool.enabled ? 'text-foreground' : 'text-foreground/50 group-hover:text-foreground'}
-                        `}>
-                          {tool.name}
-                        </span>
-                        {tool.enabled && (
-                          <Check className="w-4 h-4 text-primary flex-shrink-0 transition-colors" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground/50 group-hover:text-muted-foreground mt-0.5 transition-colors">
-                        {tool.description}
-                      </p>
-                    </div>
-                  </button>
-                )
+              <div className="border-b border-border-divider mb-2">
+              {tools.map((tool) => { 
+                return tool.premium && <ToolItem key={tool.id} tool={tool} />
               })}
+              </div>
+
+              {tools.map((tool) => { 
+                return !tool.premium && <ToolItem key={tool.id} tool={tool} />
+              })}
+
             </div>
 
             {/* Footer */}
