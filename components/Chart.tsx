@@ -25,6 +25,7 @@ interface SeriesConfig {
   name: string;
   color?: string;
   type?: 'line' | 'bar' | 'area';
+  ramp?: ColorRamp;
 }
 
 interface AxisConfig {
@@ -47,89 +48,61 @@ interface GenericChartProps {
   config: ChartConfig;
 }
 
-const DEFAULT_COLORS = [
-    // Reds
-    'var(--red-500)',
-    'var(--red-300)',
-    'var(--red-700)',
-  
-    // Oranges
-    'var(--orange-500)',
-    'var(--orange-300)',
-    'var(--orange-700)',
-  
-    // Yellows
-    'var(--yellow-500)',
-    'var(--yellow-300)',
-    'var(--yellow-700)',
-  
-    // Greens
-    'var(--green-500)',
-    'var(--green-300)',
-    'var(--green-700)',
-  
-    // Turquoise
-    'var(--turquoise-500)',
-    'var(--turquoise-300)',
-    'var(--turquoise-700)',
-  
-    // Blues
-    'var(--blue-500)',
-    'var(--blue-300)',
-    'var(--blue-700)',
-  
-    // Purples
-    'var(--purple-500)',
-    'var(--purple-300)',
-    'var(--purple-700)',
-  ];
-  
-  type ColorRamp = string[];
+const DEFAULT_COLORS: string[] = [];
 
-  const COLOR_RAMPS: Record<string, ColorRamp> = {
-    red: [
-      'var(--red-300)',
-      'var(--red-500)',
-      'var(--red-700)',
-    ],
-    orange: [
-      'var(--orange-300)',
-      'var(--orange-500)',
-      'var(--orange-700)',
-    ],
-    yellow: [
-      'var(--yellow-300)',
-      'var(--yellow-500)',
-      'var(--yellow-700)',
-    ],
-    green: [
-      'var(--green-300)',
-      'var(--green-500)',
-      'var(--green-700)',
-    ],
-    turquoise: [
-      'var(--turquoise-300)',
-      'var(--turquoise-500)',
-      'var(--turquoise-700)',
-    ],
-    blue: [
-      'var(--blue-300)',
-      'var(--blue-500)',
-      'var(--blue-700)',
-    ],
-    purple: [
-      'var(--purple-300)',
-      'var(--purple-500)',
-      'var(--purple-700)',
-    ],
-  };
-  
-  const RAMP_KEYS = Object.keys(COLOR_RAMPS);
+type ColorRamp = string[];
 
-  function getRampForSeries(seriesIndex: number): ColorRamp {
-    const rampKey = RAMP_KEYS[seriesIndex % RAMP_KEYS.length];
-    return COLOR_RAMPS[rampKey];
-  }
+const COLOR_RAMPS: Record<string, ColorRamp> = {
+  red: [
+    '#d47d76', // red-300
+    '#fa958d', // red-500
+    '#fbaaa3', // red-700
+  ],
+  orange: [
+    '#cd8358', // orange-300
+    '#f29c6a', // orange-500
+    '#f5b089', // orange-700
+  ],
+  yellow: [
+    '#a4963e', // yellow-300
+    '#c2b24d', // yellow-500
+    '#cdc176', // yellow-700
+  ],
+  green: [
+    '#5ca46d', // green-300
+    '#70c383', // green-500
+    '#8ece9b', // green-700
+  ],
+  turquoise: [
+    '#0ca4aa', // turquoise-300
+    '#1ec3ca', // turquoise-500
+    '#66cfd4', // turquoise-700
+  ],
+  blue: [
+    '#6d96d8', // blue-300
+    '#83b2fe', // blue-500
+    '#9bc1fe', // blue-700
+  ],
+  purple: [
+    '#a288d1', // purple-300
+    '#c1a2f7', // purple-500
+    '#cbb4f7', // purple-700
+  ],
+};
+
+const RAMP_KEYS = Object.keys(COLOR_RAMPS);
+
+function getRampForSeries(seriesIndex: number): ColorRamp {
+  return COLOR_RAMPS[RAMP_KEYS[seriesIndex % RAMP_KEYS.length]];
+}
+
+
+function getRampForKey(key: string): ColorRamp {
+const hash = [...key].reduce((a, c) => a + c.charCodeAt(0), 0);
+const rampKey = RAMP_KEYS[hash % RAMP_KEYS.length];
+return COLOR_RAMPS[rampKey];
+}
+
 
 const CustomTooltip = memo(function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -220,40 +193,47 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
 
   // Determine which keys to plot
   const plotKeys = useMemo((): SeriesConfig[] => {
+    const resolveType = (): SeriesConfig['type'] =>
+      type === 'line'
+        ? 'line'
+        : type === 'bar'
+        ? 'bar'
+        : type === 'area'
+        ? 'area'
+        : 'line';
+  
     if (series && series.length > 0) {
-        return series.map((s, i) => {
-          const ramp = getRampForSeries(i);
-          return {
-            ...s,
-            color: s.color ?? ramp[1], // default mid tone
-          };
-        });
-      }
+      return series.map((s, i) => {
+        const ramp = getRampForKey(s.key);
+
+        return {
+          ...s,
+          type: s.type ?? resolveType(),
+          ramp,
+          color: s.color ?? ramp[1], // 500 shade
+        };
+      });
+    }
+  
     if (yAxis?.key) {
-      // Determine default type based on chart type
-      const defaultType: SeriesConfig['type'] = 
-        type === 'line' ? 'line' : 
-        type === 'bar' ? 'bar' : 
-        type === 'area' ? 'area' : 
-        'line'; // fallback for combo/scatter/pie
-      
-      if (Array.isArray(yAxis.key)) {
-        return yAxis.key.map((key, i) => ({
+      const keys = Array.isArray(yAxis.key) ? yAxis.key : [yAxis.key];
+  
+      return keys.map((key, i) => {
+        const ramp = getRampForSeries(i);
+  
+        return {
           key,
           name: key,
-          color: colors[i % colors.length],
-          type: defaultType,
-        }));
-      }
-      return [{
-        key: yAxis.key,
-        name: yAxis.key,
-        color: colors[0],
-        type: defaultType,
-      }];
+          type: resolveType(),
+          ramp,
+          color: ramp[1], // 500 shade
+        };
+      });
     }
+  
     return [];
-  }, [series, yAxis, colors, type]);
+  }, [series, yAxis, type]);
+  
 
   const renderChart = () => {
     const commonProps = {
@@ -287,10 +267,10 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
                 type="linear"
                 dataKey={s.key}
                 name={s.name}
-                stroke={s.color || colors[i % colors.length]}
+                stroke={s.ramp?.[2] ?? s.color}   // 700
                 strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
+                dot={{ r: 3, fill: s.ramp?.[1] }} // 500
+                activeDot={{ r: 5, fill: s.ramp?.[0] }} // 300
               />
             ))}
           </LineChart>
@@ -320,7 +300,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
                 key={s.key}
                 dataKey={s.key}
                 name={s.name}
-                fill={s.color || colors[i % colors.length]}
+                fill={s.ramp?.[1] ?? s.color} // 500
                 radius={[4, 4, 0, 0]}
               />
             ))}
@@ -352,8 +332,8 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
                 type="linear"
                 dataKey={s.key}
                 name={s.name}
-                stroke={s.color || colors[i % colors.length]}
-                fill={s.color || colors[i % colors.length]}
+                stroke={s.ramp?.[2] ?? s.color} // 700
+                fill={s.ramp?.[1] ?? s.color}   // 500
                 fillOpacity={0.6}
                 strokeWidth={2}
               />
@@ -362,6 +342,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
         );
 
       case 'scatter':
+        const scatterRamp = getRampForSeries(0);
         return (
           <ScatterChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
@@ -385,7 +366,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
             <Scatter
               name={yAxis?.label || yAxis?.key || 'Value'}
               data={data}
-              fill={colors[0]}
+              fill={scatterRamp[1]} // 500
             />
           </ScatterChart>
         );
@@ -403,9 +384,10 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               labelLine={{ stroke: '#71717a' }}
             >
-              {pieDataWithTotal.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-              ))}
+              {pieDataWithTotal.map((entry, index) => {
+                const ramp = getRampForSeries(index);
+                return <Cell key={`cell-${index}`} fill={ramp[1]} stroke={ramp[2]} />
+                })}
             </Pie>
             <Tooltip content={<PieTooltip />} />
           </PieChart>
@@ -439,9 +421,9 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
                     type="linear"
                     dataKey={s.key}
                     name={s.name}
-                    stroke={color}
+                    stroke={s.ramp?.[2]} // 700
                     strokeWidth={2}
-                    dot={{ r: 3 }}
+                    dot={{ r: 3, fill: s.ramp?.[1] }}
                   />
                 );
               }
@@ -450,7 +432,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
                   key={s.key}
                   dataKey={s.key}
                   name={s.name}
-                  fill={color}
+                  fill={s.ramp?.[1]} // 500
                   radius={[4, 4, 0, 0]}
                 />
               );
