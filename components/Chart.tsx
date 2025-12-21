@@ -48,12 +48,88 @@ interface GenericChartProps {
 }
 
 const DEFAULT_COLORS = [
-    'oklch(0.64 0.18 260)', // blue-200
-    'oklch(0.76 0.13 260)', // blue-300
-    'oklch(0.49 0.18 260)', // blue-100
-    'oklch(0.87 0.07 260)', // blue-400
-    'oklch(0.96 0.02 260)', // blue-500
+    // Reds
+    'var(--red-500)',
+    'var(--red-300)',
+    'var(--red-700)',
+  
+    // Oranges
+    'var(--orange-500)',
+    'var(--orange-300)',
+    'var(--orange-700)',
+  
+    // Yellows
+    'var(--yellow-500)',
+    'var(--yellow-300)',
+    'var(--yellow-700)',
+  
+    // Greens
+    'var(--green-500)',
+    'var(--green-300)',
+    'var(--green-700)',
+  
+    // Turquoise
+    'var(--turquoise-500)',
+    'var(--turquoise-300)',
+    'var(--turquoise-700)',
+  
+    // Blues
+    'var(--blue-500)',
+    'var(--blue-300)',
+    'var(--blue-700)',
+  
+    // Purples
+    'var(--purple-500)',
+    'var(--purple-300)',
+    'var(--purple-700)',
   ];
+  
+  type ColorRamp = string[];
+
+  const COLOR_RAMPS: Record<string, ColorRamp> = {
+    red: [
+      'var(--red-300)',
+      'var(--red-500)',
+      'var(--red-700)',
+    ],
+    orange: [
+      'var(--orange-300)',
+      'var(--orange-500)',
+      'var(--orange-700)',
+    ],
+    yellow: [
+      'var(--yellow-300)',
+      'var(--yellow-500)',
+      'var(--yellow-700)',
+    ],
+    green: [
+      'var(--green-300)',
+      'var(--green-500)',
+      'var(--green-700)',
+    ],
+    turquoise: [
+      'var(--turquoise-300)',
+      'var(--turquoise-500)',
+      'var(--turquoise-700)',
+    ],
+    blue: [
+      'var(--blue-300)',
+      'var(--blue-500)',
+      'var(--blue-700)',
+    ],
+    purple: [
+      'var(--purple-300)',
+      'var(--purple-500)',
+      'var(--purple-700)',
+    ],
+  };
+  
+  const RAMP_KEYS = Object.keys(COLOR_RAMPS);
+
+  function getRampForSeries(seriesIndex: number): ColorRamp {
+    const rampKey = RAMP_KEYS[seriesIndex % RAMP_KEYS.length];
+    return COLOR_RAMPS[rampKey];
+  }
 
 const CustomTooltip = memo(function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -145,8 +221,14 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
   // Determine which keys to plot
   const plotKeys = useMemo((): SeriesConfig[] => {
     if (series && series.length > 0) {
-      return series;
-    }
+        return series.map((s, i) => {
+          const ramp = getRampForSeries(i);
+          return {
+            ...s,
+            color: s.color ?? ramp[1], // default mid tone
+          };
+        });
+      }
     if (yAxis?.key) {
       // Determine default type based on chart type
       const defaultType: SeriesConfig['type'] = 
@@ -267,7 +349,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
             {plotKeys.map((s, i) => (
               <Area
                 key={s.key}
-                type="monotone"
+                type="linear"
                 dataKey={s.key}
                 name={s.name}
                 stroke={s.color || colors[i % colors.length]}
@@ -354,7 +436,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
                 return (
                   <Line
                     key={s.key}
-                    type="monotone"
+                    type="linear"
                     dataKey={s.key}
                     name={s.name}
                     stroke={color}
