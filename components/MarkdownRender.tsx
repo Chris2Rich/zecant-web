@@ -5,6 +5,7 @@ import katex from 'katex';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { StockChart } from "@/components/StockChart";
+import { GenericChart } from "@/components/Chart"
 
 type MarkdownRenderProps = {
   message: string;
@@ -202,25 +203,31 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
           if (componentData) {
             const componentKey = `component-${key++}`;
             
-            // Render the appropriate component based on type
-            if (componentData.type === 'stock_chart') {
-              parts.push(
-                <div key={componentKey} className="my-6">
-                  <StockChart 
-                    ticker={componentData.params.ticker}
-                    days={componentData.params.days || 30}
+            switch (componentData.type){
+              case "stock_chart":
+                parts.push(
+                  <div key={componentKey} className="my-6">
+                    <StockChart 
+                      ticker={componentData.params.ticker}
+                      days={componentData.params.days || 30}
+                    />
+                  </div>
+                );
+              case "graph":
+                parts.push(
+                  <GenericChart 
+                    key={componentKey}
+                    config={componentData.params}
                   />
-                </div>
-              );
-            } else {
-              // Unknown component type - show error
-              parts.push(
-                <div key={componentKey} className="my-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
-                  <p className="text-sm text-destructive">
-                    Unknown component: {componentData.type}
-                  </p>
-                </div>
-              );
+                );
+              default:
+                parts.push(
+                  <div key={componentKey} className="my-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
+                    <p className="text-sm text-destructive">
+                      Unknown component: {componentData.type}
+                    </p>
+                  </div>
+                );
             }
           } else {
             parts.push(marker);
