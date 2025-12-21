@@ -48,15 +48,12 @@ interface GenericChartProps {
 }
 
 const DEFAULT_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // green
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#f97316', // orange
-];
+    'oklch(0.64 0.18 260)', // blue-200
+    'oklch(0.76 0.13 260)', // blue-300
+    'oklch(0.49 0.18 260)', // blue-100
+    'oklch(0.87 0.07 260)', // blue-400
+    'oklch(0.96 0.02 260)', // blue-500
+  ];
 
 const CustomTooltip = memo(function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -205,7 +202,7 @@ export const GenericChart = memo(function GenericChart({ config }: GenericChartP
             {plotKeys.map((s, i) => (
               <Line
                 key={s.key}
-                type="monotone"
+                type="linear"
                 dataKey={s.key}
                 name={s.name}
                 stroke={s.color || colors[i % colors.length]}
