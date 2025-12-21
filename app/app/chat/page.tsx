@@ -336,10 +336,6 @@ export function ChatPage({
                 setIsStreaming(false);
                 setIsSearching(false);
                 setSearchQuery(null);
-              } else if (parsed.type === "tool_call") {
-                console.log("Tool call:", parsed);
-              } else if (parsed.type === "market_data_fetched") {
-                console.log("Market data fetched for tickers:", parsed.tickers);
               }
             } catch (parseErr) {
               console.error("Failed to parse SSE message:", parseErr, data);
@@ -380,7 +376,6 @@ export function ChatPage({
   const handleToolsChange = (tools: any[]) => {
     const enabled = tools.filter(t => t.enabled);
     setEnabledTools(enabled);
-    console.log("Enabled tools:", enabled);
   };
 
   const handleSuggestedPrompt = (prompt: string) => {

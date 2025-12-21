@@ -202,7 +202,6 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
           const componentData = componentMap.get(marker);
           if (componentData) {
             const componentKey = `component-${key++}`;
-            
             switch (componentData.type){
               case "stock_chart":
                 parts.push(
@@ -322,18 +321,20 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
           },
           p: {
             component: ({ children, ...props }) => {
-              const hasBlockChild = React.Children.toArray(children).some(
-                (child) =>
-                  React.isValidElement(child) && React.Children.toArray(children).some(isBlockElement)
+              // Process markers FIRST
+              const processedChildren = replaceMarkers(children);
+              
+              const hasBlockChild = React.Children.toArray(processedChildren).some(
+                (child) => React.isValidElement(child) && React.Children.toArray(processedChildren).some(isBlockElement)
               );
           
               if (hasBlockChild) {
-                return <>{children}</>;
+                return <>{processedChildren}</>;
               }
           
               return (
                 <div {...props} className="leading-relaxed whitespace-pre-wrap">
-                  {children}
+                  {processedChildren}
                 </div>
               );
             },
