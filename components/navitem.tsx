@@ -15,7 +15,7 @@ export default function NavItem({ icon: Icon, label = "", active = false, link =
         <Icon className="w-5 h-5" />
         
         {/* Tooltip */}
-        <span className="absolute left-full ml-2 px-2 py-1 bg-card/95 backdrop-blur-glass text-foreground text-xs rounded-sm opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-border-glass">
+        <span className="absolute left-full ml-2 px-2 py-1 bg-card/95 backdrop-blur-glass text-foreground text-xs rounded-sm opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-border-glass z-50">
           {label}
         </span>
       </button>
