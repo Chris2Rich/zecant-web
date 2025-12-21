@@ -5,7 +5,7 @@ import { useSignUp, useClerk } from '@clerk/nextjs'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Check } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, Mail, Lock, User, Check, X } from 'lucide-react'
 import Image from "next/image"
 
 export default function SignUpPage() {
@@ -77,17 +77,18 @@ export default function SignUpPage() {
       <div className="min-h-screen flex items-center justify-center p-4">
         
         <div className="relative w-full max-w-md">
-          <Link href="/">
-            <Button
-              variant="ghost"
-              className="absolute -top-16 left-0 text-muted-foreground hover:text-foreground"
-              >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </Link>
-
           <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
+            <div className='flex justify-end w-full'>
+              <Link href="/">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-sm"
+                  >
+                  <X className="w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
             <div className="text-center mb-8">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/70 backdrop-blur-glass  rounded-sm flex items-center justify-center mx-auto mb-4">
                 <Check className="w-6 h-6 text-primary-foreground" />

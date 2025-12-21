@@ -146,7 +146,7 @@ export function ChatArchiveModal({ isOpen, onClose, onSelectChat }: ChatArchiveM
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="rounded-full"
+              className="rounded-sm"
             >
               <X className="w-5 h-5" />
             </Button>
