@@ -213,6 +213,7 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
                     />
                   </div>
                 );
+                break;
               case "graph":
                 parts.push(
                   <GenericChart 
@@ -220,6 +221,7 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
                     config={componentData.params}
                   />
                 );
+                break;
               default:
                 parts.push(
                   <div key={componentKey} className="my-4 p-4 border border-destructive/50 rounded-lg bg-destructive/10">
