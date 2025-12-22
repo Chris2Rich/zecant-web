@@ -279,9 +279,9 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
   const isPositive = totalGainLoss >= 0;
 
   return (
-    <div className="space-y-6">
+    <div className="h-full space-y-6 px-4 scrollbar-thin overflow-y-auto">
       {/* Portfolio Summary */}
-      <div className="flex flex-row p-6 items-middle rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass overflow-hidden">
+      <div className="flex flex-row p-6 items-middle rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass">
         <div>
             <h2 className="text-sm font-medium text-muted-foreground mb-2">Total Portfolio Value</h2>
             <div className="flex items-baseline gap-4">

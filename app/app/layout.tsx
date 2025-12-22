@@ -53,7 +53,7 @@ export default function AppLayout({children, sidebarItems = []} : {
         <SidebarProvider>
         <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
-            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6 z-50">
+            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6 z-50 overflow-y-auto overflow-x-hidden scrollbar-thin">
                 {/* Logo */}
                 <Link href="/">
                     <div className="flex items-center cursor-pointer">

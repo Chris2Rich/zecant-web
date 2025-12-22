@@ -140,7 +140,7 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="p-0 mx-0">
+    <>
       {error && (
         <div className="mb-6 p-4 rounded-sm border border-red-500/20 bg-red-500/10 text-red-500">
           {error}
@@ -164,6 +164,6 @@ export default function PortfolioPage() {
           trades={brokerData.trades}
         />
       )}
-    </div>
+    </>
   );
 }
