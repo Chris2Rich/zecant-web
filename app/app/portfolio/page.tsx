@@ -1,26 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
-import { Loader2 } from "lucide-react";
+import { useUser, useAuth } from "@clerk/nextjs";
+import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorData, SnapTradeReact } from "snaptrade-react";
-import { PortfolioDisplay } from "@/components/PortfolioDisplay"; // Adjust path as needed
+import { PortfolioDisplay } from "@/components/PortfolioDisplay";
 
 interface BrokerData {
   connected: boolean;
-  snaptradeConfigured?: boolean;
-  snaptradeError?: boolean;
   accounts: any[];
   totalNav: number;
   positions: any[];
   trades: any[];
+  cached?: boolean;
+  cache_age_minutes?: number;
+  last_fetched_at?: string;
+  error?: string;
 }
+
+const API_BASE_URL = "https://api.zecant.com";
 
 export default function PortfolioPage() {
   const { user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const [brokerData, setBrokerData] = useState<BrokerData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [loginLink, setLoginLink] = useState<string | null>(null);
@@ -29,21 +35,51 @@ export default function PortfolioPage() {
   const brokers = (user?.publicMetadata as any)?.brokers;
   const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
 
-  const loadBrokerData = async () => {
+  const loadBrokerData = async (forceRefresh: boolean = false) => {
     try {
-      setLoadingData(true);
-      setError(null);
-      const res = await fetch("/api/brokers/get", { method: "GET" });
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
+      if (forceRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoadingData(true);
       }
+      setError(null);
+
+      // Get auth token from Clerk
+      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      // Fetch from new Python backend endpoint
+      const url = forceRefresh 
+        ? `${API_BASE_URL}/data/portfolio?refresh=true`
+        : `${API_BASE_URL}/data/portfolio`;
+
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData?.error || `Request failed with status ${res.status}`);
+      }
+
       const data = (await res.json()) as BrokerData;
       setBrokerData(data);
+
+      // Show error from backend if present
+      if (data.error) {
+        setError(data.error);
+      }
     } catch (err: any) {
       console.error("Failed to load broker data:", err);
-      setError("Unable to load broker data right now.");
+      setError(err.message || "Unable to load broker data right now.");
     } finally {
       setLoadingData(false);
+      setRefreshing(false);
     }
   };
 
@@ -51,6 +87,10 @@ export default function PortfolioPage() {
     if (!hasBrokers) return;
     loadBrokerData();
   }, [hasBrokers]);
+
+  const handleRefresh = () => {
+    loadBrokerData(true);
+  };
 
   const handleConnectBroker = async () => {
     try {
@@ -84,7 +124,8 @@ export default function PortfolioPage() {
         throw new Error("Failed to save broker connection.");
       }
       await user?.reload();
-      await loadBrokerData();
+      // Force refresh to get fresh data after connecting
+      await loadBrokerData(true);
     } catch (err: any) {
       console.error("Failed to handle broker success:", err);
       setError("Broker connected but failed to save. Please try again.");
@@ -157,12 +198,48 @@ export default function PortfolioPage() {
       )}
 
       {brokerData && brokerData.connected && (
-        <PortfolioDisplay
-          accounts={brokerData.accounts}
-          totalNav={brokerData.totalNav}
-          positions={brokerData.positions}
-          trades={brokerData.trades}
-        />
+        <div className="space-y-4">
+          {/* Cache info and refresh button */}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {brokerData.cached ? (
+                <>
+                  Last updated {brokerData.cache_age_minutes?.toFixed(0)} minutes ago
+                  {brokerData.cache_age_minutes && brokerData.cache_age_minutes > 15 && (
+                    <span className="ml-2 text-yellow-500">(data may be stale)</span>
+                  )}
+                </>
+              ) : (
+                "Just updated"
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={refreshing || loadingData}
+            >
+              {refreshing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Refreshing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Refresh
+                </>
+              )}
+            </Button>
+          </div>
+
+          <PortfolioDisplay
+            accounts={brokerData.accounts}
+            totalNav={brokerData.totalNav}
+            positions={brokerData.positions}
+            trades={brokerData.trades}
+          />
+        </div>
       )}
     </>
   );

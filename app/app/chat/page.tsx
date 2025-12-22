@@ -400,7 +400,7 @@ export function ChatPage({
         ref={messagesContainerRef}
         className="absolute inset-0 overflow-y-auto scrollbar-thin px-4 pt-8"
         style={{ 
-          paddingBottom: `${inputHeight + 16}px` // Add padding equal to input height + some spacing
+          paddingBottom: `${inputHeight}px` // Add padding equal to input height + some spacing
         }}
       >
         {/* Welcome Message */}

@@ -53,19 +53,27 @@ export default function AppLayout({children, sidebarItems = []} : {
         <SidebarProvider>
         <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
-            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6 z-50 overflow-y-auto overflow-x-hidden scrollbar-thin">
-                {/* Logo */}
+            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6 z-50">
                 <Link href="/">
-                    <div className="flex items-center cursor-pointer">
+                <button
+                    className="
+                    group relative w-10 h-10 rounded-sm flex items-center justify-center transition-colors
+                    bg-primary text-primary-foreground inner-light-primary"
+                >
                         <Image 
-                            src="/Icon.png" 
+                            src="/Icon Logo.png" 
                             alt="Zecant Logo" 
                             width={32} 
                             height={32}
-                            className=" w-10 h-10"
+                            className=" w-8 h-8"
                             priority
                         />
-                    </div>
+                    
+                    {/* Tooltip */}
+                    <span className="absolute left-full ml-2 px-2 py-1 bg-card/95 backdrop-blur-glass text-foreground text-xs rounded-sm opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-border-glass z-50">
+                    Zecant
+                    </span>
+                </button>
                 </Link>
 
                 {/* Main Navigation */}
