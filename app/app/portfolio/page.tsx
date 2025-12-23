@@ -222,15 +222,15 @@ export function PortfolioPage({
   }
 
   return (
-    <div className="px-4 scrollbar-thin overflow-y-auto">
+    <div className="h-full overflow-y-auto scrollbar-thin px-4 pt-8">
       {error && (
-        <div className="mb-6 rounded-sm border border-red-500/20 bg-red-500/10 text-red-500">
+        <div className="mb-6 p-4 rounded-sm border border-red-500/20 bg-red-500/10 text-red-500">
           {error}
         </div>
       )}
 
       {brokerData && !brokerData.connected && (
-        <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass py-8 px-4 text-center">
+        <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass p-8 text-center">
           <p className="text-muted-foreground">
             No SnapTrade-connected brokerage accounts were found yet. Once you
             finish connecting a broker, your portfolio details will appear here.
@@ -239,7 +239,7 @@ export function PortfolioPage({
       )}
 
       {brokerData && brokerData.connected && (
-        <div className="space-y-4 h-full">
+        <div className="space-y-6">
           <PortfolioDisplay
             accounts={brokerData.accounts}
             totalNav={brokerData.totalNav}
