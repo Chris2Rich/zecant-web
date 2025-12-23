@@ -21,7 +21,7 @@ function SidebarInnerStatic() {
     const { items } = useSidebarContext()
   
     return (
-      <div className="flex flex-col items-center space-y-4 pt-4 border-t border-border">
+      <div className="flex flex-col items-center space-y-3 pt-3 border-t border-border">
         {items.length === 0 ? null : items.map((item, i) => (
           <NavFunction
             key={item.id ?? `${item.fn}-${i}`}
@@ -48,7 +48,7 @@ export default function AppLayout({children, sidebarItems = []} : {
         <SidebarProvider>
             <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
-            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-4 space-y-4 z-50">
+            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-3 space-y-3 z-50">
                 <Link href="/">
                 <button
                     className="
@@ -72,7 +72,7 @@ export default function AppLayout({children, sidebarItems = []} : {
                 </Link>
 
                 {/* Main Navigation */}
-                    <nav className="flex-1 flex flex-col items-center space-y-4 pt-4 border-t border-border">
+                    <nav className="flex-1 flex flex-col items-center space-y-3 pt-3 border-t border-border">
                     <NavItem icon={HomeIcon}
                         label="Home"
                         link="/app"
@@ -108,7 +108,7 @@ export default function AppLayout({children, sidebarItems = []} : {
 
 
                 {/* Bottom Actions */}
-                <div className="flex flex-col items-center space-y-4 pt-4 border-t border-border">
+                <div className="flex flex-col items-center space-y-3 pt-3 border-t border-border">
                     <NavItem icon={Bell}
                         label="Notifications"
                         link="/app/notifications"
