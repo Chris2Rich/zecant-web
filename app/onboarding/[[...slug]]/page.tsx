@@ -65,13 +65,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <>
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 flex items-center justify-center p-4 relative">
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/70 backdrop-blur-glass  rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
-
+    <div className="min-h-full flex items-center justify-center p-4 relative">
 
       <AnimatePresence mode="wait">
         {step === "select" && (
@@ -205,7 +199,6 @@ export default function OnboardingPage() {
         )}
       </AnimatePresence>
     </div>
-  </>
   );
 }
 
