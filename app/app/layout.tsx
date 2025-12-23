@@ -1,13 +1,9 @@
 "use client" 
 import {
     Bell,
-    Plus,
     MessageSquare,
     BarChart3,
-    Search,
-    Activity,
     PieChart,
-    FileText,
     FileTextIcon,
     HomeIcon
 } from "lucide-react"
@@ -17,7 +13,6 @@ import {CustomUserButton} from '@/components/custom-user-button'
 import {usePathname} from "next/navigation"
 import NavItem from "@/components/navitem"
 import NavFunction from "@/components/navfunction"
-import AgentCard from "@/components/agentcard"
 import { SidebarProvider, useSidebarContext } from "@/components/SidebarContext"
 
 function SidebarInnerStatic() {
@@ -58,7 +53,7 @@ export default function AppLayout({children, sidebarItems = []} : {
                 <button
                     className="
                     group relative w-10 h-10 rounded-sm flex items-center justify-center transition-colors
-                    bg-primary text-primary-foreground inner-light-primary"
+                    bg-primary text-primary-foreground inner-light-primary hover:cursor-pointer"
                 >
                         <Image 
                             src="/Icon Logo.png" 

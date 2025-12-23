@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUser, useAuth } from "@clerk/nextjs";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCcw, } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorData, SnapTradeReact } from "snaptrade-react";
 import { PortfolioDisplay } from "@/components/PortfolioDisplay";
+import { useSidebarContext } from "@/components/SidebarContext"
 
 interface BrokerData {
   connected: boolean;
@@ -21,25 +22,30 @@ interface BrokerData {
 
 const API_BASE_URL = "https://api.zecant.com";
 
-export default function PortfolioPage() {
+interface PortfolioPageProps {
+  user: ReturnType<typeof useUser>["user"];
+  isLoaded: boolean;
+  brokerData: BrokerData | null;
+  loadingData: boolean;
+  error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  handleRefresh: (forceRefresh?: boolean) => void;
+}
+
+export default function PortfolioLayout({ children }: { children: React.ReactNode }) {
+  const { register, unregister } = useSidebarContext()
+  const refreshHandlerRef = useRef<(() => void) | null>(null);
+
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
   const [brokerData, setBrokerData] = useState<BrokerData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [connecting, setConnecting] = useState(false);
-  const [loginLink, setLoginLink] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
 
-  const brokers = (user?.publicMetadata as any)?.brokers;
-  const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
-
-  const loadBrokerData = async (forceRefresh: boolean = false) => {
+  const handleRefresh = async (forceRefresh: boolean = false) => {
     try {
-      if (forceRefresh) {
-        setRefreshing(true);
-      } else {
+      if (!forceRefresh) {
         setLoadingData(true);
       }
       setError(null);
@@ -79,18 +85,53 @@ export default function PortfolioPage() {
       setError(err.message || "Unable to load broker data right now.");
     } finally {
       setLoadingData(false);
-      setRefreshing(false);
     }
   };
 
   useEffect(() => {
-    if (!hasBrokers) return;
-    loadBrokerData();
-  }, [hasBrokers]);
+    const regId = register([
+      { icon: RefreshCcw, label: "Refresh Data", fn: handleRefresh },
+    ])
 
-  const handleRefresh = () => {
-    loadBrokerData(true);
+    return () => unregister(regId)
+  }, [register, unregister])
+
+  const portfolioPageProps: PortfolioPageProps = {
+    user,
+    isLoaded,
+    brokerData,
+    loadingData,
+    error,
+    setError,
+    handleRefresh
   };
+
+  return <>
+    <PortfolioPage {...portfolioPageProps}
+    />
+  </>
+}
+
+export function PortfolioPage({ 
+  user,
+  isLoaded,
+  brokerData,
+  loadingData,
+  error,
+  setError,
+  handleRefresh
+}: PortfolioPageProps) {
+  const [connecting, setConnecting] = useState(false);
+  const [loginLink, setLoginLink] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const brokers = (user?.publicMetadata as any)?.brokers;
+  const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
+
+  useEffect(() => {
+    if (!hasBrokers) return;
+    handleRefresh(true);
+  }, [hasBrokers]);
 
   const handleConnectBroker = async () => {
     try {
@@ -125,7 +166,7 @@ export default function PortfolioPage() {
       }
       await user?.reload();
       // Force refresh to get fresh data after connecting
-      await loadBrokerData(true);
+      await handleRefresh(true);
     } catch (err: any) {
       console.error("Failed to handle broker success:", err);
       setError("Broker connected but failed to save. Please try again.");
@@ -199,40 +240,6 @@ export default function PortfolioPage() {
 
       {brokerData && brokerData.connected && (
         <div className="space-y-4">
-          {/* Cache info and refresh button */}
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {brokerData.cached ? (
-                <>
-                  Last updated {brokerData.cache_age_minutes?.toFixed(0)} minutes ago
-                  {brokerData.cache_age_minutes && brokerData.cache_age_minutes > 15 && (
-                    <span className="ml-2 text-yellow-500">(data may be stale)</span>
-                  )}
-                </>
-              ) : (
-                "Just updated"
-              )}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing || loadingData}
-            >
-              {refreshing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Refreshing...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Refresh
-                </>
-              )}
-            </Button>
-          </div>
-
           <PortfolioDisplay
             accounts={brokerData.accounts}
             totalNav={brokerData.totalNav}

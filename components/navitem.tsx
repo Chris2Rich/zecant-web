@@ -5,7 +5,7 @@ export default function NavItem({ icon: Icon, label = "", active = false, link =
       <Link href={link}>
       <button
         className={`
-          group relative w-10 h-10 rounded-sm flex items-center justify-center transition-colors
+          group relative w-10 h-10 rounded-sm flex items-center justify-center transition-colors hover:cursor-pointer
           ${active 
             ? 'bg-primary text-primary-foreground inner-light-primary' 
             : 'hover:bg-muted text-muted-foreground hover:text-foreground hover:inner-light-subtle'

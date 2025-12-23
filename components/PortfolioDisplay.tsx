@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { TrendingUp, TrendingDown, DollarSign, PieChart, Activity, User } from "lucide-react";
+import { TrendingUp, TrendingDown} from "lucide-react";
 
 // Proper SnapTrade types based on API documentation
 interface UniversalSymbol {
