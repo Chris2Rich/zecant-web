@@ -46,7 +46,7 @@ export default function AppLayout({children, sidebarItems = []} : {
     const pathname = usePathname()
     return (
         <SidebarProvider>
-        <div className="flex h-full text-foreground overflow-hidden">
+            <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
             <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-6 space-y-6 z-50">
                 <Link href="/">

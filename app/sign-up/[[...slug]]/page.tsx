@@ -74,7 +74,7 @@ export default function SignUpPage() {
 
   if (pendingVerification) {
     return (
-      <div className="min-h-full flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
         
         <div className="relative w-full max-w-md">
           <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
@@ -149,7 +149,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
 
       <div className="relative w-full max-w-md">
         {/* Back Button */}
