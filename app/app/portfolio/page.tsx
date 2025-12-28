@@ -309,6 +309,18 @@ export function PortfolioPage({
             />
           </div>
         )}
+
+      {loginLink && (
+        <SnapTradeReact
+          loginLink={loginLink}
+          isOpen={modalOpen}
+          onSuccess={handleSuccess}
+          onError={handleError}
+          onExit={handleExit}
+          close={() => setModalOpen(false)}
+        />
+      )}
+
       </div>
     </div>
   );
