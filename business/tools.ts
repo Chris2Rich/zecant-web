@@ -46,7 +46,7 @@ export const lmtools: Tool[] = [
     name: "Portfolio Data",
     description: "Use your portfolio as context",
     icon: ChartCandlestick,
-    enabled: false,
+    enabled: true,
     premium: false
     },
     {
