@@ -125,7 +125,8 @@ export default function PortfolioLayout({ children }: { children: React.ReactNod
         throw new Error("Not authenticated");
       }
 
-      const res = await fetch("/api/brokers/remove", {
+      // Call Python backend to remove broker and invalidate cache
+      const res = await fetch(`${API_BASE_URL}/data/portfolio/remove`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
