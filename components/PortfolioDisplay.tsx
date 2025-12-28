@@ -1,7 +1,8 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { TrendingUp, TrendingDown} from "lucide-react";
+import { TrendingUp, TrendingDown, X, Plus} from "lucide-react";
+import { Button } from "@/components/ui/button"
 
 // Proper SnapTrade types based on API documentation
 interface UniversalSymbol {
@@ -97,6 +98,10 @@ interface PortfolioDisplayProps {
   totalNav: number;
   positions: Position[];
   trades: UniversalActivity[];
+  onRemoveBroker?: (authorizationId: string) => void; // ADD THIS
+  connectedBrokers?: string[];
+  onAddBroker?: () => void; // ADD THIS
+  connecting?: boolean; // ADD THIS
 }
 
 const formatCurrency = (value: number, currency: string = "USD"): string => {
@@ -242,6 +247,10 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
   totalNav,
   positions,
   trades,
+  onRemoveBroker, // ADD THIS
+  connectedBrokers = [],
+  onAddBroker, // ADD THIS
+  connecting = false, // ADD THIS
 }: PortfolioDisplayProps) {
   const positionsByValue = useMemo(() => {
     return [...positions]
@@ -298,22 +307,57 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
         </div>
       </div>
 
-      {/* Connected Accounts */}
+      {/* Connected Accounts - UPDATED */}
       {accounts.length > 0 && (
         <div className="rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass p-6">
           <h3 className="text-lg font-semibold text-foreground mb-4">Connected Accounts</h3>
           <div className="space-y-3">
-            {accounts.map((account) => (
-              <div
-                key={account.id}
-                className="flex items-center justify-between p-3 rounded-sm bg-muted/30 border border-border-divider"
-              >
-                <div>
-                  <p className="font-medium text-foreground">{account.name || account.accountNumber}</p>
-                  <p className="text-xs text-muted-foreground">{account.brokerage}</p>
+            {accounts.map((account) => {
+              const authorizationId = account.id;
+              const canRemove = onRemoveBroker && connectedBrokers.includes(authorizationId);
+              
+              return (
+                <div
+                  key={account.id}
+                  className="flex items-center justify-between p-3 rounded-sm bg-muted/30 border border-border-divider"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">
+                      {account.name || account.accountNumber}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{account.brokerage}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {account.type}
+                    </p>
+                  </div>
+                  
+                  {canRemove && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onRemoveBroker(authorizationId)}
+                      className="h-8 w-8 p-0 ml-2 hover:bg-red-500/10 hover:text-red-500 shrink-0"
+                      title="Remove broker connection"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
+            
+            {/* Add Broker Button - ADDED HERE */}
+            {onAddBroker && (
+              <Button
+                variant="outline"
+                onClick={onAddBroker}
+                disabled={connecting}
+                className="w-full gap-2 mt-2"
+              >
+                <Plus className="h-4 w-4" />
+                {connecting ? "Connecting..." : "Add Broker"}
+              </Button>
+            )}
           </div>
         </div>
       )}

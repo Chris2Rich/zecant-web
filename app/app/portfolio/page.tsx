@@ -30,18 +30,28 @@ interface PortfolioPageProps {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   handleRefresh: (forceRefresh?: boolean) => void;
+  handleConnectBroker: () => Promise<void>; // ADD THIS
+  handleRemoveBroker: (authorizationId: string) => Promise<void>; // ADD THIS
+  setConnecting: React.Dispatch<React.SetStateAction<boolean>>;
+  connecting: boolean; // ADD THIS
+  loginLink: string | null; // ADD THIS
+  modalOpen: boolean; // ADD THIS
+  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>; // ADD THIS
+  setLoginLink: React.Dispatch<React.SetStateAction<string | null>>; // ADD THIS
 }
 
 export default function PortfolioLayout({ children }: { children: React.ReactNode }) {
   const { register, unregister } = useSidebarContext()
-  const refreshHandlerRef = useRef<(() => void) | null>(null);
 
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
   const [brokerData, setBrokerData] = useState<BrokerData | null>(null);
   const [loadingData, setLoadingData] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [connecting, setConnecting] = useState(false);
+  const [loginLink, setLoginLink] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleRefresh = async (forceRefresh: boolean = false) => {
     try {
@@ -88,51 +98,6 @@ export default function PortfolioLayout({ children }: { children: React.ReactNod
     }
   };
 
-  useEffect(() => {
-    const regId = register([
-      { icon: RefreshCcw, label: "Refresh Data", fn: handleRefresh },
-    ])
-
-    return () => unregister(regId)
-  }, [register, unregister])
-
-  const portfolioPageProps: PortfolioPageProps = {
-    user,
-    isLoaded,
-    brokerData,
-    loadingData,
-    error,
-    setError,
-    handleRefresh
-  };
-
-  return <>
-    <PortfolioPage {...portfolioPageProps}
-    />
-  </>
-}
-
-export function PortfolioPage({ 
-  user,
-  isLoaded,
-  brokerData,
-  loadingData,
-  error,
-  setError,
-  handleRefresh
-}: PortfolioPageProps) {
-  const [connecting, setConnecting] = useState(false);
-  const [loginLink, setLoginLink] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const brokers = (user?.publicMetadata as any)?.brokers;
-  const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
-
-  useEffect(() => {
-    if (!hasBrokers) return;
-    handleRefresh(true);
-  }, [hasBrokers]);
-
   const handleConnectBroker = async () => {
     try {
       setConnecting(true);
@@ -152,26 +117,116 @@ export function PortfolioPage({
     }
   };
 
-  const handleSuccess = async (authorizationId: string) => {
+  const handleRemoveBroker = async (authorizationId: string) => {
     try {
-      setModalOpen(false);
-      setLoginLink(null);
-      const res = await fetch("/api/brokers/callback", {
+      setError(null);
+      const token = await getToken();
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const res = await fetch("/api/brokers/remove", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ authorizationId }),
       });
+
       if (!res.ok) {
-        throw new Error("Failed to save broker connection.");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData?.error || "Failed to remove broker");
       }
+
+      // Reload user to get updated metadata
       await user?.reload();
-      // Force refresh to get fresh data after connecting
+      
+      // Refresh portfolio data
       await handleRefresh(true);
     } catch (err: any) {
-      console.error("Failed to handle broker success:", err);
-      setError("Broker connected but failed to save. Please try again.");
+      console.error("Failed to remove broker:", err);
+      setError(err.message || "Unable to remove broker. Please try again.");
     }
   };
+
+  useEffect(() => {
+    const regId = register([
+      { icon: RefreshCcw, label: "Refresh Data", fn: handleRefresh },
+    ])
+
+    return () => unregister(regId)
+  }, [register, unregister])
+
+  const portfolioPageProps: PortfolioPageProps = {
+    user,
+    isLoaded,
+    brokerData,
+    loadingData,
+    error,
+    setError,
+    handleRefresh,
+    handleConnectBroker, // ADD THIS
+    handleRemoveBroker, // ADD THIS
+    setConnecting,
+    connecting, // ADD THIS
+    loginLink, // ADD THIS
+    modalOpen, // ADD THIS
+    setModalOpen, // ADD THIS
+    setLoginLink, // ADD THIS
+  };
+
+  return <>
+    <PortfolioPage {...portfolioPageProps}
+    />
+  </>
+}
+
+export function PortfolioPage({ 
+  user,
+  isLoaded,
+  brokerData,
+  loadingData,
+  error,
+  setError,
+  handleRefresh,
+  handleConnectBroker, // ADD THIS
+  handleRemoveBroker, // ADD THIS
+  setConnecting,
+  connecting, // ADD THIS
+  loginLink, // ADD THIS
+  modalOpen, // ADD THIS
+  setModalOpen, // ADD THIS
+  setLoginLink, // ADD THIS
+}: PortfolioPageProps) {
+
+  const brokers = (user?.publicMetadata as any)?.brokers;
+  const hasBrokers = Array.isArray(brokers) && brokers.length > 0;
+
+  useEffect(() => {
+    if (!hasBrokers) return;
+    handleRefresh(true);
+  }, [hasBrokers]);
+
+  const handleSuccess = async (authorizationId: string) => {
+      try {
+        setModalOpen(false);
+        setLoginLink(null);
+        const res = await fetch("/api/brokers/callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ authorizationId }),
+        });
+        if (!res.ok) {
+          throw new Error("Failed to save broker connection.");
+        }
+        await user?.reload();
+        await handleRefresh(true);
+      } catch (err: any) {
+        console.error("Failed to handle broker success:", err);
+        setError("Broker connected but failed to save. Please try again.");
+      }
+    };
 
   const handleError = (errorMessage: ErrorData) => {
     setError(JSON.stringify(errorMessage));
@@ -246,6 +301,10 @@ export function PortfolioPage({
               totalNav={brokerData.totalNav}
               positions={brokerData.positions}
               trades={brokerData.trades}
+              onRemoveBroker={handleRemoveBroker} // ADD THIS
+              connectedBrokers={brokers || []} // ADD THIS
+              onAddBroker={handleConnectBroker} // ADD THIS
+              connecting={connecting}
             />
           </div>
         )}
