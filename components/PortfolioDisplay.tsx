@@ -87,6 +87,7 @@ interface UniversalActivity {
 
 interface Account {
   id: string;
+  authorizationId: string;
   name: string;
   accountNumber: string;
   brokerage: string;
@@ -313,8 +314,8 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
           <h3 className="text-lg font-semibold text-foreground mb-4">Connected Accounts</h3>
           <div className="space-y-3">
             {accounts.map((account) => {
-              const authorizationId = account.id;
-              const canRemove = onRemoveBroker && connectedBrokers.includes(authorizationId);
+              const authorizationId = account.authorizationId;
+              const canRemove = onRemoveBroker && authorizationId && connectedBrokers.includes(authorizationId);
 
               console.log('Account:', account);
               console.log('Authorization ID:', authorizationId);

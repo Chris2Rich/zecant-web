@@ -151,20 +151,19 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
 
-      <div className="relative w-full max-w-md">
-        {/* Back Button */}
-        <Link href="/">
-          <Button
-            variant="ghost"
-            className="absolute -top-16 left-0 text-muted-foreground hover:text-foreground"
-            >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </Link>
-
         {/* Sign Up Form */}
         <div className="bg-card/70 backdrop-blur-glass border border-border-divider rounded-sm p-8 shadow-2xl">
+        <div className='flex justify-end w-full'>
+            <Link href="/">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-sm"
+                >
+                <X className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
           <div className="text-center mb-8">
           <div className="rounded-sm flex items-center justify-center mx-auto mb-4 select-none">
               <Image 
@@ -271,6 +270,5 @@ export default function SignUpPage() {
           </div>
         </div>
       </div>
-    </div>
   )
 }
