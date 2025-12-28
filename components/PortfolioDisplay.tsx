@@ -315,6 +315,11 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
             {accounts.map((account) => {
               const authorizationId = account.id;
               const canRemove = onRemoveBroker && connectedBrokers.includes(authorizationId);
+
+              console.log('Account:', account);
+              console.log('Authorization ID:', authorizationId);
+              console.log('Connected Brokers:', connectedBrokers);
+              console.log('Can Remove:', canRemove);
               
               return (
                 <div
