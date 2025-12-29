@@ -338,12 +338,12 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
                   </div>
                   
                   {canRemove && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-sm ml-2"
-                    onClick={() => onRemoveBroker(authorizationId)}
-                    title="Remove broker connection"
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onRemoveBroker(authorizationId)}
+                      className="h-8 w-8 p-0 ml-2 hover:text-primary transition-colors shrink-0"
+                      title="Remove broker connection"
                     >
                     <X className="w-5 h-5" />
                   </Button>
