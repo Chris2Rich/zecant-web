@@ -341,7 +341,7 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
                       size="sm"
                       variant="ghost"
                       onClick={() => onRemoveBroker(authorizationId)}
-                      className="h-8 w-8 p-0 ml-2 hover:bg-red-500/10 hover:text-red-500 shrink-0"
+                      className="h-8 w-8 p-0 ml-2 hover:text-primary transition-colors shrink-0"
                       title="Remove broker connection"
                     >
                       <X className="h-4 w-4" />

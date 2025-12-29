@@ -22,25 +22,20 @@ export function Header() {
 
   const moreItems = [
     {
-      name: "Blog",
-      description: "The latest from our team and product innovations",
-      href: "#",
-    },
-    {
       name: "Issues",
-      description: "Report bugs and request new features",
-      href: "#",
-    },
-    {
-      name: "News",
-      description: "Stay updated with financial news and insights",
-      href: "/app/news",
+      description: "Report bugs and unexpected behaviours",
+      href: "/issues",
     },
     {
       name: "Updates",
-      description: "Hotfixes, new features and more",
-      href: "#",
+      description: "Hotfixes, new features and roadmap",
+      href: "/updates",
     },
+    {
+      name: "Documentation",
+      description: "Documentation of api and features",
+      href: "/docs",
+    }
   ]
 
   const handleMoreEnter = () => {
@@ -244,8 +239,8 @@ export function Header() {
               </Link>
                 </div>
               ) : (
-                <div className="flex justify-center">
-                  <CustomUserButton full={true} />
+                <div className="flex justify-center mb-4">
+                  <CustomUserButton full={true}/>
                 </div>
               )}
             </div>
