@@ -5,16 +5,21 @@ import { TrendingUp, TrendingDown, X, Plus} from "lucide-react";
 import { Button } from "@/components/ui/button"
 
 // Proper SnapTrade types based on API documentation
-interface UniversalSymbol {
+interface Trade {
   id: string;
+  timestamp: string | null;
+  date: string | null;
+  side: string; // BUY | SELL
+  type: string;
   symbol: string;
-  raw_symbol: string;
-  description: string | null;
-  currency: Currency;
-  exchange: Exchange;
-  type: SecurityType;
-  figi_code: string | null;
-  figi_instrument: FigiInstrument | null;
+  ticker: string;
+  quantity: number;
+  price: number;
+  amount: number;
+  fee: number;
+  status: string;
+  order_type?: string;
+  time_in_force?: string;
 }
 
 interface Currency {
@@ -47,9 +52,9 @@ interface FigiInstrument {
 }
 
 interface PositionSymbol {
-  symbol: UniversalSymbol;
+  symbol: string;        // e.g. "AAPL"
+  description: string;   // e.g. "Apple Inc."
   id: string;
-  description: string;
   local_id: string | null;
   is_quotable: boolean;
   is_tradable: boolean;
@@ -66,25 +71,6 @@ interface Position {
   cash_equivalent: boolean | null;
 }
 
-interface UniversalActivity {
-  id: string;
-  symbol: UniversalSymbol | null;
-  option_symbol: any | null;
-  price: number;
-  units: number;
-  amount: number | null;
-  currency: Currency;
-  type: string;
-  option_type?: string;
-  description: string;
-  trade_date: string | null;
-  settlement_date: string;
-  fee: number;
-  fx_rate: number | null;
-  institution: string;
-  external_reference_id: string | null;
-}
-
 interface Account {
   id: string;
   authorizationId: string;
@@ -98,11 +84,11 @@ interface PortfolioDisplayProps {
   accounts: Account[];
   totalNav: number;
   positions: Position[];
-  trades: UniversalActivity[];
-  onRemoveBroker?: (authorizationId: string) => void; // ADD THIS
+  trades: Trade[]; // ✅ updated
+  onRemoveBroker?: (authorizationId: string) => void;
   connectedBrokers?: string[];
-  onAddBroker?: () => void; // ADD THIS
-  connecting?: boolean; // ADD THIS
+  onAddBroker?: () => void;
+  connecting?: boolean;
 }
 
 const formatCurrency = (value: number, currency: string = "USD"): string => {
@@ -131,8 +117,8 @@ const formatDate = (dateStr: string): string => {
 };
 
 const PositionCard = memo(function PositionCard({ position }: { position: Position }) {
-  const symbol = position.symbol.symbol.symbol;
-  const description = position.symbol.symbol.description || symbol;
+  const symbol = position.symbol.symbol;
+  const description = position.symbol.description || symbol;
   const quantity = Math.abs(Number(position.units || position.fractional_units) || 0);
   const currentPrice = Number(position.price) || 0;
   const avgPrice = Number(position.average_purchase_price) || currentPrice;
@@ -201,42 +187,59 @@ const PositionCard = memo(function PositionCard({ position }: { position: Positi
   );
 });
 
-const TradeRow = memo(function TradeRow({ trade }: { trade: UniversalActivity }) {
-  const isBuy = trade.type?.toLowerCase().includes("buy");
-  const date = formatDate(trade.trade_date || trade.settlement_date);
-  const symbol = trade.symbol?.symbol || "N/A";
-  const currency = trade.currency.code;
-  
+const TradeRow = memo(function TradeRow({ trade }: { trade: Trade }) {
+  const isBuy = trade.side?.toLowerCase() === "buy";
+  const date = trade.timestamp
+    ? formatDate(trade.timestamp)
+    : trade.date
+    ? formatDate(trade.date)
+    : "—";
+
   return (
     <div className="grid grid-cols-6 gap-4 py-3 px-4 hover:bg-muted/30 transition-colors text-sm border-b border-border-divider last:border-b-0">
       <div>
         <p className="text-xs text-muted-foreground mb-0.5">Date</p>
         <p className="font-medium text-foreground">{date}</p>
       </div>
+
       <div>
-        <p className="text-xs text-muted-foreground mb-0.5">Type</p>
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-          isBuy ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-        }`}>
-          {trade.type}
+        <p className="text-xs text-muted-foreground mb-0.5">Side</p>
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+            isBuy
+              ? "bg-green-500/10 text-green-500"
+              : "bg-red-500/10 text-red-500"
+          }`}
+        >
+          {trade.side}
         </span>
       </div>
+
       <div>
         <p className="text-xs text-muted-foreground mb-0.5">Symbol</p>
-        <p className="font-semibold text-foreground">{symbol}</p>
+        <p className="font-semibold text-foreground">
+          {trade.symbol || trade.ticker}
+        </p>
       </div>
+
       <div>
         <p className="text-xs text-muted-foreground mb-0.5">Quantity</p>
-        <p className="font-medium text-foreground">{formatNumber(trade.units)}</p>
+        <p className="font-medium text-foreground">
+          {formatNumber(trade.quantity)}
+        </p>
       </div>
+
       <div>
         <p className="text-xs text-muted-foreground mb-0.5">Price</p>
-        <p className="font-medium text-foreground">{formatCurrency(trade.price, currency)}</p>
+        <p className="font-medium text-foreground">
+          {formatCurrency(trade.price)}
+        </p>
       </div>
+
       <div>
         <p className="text-xs text-muted-foreground mb-0.5">Total</p>
         <p className="font-semibold text-foreground">
-          {trade.amount !== null ? formatCurrency(Math.abs(trade.amount), currency) : "N/A"}
+          {formatCurrency(Math.abs(trade.amount))}
         </p>
       </div>
     </div>
@@ -287,6 +290,7 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
   }, [positions, totalGainLoss]);
 
   const isPositive = totalGainLoss >= 0;
+  console.log("PortfolioDisplay trades:", trades);
 
   return (
     <>
@@ -316,11 +320,6 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
             {accounts.map((account) => {
               const authorizationId = account.authorizationId;
               const canRemove = onRemoveBroker && authorizationId && connectedBrokers.includes(authorizationId);
-
-              console.log('Account:', account);
-              console.log('Authorization ID:', authorizationId);
-              console.log('Connected Brokers:', connectedBrokers);
-              console.log('Can Remove:', canRemove);
               
               return (
                 <div
@@ -379,7 +378,7 @@ export const PortfolioDisplay = memo(function PortfolioDisplay({
           </div>
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {positionsByValue.map((position, idx) => (
-              <PositionCard key={`${position.symbol.symbol.symbol}-${idx}`} position={position} />
+              <PositionCard key={`${position.symbol.id}-${idx}`} position={position} />
             ))}
           </div>
         </div>
