@@ -5,13 +5,14 @@ import { useSidebarContext } from "@/components/SidebarContext"
 import { useUser, useAuth  } from "@clerk/nextjs";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, AlertCircle, Bot, User, ArrowUp, MessageSquarePlus, Archive, Search } from "lucide-react";
+import { Loader2, AlertCircle, Bot, User, ArrowUp, MessageSquarePlus, Archive } from "lucide-react";
 import MarkdownRender from "@/components/MarkdownRender";
 import { MemoizedMessage } from "@/components/MemoizedMarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { defaultChatOptions } from "@/business/constants";
 import { lmtools } from "@/business/tools";
+import { SearchIndicator } from "@/components/chatindicators";
 
 const API_URL = "https://api.zecant.com";
 
@@ -22,14 +23,13 @@ interface Message {
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call" | "search_performed" | "market_data_fetched";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "search_performed";
   content?: string;
   chatid?: string;
   message_id?: string;
   error?: string;
   query?: string;
   results?: any;
-  tickers?: string[];
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -86,6 +86,7 @@ export function ChatPage({
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchComplete, setSearchComplete] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
@@ -130,6 +131,7 @@ export function ChatPage({
     streamingMessageRef.current = "";
     setIsStreaming(false);
     setIsSearching(false);
+    setSearchComplete(false);
     setSearchQuery(null);
     setError(null);
     setInput("");
@@ -252,6 +254,7 @@ export function ChatPage({
 
     setIsStreaming(true);
     setIsSearching(false);
+    setSearchComplete(false);
     setSearchQuery(null);
     streamingMessageRef.current = "";
     setCurrentStreamingMessage("");
@@ -306,8 +309,20 @@ export function ChatPage({
                 }
               } else if (parsed.type === "search_performed") {
                 setIsSearching(true);
+                setSearchComplete(false);
                 setSearchQuery(parsed.query || null);
+                
+                // Mark as complete after a short delay
+                setTimeout(() => {
+                  setSearchComplete(true);
+                }, 1500);
               } else if (parsed.type === "token") {
+                // Hide search indicator when streaming starts
+                if (streamingMessageRef.current === "" && (isSearching || searchComplete)) {
+                  setIsSearching(false);
+                  setSearchComplete(false);
+                }
+                
                 streamingMessageRef.current += parsed.content || "";
                 setCurrentStreamingMessage(prev => prev + (parsed.content || ""));
               } else if (parsed.type === "done") {
@@ -326,6 +341,7 @@ export function ChatPage({
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
                 setIsSearching(false);
+                setSearchComplete(false);
                 setSearchQuery(null);
                 shouldAutoScrollRef.current = true;
                 userHasScrolledRef.current = false;
@@ -335,6 +351,7 @@ export function ChatPage({
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
                 setIsSearching(false);
+                setSearchComplete(false);
                 setSearchQuery(null);
               }
             } catch (parseErr) {
@@ -354,6 +371,7 @@ export function ChatPage({
       setCurrentStreamingMessage("");
       setIsStreaming(false);
       setIsSearching(false);
+      setSearchComplete(false);
       setSearchQuery(null);
     }
   };
@@ -400,7 +418,7 @@ export function ChatPage({
         ref={messagesContainerRef}
         className="absolute inset-0 overflow-y-auto scrollbar-thin px-4 pt-8"
         style={{ 
-          paddingBottom: `${inputHeight}px` // Add padding equal to input height + some spacing
+          paddingBottom: `${inputHeight}px`
         }}
       >
         {/* Welcome Message */}
@@ -450,30 +468,17 @@ export function ChatPage({
             ))}
 
             {/* Search Indicator */}
-            {isSearching && !currentStreamingMessage && (
+            {(isSearching || searchComplete) && !currentStreamingMessage && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex gap-4"
               >
-                <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Search className="w-5 h-5 text-primary animate-pulse" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground">
-                      Searching the web
-                    </span>
-                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                  </div>
-                  {searchQuery && (
-                    <p className="text-sm text-muted-foreground">
-                      Query: <span className="italic">{searchQuery}</span>
-                    </p>
-                  )}
-                </div>
+                <SearchIndicator 
+                  query={searchQuery} 
+                  isActive={isSearching && !searchComplete}
+                />
               </motion.div>
             )}
 
