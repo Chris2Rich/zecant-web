@@ -1,6 +1,7 @@
 import { memo } from "react";
 import MarkdownRender from "@/components/MarkdownRender";
 import { Bot, User } from "lucide-react";
+import { formatMessagesTimestamp } from "@/lib/utils";
 
 interface MessageProps {
   role: "user" | "assistant";
@@ -38,10 +39,7 @@ export const MemoizedMessage = memo(function MemoizedMessage({
             {role === "user" ? "You" : "ZECA"}
           </span>
           <span className="text-xs text-muted-foreground">
-            {new Date(timestamp).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {formatMessagesTimestamp(timestamp)}
           </span>
         </div>
         <div className="prose prose-sm max-w-none text-foreground">
