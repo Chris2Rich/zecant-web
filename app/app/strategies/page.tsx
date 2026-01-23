@@ -1,4 +1,5 @@
 // Strategy-related TypeScript interfaces and types
+"use client";
 
 interface Strategy {
   id: string;
@@ -341,8 +342,6 @@ function generateMockBacktestResults(strategyId: string): BacktestResults {
   };
 }
 
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -371,6 +370,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSidebarContext } from "@/components/SidebarContext";
 import { StrategyLibraryModal } from "@/components/StrategyLibraryModal";
+
+// Auto-camelCase tags for new strategies
+const camelCaseTag = (tag: string) => {
+  return tag
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
 
 // Main Strategy Dashboard Component
 function StrategyDashboard() {
@@ -555,7 +562,7 @@ function StrategyDashboardView({
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-4 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Total Strategies</span>
@@ -563,7 +570,7 @@ function StrategyDashboardView({
           <p className="text-2xl font-bold text-foreground mt-2">{strategies.length}</p>
         </div>
 
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-4 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-500" />
             <span className="text-sm font-medium text-muted-foreground">Completed</span>
@@ -573,7 +580,7 @@ function StrategyDashboardView({
           </p>
         </div>
 
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-4 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-blue-500" />
             <span className="text-sm font-medium text-muted-foreground">Avg Return</span>
@@ -583,7 +590,7 @@ function StrategyDashboardView({
           </p>
         </div>
 
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-4 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-orange-500" />
             <span className="text-sm font-medium text-muted-foreground">In Progress</span>
@@ -601,7 +608,10 @@ function StrategyDashboardView({
           {strategies.slice(0, 6).map((strategy) => (
             <StrategyCard
               key={strategy.id}
-              strategy={strategy}
+              strategy={{
+                ...strategy,
+                tags: strategy.tags.map(camelCaseTag)
+              }}
               onClick={() => onStrategySelect(strategy)}
             />
           ))}
@@ -648,21 +658,21 @@ function StrategyCard({ strategy, onClick }: { strategy: Strategy; onClick: () =
   return (
     <div
       onClick={onClick}
-      className="bg-card/70 backdrop-blur-glass rounded-lg p-4 border border-border hover:border-border/80 cursor-pointer transition-colors"
+      className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border hover:border-border/80 cursor-pointer transition-colors h-48 flex flex-col"
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground truncate">{strategy.name}</h3>
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+          <p className="text-sm text-muted-foreground line-clamp-2 mt-1 h-10 overflow-hidden">
             {strategy.description}
           </p>
         </div>
-        <div className={`flex items-center gap-1 ${getStatusColor(strategy.status)}`}>
+        <div className={`flex items-center gap-1 ${getStatusColor(strategy.status)} flex-shrink-0`}>
           {getStatusIcon(strategy.status)}
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex items-center justify-between text-sm mb-3">
         <div className="flex items-center gap-1 text-muted-foreground">
           <Calendar className="w-3 h-3" />
           {strategy.createdAt.toLocaleDateString()}
@@ -678,7 +688,7 @@ function StrategyCard({ strategy, onClick }: { strategy: Strategy; onClick: () =
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1 mt-3">
+      <div className="flex flex-wrap gap-1 mt-auto">
         {strategy.tags.slice(0, 3).map((tag) => (
           <span
             key={tag}
@@ -741,15 +751,15 @@ function StrategyDetailView({
   return (
     <div className="h-full space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={onBack}>
-          ← Back
-        </Button>
+      <div className="flex items-center justify-between">
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
           <p className="text-muted-foreground mt-1">{strategy.description}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={onBack}>
+            ← Back
+          </Button>
           <Button variant="outline" onClick={onEdit}>
             <Edit className="w-4 h-4 mr-2" />
             Edit
@@ -846,7 +856,7 @@ function MetricCard({
   color: string;
 }) {
   return (
-    <div className="bg-card/70 backdrop-blur-glass rounded-lg p-4 border border-border">
+    <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
@@ -869,7 +879,7 @@ function StrategyOverviewTab({
   return (
     <div className="space-y-6">
       {/* Configuration Summary */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+      <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
         <h3 className="text-lg font-semibold text-foreground mb-4">Strategy Configuration</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -892,7 +902,7 @@ function StrategyOverviewTab({
       </div>
 
       {/* Performance Summary */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+      <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
         <h3 className="text-lg font-semibold text-foreground mb-4">Performance Summary</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
@@ -930,9 +940,9 @@ function PerformanceTab({ results }: { results: BacktestResults }) {
   return (
     <div className="space-y-6">
       {/* Equity Curve Placeholder */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+      <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
         <h3 className="text-lg font-semibold text-foreground mb-4">Equity Curve</h3>
-        <div className="h-64 flex items-center justify-center border-2 border-dashed border-border rounded-lg">
+        <div className="h-64 flex items-center justify-center border-2 border-dashed border-border rounded-sm">
           <div className="text-center">
             <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
             <p className="text-muted-foreground">Equity curve chart will be implemented here</p>
@@ -945,7 +955,7 @@ function PerformanceTab({ results }: { results: BacktestResults }) {
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
           <h4 className="font-medium text-foreground mb-4">Return Metrics</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -975,7 +985,7 @@ function PerformanceTab({ results }: { results: BacktestResults }) {
           </div>
         </div>
 
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
           <h4 className="font-medium text-foreground mb-4">Risk Metrics</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -1014,9 +1024,9 @@ function RiskAnalysisTab({ results }: { results: BacktestResults }) {
   return (
     <div className="space-y-6">
       {/* Drawdown Chart Placeholder */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+      <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
         <h3 className="text-lg font-semibold text-foreground mb-4">Drawdown Analysis</h3>
-        <div className="h-64 flex items-center justify-center border-2 border-dashed border-border rounded-lg">
+        <div className="h-64 flex items-center justify-center border-2 border-dashed border-border rounded-sm">
           <div className="text-center">
             <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
             <p className="text-muted-foreground">Drawdown chart will be implemented here</p>
@@ -1029,7 +1039,7 @@ function RiskAnalysisTab({ results }: { results: BacktestResults }) {
 
       {/* Risk Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
           <h4 className="font-medium text-foreground mb-4">Market Risk</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -1053,7 +1063,7 @@ function RiskAnalysisTab({ results }: { results: BacktestResults }) {
           </div>
         </div>
 
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
           <h4 className="font-medium text-foreground mb-4">Value at Risk</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -1077,7 +1087,7 @@ function RiskAnalysisTab({ results }: { results: BacktestResults }) {
           </div>
         </div>
 
-        <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
           <h4 className="font-medium text-foreground mb-4">Risk-Adjusted Returns</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
@@ -1110,7 +1120,7 @@ function TradeHistoryTab({ trades }: { trades: Trade[] }) {
   return (
     <div className="space-y-6">
       {/* Trade Statistics */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-lg p-6 border border-border">
+      <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
         <h3 className="text-lg font-semibold text-foreground mb-4">Trade Statistics</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
@@ -1139,8 +1149,8 @@ function TradeHistoryTab({ trades }: { trades: Trade[] }) {
       </div>
 
       {/* Trade History Table */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-lg border border-border overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-card/70 backdrop-blur-glass rounded-sm border border-border overflow-hidden">
+        <div className="overflow-x-auto overflow-y-auto max-h-96">
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
@@ -1221,13 +1231,15 @@ function StrategyComparisonView({
 }) {
   return (
     <div className="h-full space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={onBack}>
-          ← Back
-        </Button>
+      <div className="flex items-center justify-between">
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-foreground">Strategy Comparison</h1>
           <p className="text-muted-foreground mt-1">Compare performance across multiple strategies</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={onBack}>
+            ← Back
+          </Button>
         </div>
       </div>
 
@@ -1255,7 +1267,7 @@ function StrategyCreationModal({
     <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="absolute inset-0 flex items-center justify-center p-6">
-        <div className="bg-card rounded-lg border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <div className="bg-card rounded-sm border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-foreground">Create New Strategy</h2>
             <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
