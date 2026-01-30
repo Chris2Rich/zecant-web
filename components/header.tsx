@@ -35,6 +35,11 @@ export function Header() {
       name: "Documentation",
       description: "Documentation of api and features",
       href: "/docs",
+    },
+    {
+      name: "Research",
+      description: "Valuable insights and experimentation",
+      href: "/research",
     }
   ]
 
