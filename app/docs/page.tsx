@@ -8,7 +8,7 @@ export default function DocsPage() {
         </p>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-8 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
         <div className="bg-card rounded-lg border border-border p-6">
           <h2 className="text-2xl font-semibold text-foreground mb-4">Quick Start</h2>
           <p className="text-muted-foreground mb-4">
@@ -64,23 +64,23 @@ export default function DocsPage() {
           </div>
 
           <div className="bg-card rounded-lg border border-border p-6">
-            <h3 className="text-xl font-semibold text-foreground mb-3">Developer Resources</h3>
+            <h3 className="text-xl font-semibold text-foreground mb-3">AI/ML Frameworks</h3>
             <ul className="space-y-2 text-muted-foreground">
               <li className="flex items-center space-x-2">
                 <span className="text-primary">•</span>
-                <span>REST API documentation</span>
+                <span>SARSA vs Q-Learning algorithms</span>
               </li>
               <li className="flex items-center space-x-2">
                 <span className="text-primary">•</span>
-                <span>SDKs for JavaScript & Python</span>
+                <span>Deep Q-Networks (DQN) implementation</span>
               </li>
               <li className="flex items-center space-x-2">
                 <span className="text-primary">•</span>
-                <span>Webhook integrations</span>
+                <span>Reinforcement learning strategies</span>
               </li>
               <li className="flex items-center space-x-2">
                 <span className="text-primary">•</span>
-                <span>OAuth authentication</span>
+                <span>Model selection and optimization</span>
               </li>
             </ul>
           </div>

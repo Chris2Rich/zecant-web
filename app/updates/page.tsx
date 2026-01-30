@@ -12,75 +12,14 @@ interface UpdateEntry {
 
 const updateData: UpdateEntry[] = [
   {
-    version: '1.3.0',
-    date: 'January 69, 2026',
-    title: 'Major D Enhancements',
+    version: '0.0',
+    date: 'Current Version',
+    title: 'First Version',
     type: 'major',
     changes: [
-      'Introduced advanced portfolio analytics with real-time risk metrics',
-      'Added support for custom strategy backtesting',
-      'Improved chat interface with enhanced AI responses',
-      'New notification system for market alerts'
-    ]
-  },
-  {
-    version: '1.2.0',
-    date: 'January 30, 2026',
-    title: 'Major Platform Enhancements',
-    type: 'major',
-    changes: [
-      'Introduced advanced portfolio analytics with real-time risk metrics',
-      'Added support for custom strategy backtesting',
-      'Improved chat interface with enhanced AI responses',
-      'New notification system for market alerts'
-    ]
-  },
-  {
-    version: '1.1.5',
-    date: 'January 25, 2026',
-    title: 'Bug Fixes and Performance Improvements',
-    type: 'patch',
-    changes: [
-      'Fixed chart rendering issues on mobile devices',
-      'Resolved memory leaks in strategy simulation',
-      'Improved loading times for large datasets',
-      'Enhanced error handling for API connections'
-    ]
-  },
-  {
-    version: '1.1.0',
-    date: 'January 20, 2026',
-    title: 'Strategy Library Expansion',
-    type: 'minor',
-    changes: [
-      'Added 15+ new pre-built trading strategies',
-      'Introduced strategy cloning and modification tools',
-      'New performance comparison charts',
-      'Enhanced strategy documentation'
-    ]
-  },
-  {
-    version: '1.0.5',
-    date: 'January 15, 2026',
-    title: 'User Interface Improvements',
-    type: 'patch',
-    changes: [
-      'Redesigned dashboard with improved navigation',
-      'Added dark mode support throughout the platform',
-      'Enhanced mobile responsiveness',
-      'New keyboard shortcuts for power users'
-    ]
-  },
-  {
-    version: '1.0.0',
-    date: 'January 10, 2026',
-    title: 'Platform Launch',
-    type: 'major',
-    changes: [
-      'Initial release of Zecant trading platform',
-      'Core features: portfolio tracking, strategy building, AI chat',
-      'Integration with major brokers and data providers',
-      'Comprehensive documentation and tutorials'
+      'Core trading platform functionality',
+      'Basic portfolio management',
+      'Essential analytics and reporting'
     ]
   }
 ]
