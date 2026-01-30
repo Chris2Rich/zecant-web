@@ -91,11 +91,9 @@ export default function IssuesPage() {
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-16">
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">
-                  Report a <span className="text-primary">Bug</span>
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+              <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold text-foreground mb-4">Report a Bug</h1>
+                <p className="text-lg text-muted-foreground">
                   Help us improve Zecant by reporting any issues you encounter. Your feedback is invaluable.
                 </p>
               </div>
