@@ -8,6 +8,18 @@ interface UpdateEntry {
 
 const updateData: UpdateEntry[] = [
   {
+    version: '1.3.0',
+    date: 'January 69, 2026',
+    title: 'Major D Enhancements',
+    type: 'major',
+    changes: [
+      'Introduced advanced portfolio analytics with real-time risk metrics',
+      'Added support for custom strategy backtesting',
+      'Improved chat interface with enhanced AI responses',
+      'New notification system for market alerts'
+    ]
+  },
+  {
     version: '1.2.0',
     date: 'January 30, 2026',
     title: 'Major Platform Enhancements',
