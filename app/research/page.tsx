@@ -1,4 +1,7 @@
 import { ArticleOverview, ArticleEmphasised } from "@/components/articles"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { ScrollReveal } from "@/components/scroll-reveal"
 
 const sampleArticles = [
   {
@@ -62,32 +65,42 @@ export default function ResearchPage() {
   const gridArticles = sampleArticles.slice(1)
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-4">Research & Insights</h1>
-        <p className="text-lg text-muted-foreground">
-          Stay informed with the latest financial research, market analysis, and investment insights.
-        </p>
-      </div>
+    <>
+      <Header />
+      <main className="pt-24 pb-16">
+        <div className="container mx-auto px-4">
+          <ScrollReveal>
+            <div className="max-w-7xl mx-auto">
+              <div className="mb-8">
+                <h1 className="text-4xl font-bold text-foreground mb-4">Research & Insights</h1>
+                <p className="text-lg text-muted-foreground">
+                  Stay informed with the latest financial research, market analysis, and investment insights.
+                </p>
+              </div>
 
-      {/* Featured Article */}
-      <div className="mb-12">
-        <ArticleEmphasised article={featuredArticle} />
-      </div>
+              {/* Featured Article */}
+              <div className="mb-12">
+                <ArticleEmphasised article={featuredArticle} />
+              </div>
 
-      {/* Article Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {gridArticles.map((article, index) => (
-          <ArticleOverview key={index} article={article} index={index} />
-        ))}
-      </div>
+              {/* Article Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {gridArticles.map((article, index) => (
+                  <ArticleOverview key={index} article={article} index={index} />
+                ))}
+              </div>
 
-      {/* Load More Section */}
-      <div className="mt-12 text-center">
-        <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-          Load More Articles
-        </button>
-      </div>
-    </div>
+              {/* Load More Section */}
+              <div className="mt-12 text-center">
+                <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                  Load More Articles
+                </button>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </main>
+      <Footer />
+    </>
   )
 }
