@@ -3,6 +3,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 
+const navigationItems = [
+  { href: "/docs", label: "Overview" },
+  { href: "/docs/example1", label: "Getting Started" },
+  { href: "/docs/example2", label: "API Reference" },
+  { href: "/docs/example3", label: "SDKs & Tools" },
+]
+
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
@@ -25,24 +32,19 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
 
         {/* Text-based Navigation */}
         <nav className="flex-1 flex flex-col items-start space-y-2 pt-3 px-4 w-full">
-          <Link
-            href="/"
-            className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-sm transition-colors"
-          >
-            Example
-          </Link>
-          <Link
-            href="/"
-            className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-sm transition-colors"
-          >
-            Example
-          </Link>
-          <Link
-            href="/"
-            className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-sm transition-colors"
-          >
-            Example
-          </Link>
+          {navigationItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`w-full px-3 py-2 text-sm rounded-sm transition-colors ${
+                pathname === item.href
+                  ? "bg-primary text-primary-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
       </aside>
 

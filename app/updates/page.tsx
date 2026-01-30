@@ -106,9 +106,11 @@ export default function UpdatesPage() {
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="max-w-4xl mx-auto">
-              <div className="mb-8">
-                <h1 className="text-4xl font-bold text-foreground mb-4">Update History</h1>
-                <p className="text-lg text-muted-foreground">
+              <div className="text-center mb-16">
+                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">
+                  Update <span className="text-primary">History</span>
+                </h1>
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
                   Stay up to date with the latest features, improvements, and bug fixes.
                 </p>
               </div>
