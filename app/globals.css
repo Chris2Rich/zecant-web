@@ -40,8 +40,11 @@
   --accent-foreground: oklch(0.25 0.02 260);
   
   /* DESTRUCTIVE: A serious, alert red (not cartoonish) */
-  --destructive: oklch(0.55 0.2 25);
+  --destructive: oklch(0.55 0.3 25);
   --destructive-foreground: oklch(0.98 0.002 260);
+
+  --creative: oklch(0.55 0.3 165);
+  --creative-foreground: oklch(0.98 0.002 260);
   
   /* SEMANTIC BORDERS: Grid-like structure for data organization */
   --border: oklch(0.88 0.01 260); /* Default border */
