@@ -237,9 +237,34 @@ export const pricingTiers = [
     },
   };
 
-  export const defaultChatOptions = [
+export const defaultChatOptions = [
     "What is the purpose of covariance matrices in portfolio optimisation?",
     "Model the effect of interest rates on the valuation of the MAG7.",
     "Analyse the latest price action of recent IPOs and discover the causes.",
     "What are the factors that could cause US employment to fall?",
   ]
+
+export const releaseData = [
+  {
+    version: '0.1',
+    date: 'Current Version',
+    title: 'Test version',
+    type: 'minor',
+    changes: [
+      'Test features and functionality',
+      'Bug fixes and improvements',
+      'User feedback integration'
+    ]
+  },
+  {
+    version: '0.0',
+    date: 'Current Version',
+    title: 'First Version',
+    type: 'major',
+    changes: [
+      'Core trading platform functionality',
+      'Basic portfolio management',
+      'Essential analytics and reporting'
+    ]
+  }
+]

@@ -2,117 +2,109 @@ export default function Example3Page() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-4">SDKs & Tools</h1>
+        <h1 className="text-4xl font-bold text-foreground mb-4">Model Selection & Optimization</h1>
         <p className="text-lg text-muted-foreground">
-          Developer tools, SDKs, and integration guides for building with Zecant.
+          Learn how to select, tune, and optimize machine learning models for trading strategies.
         </p>
       </div>
 
       <div className="space-y-8">
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-2xl font-semibold text-foreground mb-4">Official SDKs</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-4">Model Selection Process</h2>
+          <p className="text-muted-foreground mb-4">
+            Choosing the right model architecture is crucial for successful trading strategies.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="border border-border rounded-lg p-4">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-sm">JS</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">JavaScript SDK</h3>
-                  <p className="text-sm text-muted-foreground">Node.js and browser support</p>
-                </div>
-              </div>
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h3 className="font-semibold text-foreground mb-2">Problem Analysis</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Full-featured SDK for JavaScript applications with TypeScript support.
+                Understand your trading problem and select appropriate model types.
               </p>
-              <div className="flex space-x-2">
-                <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">npm install @zecant/sdk</span>
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">• Classification vs Regression</div>
+                <div className="text-xs text-muted-foreground">• Time series considerations</div>
+                <div className="text-xs text-muted-foreground">• Feature engineering requirements</div>
               </div>
             </div>
-
-            <div className="border border-border rounded-lg p-4">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  <span className="text-green-600 font-bold text-sm">PY</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">Python SDK</h3>
-                  <p className="text-sm text-muted-foreground">Data science and automation</p>
-                </div>
-              </div>
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h3 className="font-semibold text-foreground mb-2">Model Evaluation</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Python SDK optimized for data analysis and algorithmic trading.
+                Use proper validation techniques to assess model performance.
               </p>
-              <div className="flex space-x-2">
-                <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">pip install zecant-sdk</span>
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">• Cross-validation strategies</div>
+                <div className="text-xs text-muted-foreground">• Out-of-sample testing</div>
+                <div className="text-xs text-muted-foreground">• Walk-forward analysis</div>
               </div>
             </div>
           </div>
         </div>
 
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-2xl font-semibold text-foreground mb-4">Integration Guides</h2>
+          <h2 className="text-2xl font-semibold text-foreground mb-4">Hyperparameter Optimization</h2>
+          <p className="text-muted-foreground mb-4">
+            Fine-tune your models for optimal performance:
+          </p>
           <div className="space-y-4">
-            <div className="border border-border rounded-lg p-4">
-              <h3 className="font-semibold text-foreground mb-2">Webhooks</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Set up webhooks to receive real-time notifications about portfolio changes, trade executions, and market events.
-              </p>
-              <div className="flex items-center space-x-2">
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Guide</span>
-                <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">Code Examples</span>
+            <div className="flex items-start space-x-4">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <span className="text-primary font-semibold">Grid</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Grid Search</h3>
+                <p className="text-sm text-muted-foreground">Systematic exploration of hyperparameter combinations.</p>
               </div>
             </div>
-
-            <div className="border border-border rounded-lg p-4">
-              <h3 className="font-semibold text-foreground mb-2">OAuth Integration</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Integrate Zecant authentication into your application using OAuth 2.0 flows.
-              </p>
-              <div className="flex items-center space-x-2">
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Guide</span>
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">OAuth 2.0</span>
+            <div className="flex items-start space-x-4">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <span className="text-primary font-semibold">Random</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Random Search</h3>
+                <p className="text-sm text-muted-foreground">Efficient sampling of hyperparameter space.</p>
               </div>
             </div>
-
-            <div className="border border-border rounded-lg p-4">
-              <h3 className="font-semibold text-foreground mb-2">Data Export</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Export portfolio data, trading history, and analytics in various formats for external analysis.
-              </p>
-              <div className="flex items-center space-x-2">
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Guide</span>
-                <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">CSV/JSON</span>
+            <div className="flex items-start space-x-4">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <span className="text-primary font-semibold">Bayes</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">Bayesian Optimization</h3>
+                <p className="text-sm text-muted-foreground">Intelligent search using probabilistic models.</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="bg-card rounded-lg border border-border p-6">
-          <h2 className="text-2xl font-semibold text-foreground mb-4">Developer Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary font-bold">API</span>
+          <h2 className="text-2xl font-semibold text-foreground mb-4">Common Model Architectures</h2>
+          <p className="text-muted-foreground mb-4">
+            Popular models for trading applications:
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-sm">🌳</span>
               </div>
-              <h3 className="font-semibold text-foreground mb-2">API Explorer</h3>
-              <p className="text-sm text-muted-foreground">Interactive API testing tool</p>
+              <span className="text-xs text-muted-foreground">Random Forest</span>
             </div>
-
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary font-bold">CLI</span>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-sm">🤖</span>
               </div>
-              <h3 className="font-semibold text-foreground mb-2">Command Line</h3>
-              <p className="text-sm text-muted-foreground">CLI tools for automation</p>
+              <span className="text-xs text-muted-foreground">Neural Networks</span>
             </div>
-
-            <div className="text-center p-4 bg-muted/30 rounded-lg">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-primary font-bold">WEB</span>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-sm">⚡</span>
               </div>
-              <h3 className="font-semibold text-foreground mb-2">Webhooks Tester</h3>
-              <p className="text-sm text-muted-foreground">Test webhook integrations</p>
+              <span className="text-xs text-muted-foreground">XGBoost</span>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-2 flex items-center justify-center">
+                <span className="text-sm">🔄</span>
+              </div>
+              <span className="text-xs text-muted-foreground">LSTM/RNN</span>
             </div>
           </div>
         </div>

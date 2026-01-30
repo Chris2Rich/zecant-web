@@ -26,11 +26,9 @@ export default function ResearchPage() {
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-16">
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">
-                  Research & <span className="text-primary">Insights</span>
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+              <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold text-foreground mb-4">Research & Insights</h1>
+                <p className="text-lg text-muted-foreground">
                   Stay informed with the latest financial research, market analysis, and investment insights.
                 </p>
               </div>
