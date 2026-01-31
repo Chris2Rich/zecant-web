@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Clock, Newspaper } from "lucide-react";
 import { formatDate } from "@/business/utils";
+import Link from "next/link";
 
 export interface ArticleHeader {
     title: string;
@@ -15,12 +16,11 @@ export interface ArticleHeader {
   }
 
 export function ArticleOverview({article, index=0} : {article: ArticleHeader, index?: number}){
-    return <motion.article
+    return <Link href={article.url}><motion.article
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className="group cursor-pointer"
-                  onClick={() => window.open(article.url, '_blank')}
                 >
                   <div className="relative h-48 rounded-sm overflow-hidden mb-3">
                     {article.urlToImage ? (
@@ -55,15 +55,15 @@ export function ArticleOverview({article, index=0} : {article: ArticleHeader, in
                   <p className="text-muted-foreground text-sm line-clamp-2">
                     {article.description}
                   </p>
-                </motion.article>
+    </motion.article>
+  </Link>
 }
 
 export function ArticleEmphasised({article} : {article: ArticleHeader}){
-  return <motion.article
+  return <Link href={article.url}><motion.article
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
   className="mb-12 group cursor-pointer"
-  onClick={() => window.open(article.url, '_blank')}
 >
   <div className="relative h-96 rounded-sm overflow-hidden mb-6">
     {article.urlToImage ? (
@@ -97,5 +97,6 @@ export function ArticleEmphasised({article} : {article: ArticleHeader}){
       </p>
     </div>
   </div>
-</motion.article>
+  </motion.article>
+  </Link>
 }
