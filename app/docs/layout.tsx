@@ -49,9 +49,9 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Content Grid */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         <div className="h-full p-2 scrollbar-thin">
-          <div className="h-full rounded-sm border border-border bg-card/30 p-4 select-text scrollbar-thin">
+          <div className="h-full rounded-sm border border-border bg-card/30 p-4 select-text scrollbar-thin overflow-y-auto">
             {children}
           </div>
         </div>
