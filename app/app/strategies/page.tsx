@@ -1,411 +1,62 @@
-// Strategy-related TypeScript interfaces and types
 "use client";
-
-interface Strategy {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  status: StrategyStatus;
-  config: StrategyConfig;
-  backtestResults?: BacktestResults;
-  tags: string[];
-}
-
-type StrategyStatus = 'draft' | 'backtesting' | 'completed' | 'failed';
-
-interface StrategyConfig {
-  // Model configuration
-  modelType: ModelType;
-  modelParams: Record<string, any>;
-
-  // Feature engineering
-  features: FeatureConfig[];
-
-  // Position sizing
-  positionSizer: PositionSizerConfig;
-
-  // Backtest parameters
-  backtestStart: Date;
-  backtestEnd: Date;
-  symbols: string[];
-  startingCapital: number;
-
-  // Training parameters
-  retrainFrequency: number;
-  trainingWindowType: 'expanding' | 'rolling';
-  trainingWindowSize?: number;
-}
-
-type ModelType = 'random_forest' | 'gradient_boosting' | 'neural_network';
-
-interface FeatureConfig {
-  type: FeatureType;
-  params: Record<string, any>;
-  enabled: boolean;
-}
-
-type FeatureType =
-  | 'returns'
-  | 'log_returns'
-  | 'volatility'
-  | 'correlation'
-  | 'momentum'
-  | 'moving_average'
-  | 'rsi'
-  | 'bollinger_bands'
-  | 'macd'
-  | 'atr'
-  | 'volume_profile'
-  | 'cross_sectional_rank'
-  | 'regime'
-  | 'seasonality'
-  | 'lagged_features';
-
-interface PositionSizerConfig {
-  type: PositionSizerType;
-  params: Record<string, any>;
-}
-
-type PositionSizerType =
-  | 'fixed'
-  | 'fixed_fractional'
-  | 'kelly'
-  | 'risk_parity'
-  | 'volatility_targeting'
-  | 'max_drawdown'
-  | 'ensemble';
-
-interface BacktestResults {
-  id: string;
-  strategyId: string;
-  executedAt: Date;
-  duration: number; // in seconds
-
-  // Portfolio performance
-  portfolio: PortfolioPerformance;
-
-  // Trade analysis
-  trades: Trade[];
-
-  // Risk metrics
-  risk: RiskMetrics;
-
-  // Charts data
-  equityCurve: EquityPoint[];
-  drawdownCurve: DrawdownPoint[];
-}
-
-interface PortfolioPerformance {
-  startingCapital: number;
-  endingCapital: number;
-  totalReturn: number;
-  annualizedReturn: number;
-  volatility: number;
-  sharpeRatio: number;
-  sortinoRatio: number;
-  maxDrawdown: number;
-  calmarRatio: number;
-  winRate: number;
-  profitFactor: number;
-  expectancy: number;
-  totalTrades: number;
-  winningTrades: number;
-  losingTrades: number;
-}
-
-interface Trade {
-  id: string;
-  symbol: string;
-  side: 'buy' | 'sell';
-  quantity: number;
-  price: number;
-  timestamp: Date;
-  pnl?: number;
-  pnlPercent?: number;
-}
-
-interface RiskMetrics {
-  valueAtRisk95: number;
-  expectedShortfall95: number;
-  beta: number;
-  alpha: number;
-  trackingError: number;
-  informationRatio: number;
-}
-
-interface EquityPoint {
-  date: Date;
-  equity: number;
-  cash: number;
-  positions: Record<string, number>;
-}
-
-interface DrawdownPoint {
-  date: Date;
-  drawdown: number;
-  peak: number;
-}
-
-// UI State types
-type ViewMode = 'dashboard' | 'detail' | 'comparison';
-
-interface StrategyFilters {
-  status?: StrategyStatus[];
-  tags?: string[];
-  dateRange?: {
-    start: Date;
-    end: Date;
-  };
-  search?: string;
-}
-
-// Form types for strategy creation
-interface StrategyFormData {
-  name: string;
-  description: string;
-  config: StrategyConfig;
-}
-
-// Mock data generators
-function generateMockStrategies(): Strategy[] {
-  const strategies: Strategy[] = [
-    {
-      id: '1',
-      name: 'SPY Momentum Strategy',
-      description: 'A momentum-based strategy focused on SPY with RSI and MACD indicators',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-20'),
-      status: 'completed',
-      tags: ['momentum', 'technical', 'SPY'],
-      config: {
-        modelType: 'random_forest',
-        modelParams: { n_estimators: 100, max_depth: 10 },
-        features: [
-          { type: 'returns', params: { symbol: 'SPY', period: 1 }, enabled: true },
-          { type: 'rsi', params: { symbol: 'SPY', period: 14 }, enabled: true },
-          { type: 'macd', params: { symbol: 'SPY' }, enabled: true },
-          { type: 'volatility', params: { symbol: 'SPY', window: 20 }, enabled: true }
-        ],
-        positionSizer: { type: 'fixed_fractional', params: { fraction: 0.1 } },
-        backtestStart: new Date('2020-01-01'),
-        backtestEnd: new Date('2023-12-31'),
-        symbols: ['SPY'],
-        startingCapital: 100000,
-        retrainFrequency: 252,
-        trainingWindowType: 'expanding'
-      },
-      backtestResults: generateMockBacktestResults('1')
-    },
-    {
-      id: '2',
-      name: 'Multi-Asset Mean Reversion',
-      description: 'Mean reversion strategy across multiple tech stocks',
-      createdAt: new Date('2024-01-10'),
-      updatedAt: new Date('2024-01-18'),
-      status: 'completed',
-      tags: ['mean-reversion', 'multi-asset', 'tech'],
-      config: {
-        modelType: 'gradient_boosting',
-        modelParams: { n_estimators: 200, learning_rate: 0.1 },
-        features: [
-          { type: 'bollinger_bands', params: { symbol: 'AAPL', window: 20 }, enabled: true },
-          { type: 'bollinger_bands', params: { symbol: 'MSFT', window: 20 }, enabled: true },
-          { type: 'correlation', params: { symbols: ['AAPL', 'MSFT'] }, enabled: true }
-        ],
-        positionSizer: { type: 'risk_parity', params: { target_volatility: 0.15 } },
-        backtestStart: new Date('2021-01-01'),
-        backtestEnd: new Date('2023-12-31'),
-        symbols: ['AAPL', 'MSFT', 'GOOGL'],
-        startingCapital: 100000,
-        retrainFrequency: 126,
-        trainingWindowType: 'rolling',
-        trainingWindowSize: 504
-      },
-      backtestResults: generateMockBacktestResults('2')
-    },
-    {
-      id: '3',
-      name: 'VIX Fear & Greed',
-      description: 'Strategy that trades based on market fear indicators',
-      createdAt: new Date('2024-01-05'),
-      updatedAt: new Date('2024-01-05'),
-      status: 'draft',
-      tags: ['volatility', 'fear-greed', 'VIX'],
-      config: {
-        modelType: 'random_forest',
-        modelParams: { n_estimators: 50, max_depth: 5 },
-        features: [
-          { type: 'volatility', params: { symbol: '^VIX', window: 20 }, enabled: true },
-          { type: 'correlation', params: { symbols: ['SPY', '^VIX'] }, enabled: true }
-        ],
-        positionSizer: { type: 'kelly', params: { max_kelly_fraction: 0.25 } },
-        backtestStart: new Date('2019-01-01'),
-        backtestEnd: new Date('2023-12-31'),
-        symbols: ['SPY'],
-        startingCapital: 50000,
-        retrainFrequency: 63,
-        trainingWindowType: 'expanding'
-      }
-    }
-  ];
-
-  return strategies;
-}
-
-function generateMockBacktestResults(strategyId: string): BacktestResults {
-  const baseDate = new Date('2020-01-01');
-  const equityCurve: EquityPoint[] = [];
-  const drawdownCurve: DrawdownPoint[] = [];
-
-  let equity = 100000;
-  let peak = equity;
-  let maxDrawdown = 0;
-
-  for (let i = 0; i < 1000; i++) {
-    const date = new Date(baseDate);
-    date.setDate(date.getDate() + i);
-
-    // Simulate equity growth with some volatility
-    const dailyReturn = (Math.random() - 0.48) * 0.02; // Slight positive bias
-    equity *= (1 + dailyReturn);
-
-    peak = Math.max(peak, equity);
-    const drawdown = (peak - equity) / peak;
-    maxDrawdown = Math.max(maxDrawdown, drawdown);
-
-    equityCurve.push({
-      date,
-      equity,
-      cash: equity * 0.1,
-      positions: { 'SPY': equity * 0.9 / 400 } // Approximate SPY price
-    });
-
-    drawdownCurve.push({
-      date,
-      drawdown,
-      peak
-    });
-  }
-
-  const trades: Trade[] = [];
-  for (let i = 0; i < 50; i++) {
-    const tradeDate = new Date(baseDate);
-    tradeDate.setDate(tradeDate.getDate() + Math.floor(Math.random() * 1000));
-
-    trades.push({
-      id: `trade-${i}`,
-      symbol: 'SPY',
-      side: Math.random() > 0.5 ? 'buy' : 'sell',
-      quantity: Math.floor(Math.random() * 100) + 10,
-      price: 350 + Math.random() * 100,
-      timestamp: tradeDate,
-      pnl: (Math.random() - 0.4) * 1000,
-      pnlPercent: (Math.random() - 0.4) * 5
-    });
-  }
-
-  return {
-    id: `backtest-${strategyId}`,
-    strategyId,
-    executedAt: new Date(),
-    duration: Math.floor(Math.random() * 300) + 60,
-    portfolio: {
-      startingCapital: 100000,
-      endingCapital: equity,
-      totalReturn: (equity - 100000) / 100000,
-      annualizedReturn: Math.pow(equity / 100000, 1 / 4) - 1, // Approximate 4-year return
-      volatility: 0.15 + Math.random() * 0.1,
-      sharpeRatio: 0.8 + Math.random() * 0.8,
-      sortinoRatio: 1.0 + Math.random() * 0.5,
-      maxDrawdown,
-      calmarRatio: 0.5 + Math.random() * 0.5,
-      winRate: 0.52 + Math.random() * 0.2,
-      profitFactor: 1.1 + Math.random() * 0.3,
-      expectancy: 50 + Math.random() * 100,
-      totalTrades: trades.length,
-      winningTrades: Math.floor(trades.length * (0.52 + Math.random() * 0.2)),
-      losingTrades: Math.floor(trades.length * (0.48 - Math.random() * 0.2))
-    },
-    trades,
-    risk: {
-      valueAtRisk95: -0.05 - Math.random() * 0.05,
-      expectedShortfall95: -0.08 - Math.random() * 0.04,
-      beta: 0.8 + Math.random() * 0.4,
-      alpha: -0.02 + Math.random() * 0.04,
-      trackingError: 0.03 + Math.random() * 0.02,
-      informationRatio: -0.5 + Math.random()
-    },
-    equityCurve,
-    drawdownCurve
-  };
-}
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
-  Search,
-  Filter,
   BarChart3,
   TrendingUp,
   Calendar,
-  DollarSign,
-  Target,
-  Zap,
   Archive,
   GitCompare,
-  Settings,
   Play,
   Download,
-  Eye,
   Edit,
   Trash2,
   CheckCircle,
   Clock,
   AlertCircle,
-  Loader2
+  Loader2,
+  ArrowLeft,
+  X,
+  Target,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebarContext } from "@/components/SidebarContext";
 import { StrategyLibraryModal } from "@/components/StrategyLibraryModal";
+import { strategyService } from "@/lib/services/strategyService";
+import type {
+  Strategy,
+  StrategyConfig,
+  BacktestResult,
+  StrategyStatus,
+} from "@/lib/types/strategy";
 
-// Auto-camelCase tags for new strategies
+// Auto-camelCase tags for display
 const camelCaseTag = (tag: string) => {
   return tag
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 };
 
 // Main Strategy Dashboard Component
 function StrategyDashboard() {
-  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
+  const [viewMode, setViewMode] = useState<"dashboard" | "detail" | "comparison">("dashboard");
   const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
   const [comparisonStrategies, setComparisonStrategies] = useState<Strategy[]>([]);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isCreationOpen, setIsCreationOpen] = useState(false);
   const [strategies, setStrategies] = useState<Strategy[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Refs for sidebar handlers
-  const newStrategyHandlerRef = useRef<(() => void) | null>(null);
-  const libraryHandlerRef = useRef<(() => void) | null>(null);
-  const compareHandlerRef = useRef<(() => void) | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [backtestingId, setBacktestingId] = useState<string | null>(null);
 
   const { register, unregister } = useSidebarContext();
 
-  // Load mock data on mount
+  // Load strategies on mount
   useEffect(() => {
-    const loadStrategies = async () => {
-      setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setStrategies(generateMockStrategies());
-      setIsLoading(false);
-    };
-
     loadStrategies();
   }, []);
 
@@ -414,37 +65,111 @@ function StrategyDashboard() {
     const regId = register([
       { icon: Plus, label: "New Strategy", fn: () => setIsCreationOpen(true) },
       { icon: Archive, label: "Strategy Library", fn: () => setIsLibraryOpen(true) },
-      { icon: GitCompare, label: "Compare Strategies", fn: handleCompareToggle }
+      { icon: GitCompare, label: "Compare Strategies", fn: handleCompareToggle },
     ]);
 
     return () => unregister(regId);
   }, [register, unregister]);
 
+  const loadStrategies = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const strategies = await strategyService.getStrategies();
+      setStrategies(strategies);
+    } catch (err: any) {
+      setError(err.message || "Failed to load strategies");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCompareToggle = () => {
-    if (viewMode === 'comparison') {
-      setViewMode('dashboard');
+    if (viewMode === "comparison") {
+      setViewMode("dashboard");
       setComparisonStrategies([]);
     } else {
-      setViewMode('comparison');
+      setViewMode("comparison");
     }
   };
 
   const handleStrategySelect = (strategy: Strategy) => {
     setSelectedStrategy(strategy);
-    setViewMode('detail');
+    setViewMode("detail");
     setIsLibraryOpen(false);
   };
 
-  const handleStrategyCreate = (newStrategy: Strategy) => {
-    setStrategies(prev => [newStrategy, ...prev]);
-    setSelectedStrategy(newStrategy);
-    setViewMode('detail');
-    setIsCreationOpen(false);
+  const handleStrategyCreate = async (newStrategy: Strategy) => {
+    try {
+      await loadStrategies(); // Refresh the list
+      setSelectedStrategy(newStrategy);
+      setViewMode("detail");
+      setIsCreationOpen(false);
+    } catch (err: any) {
+      setError(err.message || "Failed to create strategy");
+    }
   };
 
   const handleBackToDashboard = () => {
-    setViewMode('dashboard');
+    setViewMode("dashboard");
     setSelectedStrategy(null);
+  };
+
+  const handleRunBacktest = async (strategyId: string) => {
+    setBacktestingId(strategyId);
+    setError(null);
+    try {
+      const response = await strategyService.runBacktest(strategyId);
+      
+      // Poll for status
+      await strategyService.pollBacktestStatus(
+        response.backtest_id,
+        (status) => {
+          // Update the strategy in the list with new backtest status
+          setStrategies((prev) =>
+            prev.map((s) =>
+              s.strategy_id === strategyId
+                ? { ...s, status: status.status === "completed" ? "completed" : "backtesting" }
+                : s
+            )
+          );
+          
+          // If this is the selected strategy, update it too
+          if (selectedStrategy?.strategy_id === strategyId) {
+            setSelectedStrategy((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    status: status.status === "completed" ? "completed" : "backtesting",
+                    backtest_results: status,
+                  }
+                : null
+            );
+          }
+        }
+      );
+
+      // Reload strategies to get final results
+      await loadStrategies();
+    } catch (err: any) {
+      setError(err.message || "Failed to run backtest");
+    } finally {
+      setBacktestingId(null);
+    }
+  };
+
+  const handleDeleteStrategy = async (strategyId: string) => {
+    if (!confirm("Are you sure you want to delete this strategy?")) return;
+    
+    try {
+      await strategyService.deleteStrategy(strategyId);
+      await loadStrategies();
+      if (selectedStrategy?.strategy_id === strategyId) {
+        handleBackToDashboard();
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to delete strategy");
+    }
   };
 
   if (isLoading) {
@@ -461,7 +186,7 @@ function StrategyDashboard() {
   return (
     <div className="h-full w-full">
       <AnimatePresence mode="wait">
-        {viewMode === 'dashboard' && (
+        {viewMode === "dashboard" && (
           <motion.div
             key="dashboard"
             initial={{ opacity: 0, y: 20 }}
@@ -471,13 +196,17 @@ function StrategyDashboard() {
           >
             <StrategyDashboardView
               strategies={strategies}
+              error={error}
               onStrategySelect={handleStrategySelect}
               onCreateNew={() => setIsCreationOpen(true)}
+              onRunBacktest={handleRunBacktest}
+              onDeleteStrategy={handleDeleteStrategy}
+              backtestingId={backtestingId}
             />
           </motion.div>
         )}
 
-        {viewMode === 'detail' && selectedStrategy && (
+        {viewMode === "detail" && selectedStrategy && (
           <motion.div
             key="detail"
             initial={{ opacity: 0, x: 20 }}
@@ -488,12 +217,14 @@ function StrategyDashboard() {
             <StrategyDetailView
               strategy={selectedStrategy}
               onBack={handleBackToDashboard}
-              onEdit={() => {/* TODO: Implement edit */}}
+              onRunBacktest={() => handleRunBacktest(selectedStrategy.strategy_id)}
+              onDelete={() => handleDeleteStrategy(selectedStrategy.strategy_id)}
+              isBacktesting={backtestingId === selectedStrategy.strategy_id}
             />
           </motion.div>
         )}
 
-        {viewMode === 'comparison' && (
+        {viewMode === "comparison" && (
           <motion.div
             key="comparison"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -504,9 +235,15 @@ function StrategyDashboard() {
             <StrategyComparisonView
               strategies={comparisonStrategies}
               availableStrategies={strategies}
-              onAddStrategy={(strategy) => setComparisonStrategies(prev => [...prev, strategy])}
-              onRemoveStrategy={(strategyId) => setComparisonStrategies(prev => prev.filter(s => s.id !== strategyId))}
-              onBack={() => setViewMode('dashboard')}
+              onAddStrategy={(strategy) =>
+                setComparisonStrategies((prev) => [...prev, strategy])
+              }
+              onRemoveStrategy={(strategyId) =>
+                setComparisonStrategies((prev) =>
+                  prev.filter((s) => s.strategy_id !== strategyId)
+                )
+              }
+              onBack={() => setViewMode("dashboard")}
             />
           </motion.div>
         )}
@@ -532,20 +269,39 @@ function StrategyDashboard() {
 // Dashboard View Component
 function StrategyDashboardView({
   strategies,
+  error,
   onStrategySelect,
-  onCreateNew
+  onCreateNew,
+  onRunBacktest,
+  onDeleteStrategy,
+  backtestingId,
 }: {
   strategies: Strategy[];
+  error: string | null;
   onStrategySelect: (strategy: Strategy) => void;
   onCreateNew: () => void;
+  onRunBacktest: (strategyId: string) => void;
+  onDeleteStrategy: (strategyId: string) => void;
+  backtestingId: string | null;
 }) {
-  const completedStrategies = strategies.filter(s => s.status === 'completed');
-  const totalReturn = completedStrategies.reduce((sum, s) =>
-    sum + (s.backtestResults?.portfolio.totalReturn || 0), 0
-  ) / Math.max(completedStrategies.length, 1);
+  const completedStrategies = strategies.filter((s) => s.status === "completed");
+  const avgReturn =
+    completedStrategies.length > 0
+      ? completedStrategies.reduce(
+          (sum, s) => sum + (s.backtest_results?.portfolio?.totalReturn || 0),
+          0
+        ) / completedStrategies.length
+      : 0;
 
   return (
     <div className="h-full space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="mb-6 p-4 rounded-sm border border-red-500/20 bg-red-500/10 text-red-500">
+          {error}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -565,7 +321,9 @@ function StrategyDashboardView({
         <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border">
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">Total Strategies</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Total Strategies
+            </span>
           </div>
           <p className="text-2xl font-bold text-foreground mt-2">{strategies.length}</p>
         </div>
@@ -586,7 +344,7 @@ function StrategyDashboardView({
             <span className="text-sm font-medium text-muted-foreground">Avg Return</span>
           </div>
           <p className="text-2xl font-bold text-foreground mt-2">
-            {(totalReturn * 100).toFixed(1)}%
+            {(avgReturn * 100).toFixed(1)}%
           </p>
         </div>
 
@@ -596,7 +354,7 @@ function StrategyDashboardView({
             <span className="text-sm font-medium text-muted-foreground">In Progress</span>
           </div>
           <p className="text-2xl font-bold text-foreground mt-2">
-            {strategies.filter(s => s.status === 'backtesting').length}
+            {strategies.filter((s) => s.status === "backtesting").length}
           </p>
         </div>
       </div>
@@ -607,12 +365,18 @@ function StrategyDashboardView({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {strategies.slice(0, 6).map((strategy) => (
             <StrategyCard
-              key={strategy.id}
-              strategy={{
-                ...strategy,
-                tags: strategy.tags.map(camelCaseTag)
-              }}
+              key={strategy.strategy_id}
+              strategy={strategy}
               onClick={() => onStrategySelect(strategy)}
+              onRunBacktest={(e) => {
+                e.stopPropagation();
+                onRunBacktest(strategy.strategy_id);
+              }}
+              onDelete={(e) => {
+                e.stopPropagation();
+                onDeleteStrategy(strategy.strategy_id);
+              }}
+              isBacktesting={backtestingId === strategy.strategy_id}
             />
           ))}
         </div>
@@ -636,30 +400,47 @@ function StrategyDashboardView({
 }
 
 // Strategy Card Component
-function StrategyCard({ strategy, onClick }: { strategy: Strategy; onClick: () => void }) {
+function StrategyCard({
+  strategy,
+  onClick,
+  onRunBacktest,
+  onDelete,
+  isBacktesting,
+}: {
+  strategy: Strategy;
+  onClick: () => void;
+  onRunBacktest: (e: React.MouseEvent) => void;
+  onDelete: (e: React.MouseEvent) => void;
+  isBacktesting: boolean;
+}) {
   const getStatusColor = (status: StrategyStatus) => {
     switch (status) {
-      case 'completed': return 'text-green-500';
-      case 'backtesting': return 'text-blue-500';
-      case 'failed': return 'text-red-500';
-      default: return 'text-muted-foreground';
+      case "completed":
+        return "text-green-500";
+      case "backtesting":
+        return "text-blue-500";
+      case "failed":
+        return "text-red-500";
+      default:
+        return "text-muted-foreground";
     }
   };
 
   const getStatusIcon = (status: StrategyStatus) => {
     switch (status) {
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'backtesting': return <Loader2 className="w-4 h-4 animate-spin" />;
-      case 'failed': return <AlertCircle className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case "completed":
+        return <CheckCircle className="w-4 h-4" />;
+      case "backtesting":
+        return <Loader2 className="w-4 h-4 animate-spin" />;
+      case "failed":
+        return <AlertCircle className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
     }
   };
 
   return (
-    <div
-      onClick={onClick}
-      className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border hover:border-border/80 cursor-pointer transition-colors h-48 flex flex-col"
-    >
+    <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border hover:border-border/80 cursor-pointer transition-colors h-56 flex flex-col">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground truncate">{strategy.name}</h3>
@@ -667,7 +448,9 @@ function StrategyCard({ strategy, onClick }: { strategy: Strategy; onClick: () =
             {strategy.description}
           </p>
         </div>
-        <div className={`flex items-center gap-1 ${getStatusColor(strategy.status)} flex-shrink-0`}>
+        <div
+          className={`flex items-center gap-1 ${getStatusColor(strategy.status)} flex-shrink-0`}
+        >
           {getStatusIcon(strategy.status)}
         </div>
       </div>
@@ -675,28 +458,56 @@ function StrategyCard({ strategy, onClick }: { strategy: Strategy; onClick: () =
       <div className="flex items-center justify-between text-sm mb-3">
         <div className="flex items-center gap-1 text-muted-foreground">
           <Calendar className="w-3 h-3" />
-          {strategy.createdAt.toLocaleDateString()}
+          {new Date(strategy.created_at).toLocaleDateString()}
         </div>
 
-        {strategy.backtestResults && (
+        {strategy.backtest_results?.portfolio && (
           <div className="flex items-center gap-1">
             <TrendingUp className="w-3 h-3 text-green-500" />
             <span className="text-green-500 font-medium">
-              {(strategy.backtestResults.portfolio.totalReturn * 100).toFixed(1)}%
+              {(strategy.backtest_results.portfolio.totalReturn * 100).toFixed(1)}%
             </span>
           </div>
         )}
       </div>
 
-      <div className="flex flex-wrap gap-1 mt-auto">
+      <div className="flex flex-wrap gap-1 mt-auto mb-3">
         {strategy.tags.slice(0, 3).map((tag) => (
           <span
             key={tag}
             className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
           >
-            {tag}
+            {camelCaseTag(tag)}
           </span>
         ))}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 mt-2">
+        {strategy.status === "draft" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex-1"
+            onClick={onRunBacktest}
+            disabled={isBacktesting}
+          >
+            {isBacktesting ? (
+              <Loader2 className="w-3 h-3 animate-spin mr-1" />
+            ) : (
+              <Play className="w-3 h-3 mr-1" />
+            )}
+            Run Backtest
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-red-500 hover:text-red-600"
+          onClick={onDelete}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );
@@ -706,28 +517,37 @@ function StrategyCard({ strategy, onClick }: { strategy: Strategy; onClick: () =
 function StrategyDetailView({
   strategy,
   onBack,
-  onEdit
+  onRunBacktest,
+  onDelete,
+  isBacktesting,
 }: {
   strategy: Strategy;
   onBack: () => void;
-  onEdit: () => void;
+  onRunBacktest: () => void;
+  onDelete: () => void;
+  isBacktesting: boolean;
 }) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'performance' | 'risk' | 'trades'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "performance" | "risk" | "trades">(
+    "overview"
+  );
 
-  if (!strategy.backtestResults) {
+  const results = strategy.backtest_results;
+
+  if (!results) {
     return (
       <div className="h-full space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={onBack}>
-            ← Back
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
           </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
             <p className="text-muted-foreground mt-1">{strategy.description}</p>
           </div>
-          <Button variant="outline" onClick={onEdit}>
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
+          <Button variant="outline" onClick={onDelete} className="text-red-500">
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete
           </Button>
         </div>
 
@@ -735,10 +555,15 @@ function StrategyDetailView({
           <Clock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">Strategy Not Backtested</h3>
           <p className="text-muted-foreground mb-4">
-            This strategy hasn't been backtested yet. Run a backtest to see performance metrics.
+            This strategy hasn't been backtested yet. Run a backtest to see performance
+            metrics.
           </p>
-          <Button>
-            <Play className="w-4 h-4 mr-2" />
+          <Button onClick={onRunBacktest} disabled={isBacktesting}>
+            {isBacktesting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Play className="w-4 h-4 mr-2" />
+            )}
             Run Backtest
           </Button>
         </div>
@@ -746,75 +571,91 @@ function StrategyDetailView({
     );
   }
 
-  const results = strategy.backtestResults;
+  const portfolio = results.portfolio;
 
   return (
     <div className="h-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
-          <p className="text-muted-foreground mt-1">{strategy.description}</p>
+        <div className="flex items-center gap-4 flex-1">
+          <Button variant="outline" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
+            <p className="text-muted-foreground mt-1">{strategy.description}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onBack}>
-            ← Back
+          <Button
+            variant="outline"
+            onClick={onRunBacktest}
+            disabled={isBacktesting}
+          >
+            {isBacktesting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Play className="w-4 h-4 mr-2" />
+            )}
+            Re-Run Backtest
           </Button>
-          <Button variant="outline" onClick={onEdit}>
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
-          </Button>
-          <Button>
+          <Button variant="outline">
             <Download className="w-4 h-4 mr-2" />
             Export
+          </Button>
+          <Button variant="ghost" onClick={onDelete} className="text-red-500">
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Total Return"
-          value={`${(results.portfolio.totalReturn * 100).toFixed(2)}%`}
-          icon={<TrendingUp className="w-5 h-5 text-green-500" />}
-          color="text-green-500"
-        />
-        <MetricCard
-          title="Sharpe Ratio"
-          value={results.portfolio.sharpeRatio.toFixed(2)}
-          icon={<Target className="w-5 h-5 text-blue-500" />}
-          color="text-blue-500"
-        />
-        <MetricCard
-          title="Max Drawdown"
-          value={`${(results.portfolio.maxDrawdown * 100).toFixed(2)}%`}
-          icon={<BarChart3 className="w-5 h-5 text-red-500" />}
-          color="text-red-500"
-        />
-        <MetricCard
-          title="Win Rate"
-          value={`${(results.portfolio.winRate * 100).toFixed(1)}%`}
-          icon={<CheckCircle className="w-5 h-5 text-green-500" />}
-          color="text-green-500"
-        />
-      </div>
+      {portfolio && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <MetricCard
+            title="Total Return"
+            value={`${(portfolio.totalReturn * 100).toFixed(2)}%`}
+            icon={<TrendingUp className="w-5 h-5 text-green-500" />}
+            color="text-green-500"
+          />
+          <MetricCard
+            title="Sharpe Ratio"
+            value={portfolio.sharpeRatio.toFixed(2)}
+            icon={<Target className="w-5 h-5 text-blue-500" />}
+            color="text-blue-500"
+          />
+          <MetricCard
+            title="Max Drawdown"
+            value={`${(portfolio.maxDrawdown * 100).toFixed(2)}%`}
+            icon={<BarChart3 className="w-5 h-5 text-red-500" />}
+            color="text-red-500"
+          />
+          <MetricCard
+            title="Win Rate"
+            value={`${(portfolio.winRate * 100).toFixed(1)}%`}
+            icon={<CheckCircle className="w-5 h-5 text-green-500" />}
+            color="text-green-500"
+          />
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="border-b border-border">
         <div className="flex space-x-8">
           {[
-            { id: 'overview', label: 'Overview', icon: BarChart3 },
-            { id: 'performance', label: 'Performance', icon: TrendingUp },
-            { id: 'risk', label: 'Risk Analysis', icon: AlertCircle },
-            { id: 'trades', label: 'Trade History', icon: DollarSign }
+            { id: "overview", label: "Overview", icon: BarChart3 },
+            { id: "performance", label: "Performance", icon: TrendingUp },
+            { id: "risk", label: "Risk Analysis", icon: AlertCircle },
+            { id: "trades", label: "Trade History", icon: DollarSign },
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id as any)}
               className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -826,18 +667,10 @@ function StrategyDetailView({
 
       {/* Tab Content */}
       <div className="flex-1">
-        {activeTab === 'overview' && (
-          <StrategyOverviewTab strategy={strategy} results={results} />
-        )}
-        {activeTab === 'performance' && (
-          <PerformanceTab results={results} />
-        )}
-        {activeTab === 'risk' && (
-          <RiskAnalysisTab results={results} />
-        )}
-        {activeTab === 'trades' && (
-          <TradeHistoryTab trades={results.trades} />
-        )}
+        {activeTab === "overview" && <StrategyOverviewTab strategy={strategy} />}
+        {activeTab === "performance" && results && <PerformanceTab results={results} />}
+        {activeTab === "risk" && results && <RiskAnalysisTab results={results} />}
+        {activeTab === "trades" && results?.trades && <TradeHistoryTab trades={results.trades} />}
       </div>
     </div>
   );
@@ -848,7 +681,7 @@ function MetricCard({
   title,
   value,
   icon,
-  color
+  color,
 }: {
   title: string;
   value: string;
@@ -869,74 +702,117 @@ function MetricCard({
 }
 
 // Overview Tab
-function StrategyOverviewTab({
-  strategy,
-  results
-}: {
-  strategy: Strategy;
-  results: BacktestResults;
-}) {
+function StrategyOverviewTab({ strategy }: { strategy: Strategy }) {
+  const config = strategy.config as any;
+  const results = strategy.backtest_results;
+
   return (
     <div className="space-y-6">
       {/* Configuration Summary */}
       <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Strategy Configuration</h3>
+        <h3 className="text-lg font-semibold text-foreground mb-4">
+          Strategy Configuration
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium text-foreground mb-2">Model Settings</h4>
             <div className="space-y-1 text-sm text-muted-foreground">
-              <p>Model Type: <span className="text-foreground">{strategy.config.modelType}</span></p>
-              <p>Symbols: <span className="text-foreground">{strategy.config.symbols.join(', ')}</span></p>
-              <p>Starting Capital: <span className="text-foreground">${strategy.config.startingCapital.toLocaleString()}</span></p>
+              <p>
+                Model Type:{" "}
+                <span className="text-foreground">{config?.model_type || "N/A"}</span>
+              </p>
+              <p>
+                Symbols:{" "}
+                <span className="text-foreground">
+                  {(config?.traded_symbols || []).join(", ")}
+                </span>
+              </p>
+              <p>
+                Starting Capital:{" "}
+                <span className="text-foreground">
+                  ${config?.starting_capital?.toLocaleString() || "N/A"}
+                </span>
+              </p>
             </div>
           </div>
           <div>
             <h4 className="font-medium text-foreground mb-2">Backtest Period</h4>
             <div className="space-y-1 text-sm text-muted-foreground">
-              <p>Start: <span className="text-foreground">{strategy.config.backtestStart.toLocaleDateString()}</span></p>
-              <p>End: <span className="text-foreground">{strategy.config.backtestEnd.toLocaleDateString()}</span></p>
-              <p>Duration: <span className="text-foreground">{results.duration}s</span></p>
+              <p>
+                Start:{" "}
+                <span className="text-foreground">
+                  {config?.backtest_start
+                    ? new Date(config.backtest_start).toLocaleDateString()
+                    : "N/A"}
+                </span>
+              </p>
+              <p>
+                End:{" "}
+                <span className="text-foreground">
+                  {config?.backtest_end
+                    ? new Date(config.backtest_end).toLocaleDateString()
+                    : "N/A"}
+                </span>
+              </p>
+              <p>
+                Duration:{" "}
+                <span className="text-foreground">
+                  {results?.duration_seconds
+                    ? `${results.duration_seconds}s`
+                    : "N/A"}
+                </span>
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Performance Summary */}
-      <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Performance Summary</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-500">
-              ${(results.portfolio.endingCapital - results.portfolio.startingCapital).toLocaleString()}
-            </p>
-            <p className="text-sm text-muted-foreground">Total P&L</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">
-              {results.portfolio.totalTrades}
-            </p>
-            <p className="text-sm text-muted-foreground">Total Trades</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-500">
-              {results.portfolio.winningTrades}
-            </p>
-            <p className="text-sm text-muted-foreground">Winning Trades</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-red-500">
-              {results.portfolio.losingTrades}
-            </p>
-            <p className="text-sm text-muted-foreground">Losing Trades</p>
+      {results?.portfolio && (
+        <div className="bg-card/70 backdrop-blur-glass rounded-sm p-6 border border-border">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
+            Performance Summary
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-500">
+                ${
+                  (
+                    results.portfolio.endingCapital - results.portfolio.startingCapital
+                  ).toLocaleString()
+                }
+              </p>
+              <p className="text-sm text-muted-foreground">Total P&L</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-foreground">
+                {results.portfolio.totalTrades}
+              </p>
+              <p className="text-sm text-muted-foreground">Total Trades</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-green-500">
+                {results.portfolio.winningTrades}
+              </p>
+              <p className="text-sm text-muted-foreground">Winning Trades</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-red-500">
+                {results.portfolio.losingTrades}
+              </p>
+              <p className="text-sm text-muted-foreground">Losing Trades</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
 
 // Performance Tab with Charts
-function PerformanceTab({ results }: { results: BacktestResults }) {
+function PerformanceTab({ results }: { results: BacktestResult }) {
+  if (!results.portfolio) return null;
+
   return (
     <div className="space-y-6">
       {/* Equity Curve Placeholder */}
@@ -1020,7 +896,9 @@ function PerformanceTab({ results }: { results: BacktestResults }) {
 }
 
 // Risk Analysis Tab
-function RiskAnalysisTab({ results }: { results: BacktestResults }) {
+function RiskAnalysisTab({ results }: { results: BacktestResult }) {
+  if (!results.risk) return null;
+
   return (
     <div className="space-y-6">
       {/* Drawdown Chart Placeholder */}
@@ -1093,19 +971,19 @@ function RiskAnalysisTab({ results }: { results: BacktestResults }) {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Sharpe Ratio</span>
               <span className="font-medium text-foreground">
-                {results.portfolio.sharpeRatio.toFixed(2)}
+                {results.portfolio?.sharpeRatio.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Sortino Ratio</span>
               <span className="font-medium text-foreground">
-                {results.portfolio.sortinoRatio.toFixed(2)}
+                {results.portfolio?.sortinoRatio.toFixed(2)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Calmar Ratio</span>
               <span className="font-medium text-foreground">
-                {results.portfolio.calmarRatio.toFixed(2)}
+                {results.portfolio?.calmarRatio.toFixed(2)}
               </span>
             </div>
           </div>
@@ -1116,7 +994,17 @@ function RiskAnalysisTab({ results }: { results: BacktestResults }) {
 }
 
 // Trade History Tab
-function TradeHistoryTab({ trades }: { trades: Trade[] }) {
+function TradeHistoryTab({ trades }: { trades: any[] }) {
+  if (!trades || trades.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">No trades available</p>
+      </div>
+    );
+  }
+
+  const winningTrades = trades.filter((t) => (t.pnl || 0) > 0).length;
+
   return (
     <div className="space-y-6">
       {/* Trade Statistics */}
@@ -1128,20 +1016,16 @@ function TradeHistoryTab({ trades }: { trades: Trade[] }) {
             <p className="text-sm text-muted-foreground">Total Trades</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-green-500">
-              {trades.filter(t => (t.pnl || 0) > 0).length}
-            </p>
+            <p className="text-2xl font-bold text-green-500">{winningTrades}</p>
             <p className="text-sm text-muted-foreground">Winning</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-red-500">
-              {trades.filter(t => (t.pnl || 0) < 0).length}
-            </p>
+            <p className="text-2xl font-bold text-red-500">{trades.length - winningTrades}</p>
             <p className="text-sm text-muted-foreground">Losing</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-foreground">
-              {trades.length > 0 ? (trades.filter(t => (t.pnl || 0) > 0).length / trades.length * 100).toFixed(1) : 0}%
+              {trades.length > 0 ? ((winningTrades / trades.length) * 100).toFixed(1) : 0}%
             </p>
             <p className="text-sm text-muted-foreground">Win Rate</p>
           </div>
@@ -1154,48 +1038,68 @@ function TradeHistoryTab({ trades }: { trades: Trade[] }) {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Date</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Symbol</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Side</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Quantity</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Price</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">P&L</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">P&L %</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Symbol
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
+                  Side
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Quantity
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  Price
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  P&L
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
+                  P&L %
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {trades.slice(0, 20).map((trade) => (
-                <tr key={trade.id} className="hover:bg-muted/30">
+              {trades.slice(0, 20).map((trade, idx) => (
+                <tr key={idx} className="hover:bg-muted/30">
                   <td className="px-4 py-3 text-sm text-foreground">
-                    {trade.timestamp.toLocaleDateString()}
+                    {trade.timestamp ? new Date(trade.timestamp).toLocaleDateString() : "N/A"}
                   </td>
                   <td className="px-4 py-3 text-sm font-medium text-foreground">
                     {trade.symbol}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      trade.side === 'buy'
-                        ? 'bg-green-500/10 text-green-500'
-                        : 'bg-red-500/10 text-red-500'
-                    }`}>
-                      {trade.side.toUpperCase()}
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        trade.side === "buy"
+                          ? "bg-green-500/10 text-green-500"
+                          : "bg-red-500/10 text-red-500"
+                      }`}
+                    >
+                      {trade.side?.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-foreground">
-                    {trade.quantity.toLocaleString()}
+                    {trade.quantity?.toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-sm text-right text-foreground">
-                    ${trade.price.toFixed(2)}
+                    ${trade.price?.toFixed(2)}
                   </td>
-                  <td className={`px-4 py-3 text-sm text-right font-medium ${
-                    (trade.pnl || 0) >= 0 ? 'text-green-500' : 'text-red-500'
-                  }`}>
+                  <td
+                    className={`px-4 py-3 text-sm text-right font-medium ${
+                      (trade.pnl || 0) >= 0 ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
                     ${(trade.pnl || 0).toFixed(2)}
                   </td>
-                  <td className={`px-4 py-3 text-sm text-right font-medium ${
-                    (trade.pnlPercent || 0) >= 0 ? 'text-green-500' : 'text-red-500'
-                  }`}>
-                    {(trade.pnlPercent || 0).toFixed(2)}%
+                  <td
+                    className={`px-4 py-3 text-sm text-right font-medium ${
+                      (trade.pnl_percent || 0) >= 0 ? "text-green-500" : "text-red-500"
+                    }`}
+                  >
+                    {(trade.pnl_percent || 0).toFixed(2)}%
                   </td>
                 </tr>
               ))}
@@ -1221,7 +1125,7 @@ function StrategyComparisonView({
   availableStrategies,
   onAddStrategy,
   onRemoveStrategy,
-  onBack
+  onBack,
 }: {
   strategies: Strategy[];
   availableStrategies: Strategy[];
@@ -1234,11 +1138,14 @@ function StrategyComparisonView({
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-foreground">Strategy Comparison</h1>
-          <p className="text-muted-foreground mt-1">Compare performance across multiple strategies</p>
+          <p className="text-muted-foreground mt-1">
+            Compare performance across multiple strategies
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={onBack}>
-            ← Back
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
           </Button>
         </div>
       </div>
@@ -1257,30 +1164,186 @@ function StrategyComparisonView({
 function StrategyCreationModal({
   isOpen,
   onClose,
-  onCreateStrategy
+  onCreateStrategy,
 }: {
   isOpen: boolean;
   onClose: () => void;
   onCreateStrategy: (strategy: Strategy) => void;
 }) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [symbols, setSymbols] = useState("SPY");
+  const [startingCapital, setStartingCapital] = useState("100000");
+  const [backtestStart, setBacktestStart] = useState("2020-01-01");
+  const [backtestEnd, setBacktestEnd] = useState("2023-12-31");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const config: StrategyConfig = {
+        traded_symbols: symbols.split(",").map((s) => s.trim()),
+        backtest_start: backtestStart,
+        backtest_end: backtestEnd,
+        starting_capital: parseFloat(startingCapital),
+        model_type: "RandomForest",
+        model_params: {
+          n_estimators: 100,
+          max_depth: 10,
+        },
+      };
+
+      const response = await strategyService.createStrategy({
+        name,
+        description,
+        config,
+        tags: ["user-created"],
+      });
+
+      if (response.strategy_id) {
+        const newStrategy = await strategyService.getStrategy(response.strategy_id);
+        onCreateStrategy(newStrategy);
+        // Reset form
+        setName("");
+        setDescription("");
+        setSymbols("SPY");
+        setStartingCapital("100000");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to create strategy");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
+    <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="absolute inset-0 flex items-center justify-center p-6">
-        <div className="bg-card rounded-sm border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-card rounded-sm border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+        >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-foreground">Create New Strategy</h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
 
-          <div className="text-center py-12">
-            <Plus className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">Strategy Creation Wizard</h3>
-            <p className="text-muted-foreground">
-              Multi-step configuration form will be implemented here
-            </p>
-          </div>
-        </div>
+          {error && (
+            <div className="mb-4 p-3 rounded-sm border border-red-500/20 bg-red-500/10 text-red-500 text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Strategy Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., SPY Momentum Strategy"
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe your strategy..."
+                rows={3}
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Symbols (comma-separated)
+              </label>
+              <input
+                type="text"
+                value={symbols}
+                onChange={(e) => setSymbols(e.target.value)}
+                placeholder="e.g., SPY, AAPL, MSFT"
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Starting Capital
+                </label>
+                <input
+                  type="number"
+                  value={startingCapital}
+                  onChange={(e) => setStartingCapital(e.target.value)}
+                  className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Backtest Start
+                </label>
+                <input
+                  type="date"
+                  value={backtestStart}
+                  onChange={(e) => setBacktestStart(e.target.value)}
+                  className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Backtest End
+              </label>
+              <input
+                type="date"
+                value={backtestEnd}
+                onChange={(e) => setBacktestEnd(e.target.value)}
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                required
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="flex-1">
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Create Strategy"
+                )}
+              </Button>
+            </div>
+          </form>
+        </motion.div>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ function getVersionColor(type: UpdateEntry['type']) {
     case 'major':
       return 'bg-primary text-foreground'
     case 'minor':
-      return 'bg-card text-foreground'
+      return 'bg-muted text-foreground'
     default:
       return 'bg-muted text-foreground'
   }
