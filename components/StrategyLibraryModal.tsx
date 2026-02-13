@@ -125,14 +125,14 @@ interface DrawdownPoint {
 }
 
 interface Strategy {
-  id: string;
+  strategy_id: string;
   name: string;
   description: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: string;
+  updated_at: string;
   status: StrategyStatus;
   config: StrategyConfig;
-  backtestResults?: BacktestResults;
+  backtest_results?: BacktestResults;
   tags: string[];
 }
 
@@ -283,7 +283,7 @@ export function StrategyLibraryModal({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredStrategies.map((strategy) => (
                   <motion.div
-                    key={strategy.id}
+                    key={strategy.strategy_id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="group"
@@ -313,12 +313,12 @@ export function StrategyLibraryModal({
 
                           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                             <Calendar className="w-3 h-3" />
-                            <span>{strategy.createdAt.toLocaleDateString()}</span>
-                            {strategy.backtestResults && (
+                            <span>{new Date(strategy.created_at).toLocaleDateString()}</span>
+                            {strategy.backtest_results && (
                               <>
                                 <span>•</span>
                                 <span className="text-green-500">
-                                  {(strategy.backtestResults.portfolio.totalReturn * 100).toFixed(1)}%
+                                  {(strategy.backtest_results.portfolio.totalReturn * 100).toFixed(1)}%
                                 </span>
                               </>
                             )}
