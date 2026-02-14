@@ -43,7 +43,7 @@ export default function NewsfeedPage() {
       const internalCategory = categoryMap[category] || 'general';
       const response = await newsService.getNewsByCategory(
         internalCategory,
-        15,
+        50,
         getToken
       );
       
@@ -79,7 +79,7 @@ export default function NewsfeedPage() {
   const gridArticles = filteredArticles.slice(1);
 
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto scrollbar-thin">
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Header with Categories */}
         <div className="flex items-center gap-6 mb-8 pb-4 border-b border-border overflow-x-auto">
