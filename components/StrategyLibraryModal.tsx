@@ -2,139 +2,9 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, BarChart3, Calendar, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { X, Search, BarChart3, Calendar, CheckCircle, Clock, AlertCircle, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-// Import types from main page to ensure consistency
-type StrategyStatus = 'draft' | 'backtesting' | 'completed' | 'failed';
-
-interface StrategyConfig {
-  modelType: ModelType;
-  modelParams: Record<string, any>;
-  features: FeatureConfig[];
-  positionSizer: PositionSizerConfig;
-  backtestStart: Date;
-  backtestEnd: Date;
-  symbols: string[];
-  startingCapital: number;
-  retrainFrequency: number;
-  trainingWindowType: 'expanding' | 'rolling';
-  trainingWindowSize?: number;
-}
-
-type ModelType = 'random_forest' | 'gradient_boosting' | 'neural_network';
-
-interface FeatureConfig {
-  type: FeatureType;
-  params: Record<string, any>;
-  enabled: boolean;
-}
-
-type FeatureType =
-  | 'returns'
-  | 'log_returns'
-  | 'volatility'
-  | 'correlation'
-  | 'momentum'
-  | 'moving_average'
-  | 'rsi'
-  | 'bollinger_bands'
-  | 'macd'
-  | 'atr'
-  | 'volume_profile'
-  | 'cross_sectional_rank'
-  | 'regime'
-  | 'seasonality'
-  | 'lagged_features';
-
-interface PositionSizerConfig {
-  type: PositionSizerType;
-  params: Record<string, any>;
-}
-
-type PositionSizerType =
-  | 'fixed'
-  | 'fixed_fractional'
-  | 'kelly'
-  | 'risk_parity'
-  | 'volatility_targeting'
-  | 'max_drawdown'
-  | 'ensemble';
-
-interface BacktestResults {
-  id: string;
-  strategyId: string;
-  executedAt: Date;
-  duration: number;
-  portfolio: PortfolioPerformance;
-  trades: Trade[];
-  risk: RiskMetrics;
-  equityCurve: EquityPoint[];
-  drawdownCurve: DrawdownPoint[];
-}
-
-interface PortfolioPerformance {
-  startingCapital: number;
-  endingCapital: number;
-  totalReturn: number;
-  annualizedReturn: number;
-  volatility: number;
-  sharpeRatio: number;
-  sortinoRatio: number;
-  maxDrawdown: number;
-  calmarRatio: number;
-  winRate: number;
-  profitFactor: number;
-  expectancy: number;
-  totalTrades: number;
-  winningTrades: number;
-  losingTrades: number;
-}
-
-interface Trade {
-  id: string;
-  symbol: string;
-  side: 'buy' | 'sell';
-  quantity: number;
-  price: number;
-  timestamp: Date;
-  pnl?: number;
-  pnlPercent?: number;
-}
-
-interface RiskMetrics {
-  valueAtRisk95: number;
-  expectedShortfall95: number;
-  beta: number;
-  alpha: number;
-  trackingError: number;
-  informationRatio: number;
-}
-
-interface EquityPoint {
-  date: Date;
-  equity: number;
-  cash: number;
-  positions: Record<string, number>;
-}
-
-interface DrawdownPoint {
-  date: Date;
-  drawdown: number;
-  peak: number;
-}
-
-interface Strategy {
-  strategy_id: string;
-  name: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-  status: StrategyStatus;
-  config: StrategyConfig;
-  backtest_results?: BacktestResults;
-  tags: string[];
-}
+import type { Strategy, StrategyStatus } from "@/lib/types/strategy";
 
 interface StrategyLibraryModalProps {
   isOpen: boolean;
@@ -290,7 +160,7 @@ export function StrategyLibraryModal({
                   >
                     <button
                       onClick={() => onSelectStrategy(strategy)}
-                      className="w-full p-4 rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass hover:bg-accent hover:border-accent-foreground/20 hover:inner-light-subtle transition-colors text-left"
+                      className="w-full p-4 rounded-sm border border-border-divider bg-card/70 backdrop-blur-glass hover:bg-accent hover:border-accent-foreground/20 hover:inner-light-subtle hover:cursor-pointer transition-colors text-left"
                     >
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -307,14 +177,14 @@ export function StrategyLibraryModal({
                           <div className="flex items-center gap-2 mt-3">
                             <span className={`flex items-center gap-1 px-2 py-1 text-xs rounded-full border ${getStatusColor(strategy.status)}`}>
                               {getStatusIcon(strategy.status)}
-                              {strategy.status}
+                              {strategy.status[0].toUpperCase() + strategy.status.slice(1)}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                             <Calendar className="w-3 h-3" />
                             <span>{new Date(strategy.created_at).toLocaleDateString()}</span>
-                            {strategy.backtest_results && (
+                            {strategy.backtest_results?.portfolio && (
                               <>
                                 <span>•</span>
                                 <span className="text-green-500">
@@ -330,7 +200,7 @@ export function StrategyLibraryModal({
                                 key={tag}
                                 className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
                               >
-                                {tag}
+                                {tag[0].toUpperCase() + tag.slice(1)}
                               </span>
                             ))}
                           </div>

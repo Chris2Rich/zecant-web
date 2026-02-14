@@ -93,8 +93,16 @@ function StrategyDashboard() {
     }
   };
 
-  const handleStrategySelect = (strategy: Strategy) => {
-    setSelectedStrategy(strategy);
+  const handleStrategySelect = async (strategy: Strategy) => {
+    // Fetch full strategy data with backtest results from the detail endpoint
+    try {
+      const fullStrategy = await strategyService.getStrategy(strategy.strategy_id);
+      setSelectedStrategy(fullStrategy);
+    } catch (err) {
+      // Fallback to local data if fetch fails
+      console.error("Failed to fetch strategy details:", err);
+      setSelectedStrategy(strategy);
+    }
     setViewMode("detail");
     setIsLibraryOpen(false);
   };
@@ -440,10 +448,10 @@ function StrategyCard({
   };
 
   return (
-    <div className="bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border hover:border-border/80 cursor-pointer transition-colors h-56 flex flex-col">
+    <div className="relative group bg-card/70 backdrop-blur-glass rounded-sm p-4 border border-border hover:border-border/80 cursor-pointer transition-colors h-56 flex flex-col" onClick={onClick}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground truncate">{strategy.name}</h3>
+          <h3 className="font-semibold text-foreground truncate group-hover:text-accent-foreground transition-colors">{strategy.name}</h3>
           <p className="text-sm text-muted-foreground line-clamp-2 mt-1 h-10 overflow-hidden">
             {strategy.description}
           </p>
@@ -482,14 +490,17 @@ function StrategyCard({
         ))}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-2 mt-2">
+      {/* Action Buttons - positioned at bottom */}
+      <div className="flex gap-2 mt-auto">
         {strategy.status === "draft" && (
           <Button
             size="sm"
             variant="outline"
             className="flex-1"
-            onClick={onRunBacktest}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRunBacktest(e);
+            }}
             disabled={isBacktesting}
           >
             {isBacktesting ? (
@@ -500,15 +511,19 @@ function StrategyCard({
             Run Backtest
           </Button>
         )}
-        <Button
-          size="sm"
-          variant="ghost"
-          className="text-red-500 hover:text-red-600"
-          onClick={onDelete}
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
       </div>
+
+      {/* Delete Button - right aligned, absolute positioned */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(e);
+        }}
+        className="absolute bottom-2 right-2 p-2 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all opacity-50 hover:opacity-100 z-10 hover:cursor-pointer"
+        title="Delete strategy"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
     </div>
   );
 }
@@ -537,17 +552,20 @@ function StrategyDetailView({
     return (
       <div className="h-full space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
             <p className="text-muted-foreground mt-1">{strategy.description}</p>
           </div>
-          <Button variant="outline" onClick={onDelete} className="text-red-500">
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
+          <button
+        onClick={onDelete}
+        className="p-2 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all opacity-50 hover:opacity-100 z-10 hover:cursor-pointer"
+        title="Delete strategy"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+          <Button variant="outline" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
           </Button>
         </div>
 
@@ -578,10 +596,6 @@ function StrategyDetailView({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
           <div>
             <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
             <p className="text-muted-foreground mt-1">{strategy.description}</p>
@@ -604,8 +618,16 @@ function StrategyDetailView({
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="ghost" onClick={onDelete} className="text-red-500">
-            <Trash2 className="w-4 h-4" />
+          <button
+        onClick={onDelete}
+        className="p-2 rounded-sm bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all opacity-50 hover:opacity-100 z-10 hover:cursor-pointer"
+        title="Delete strategy"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+          <Button variant="outline" onClick={onBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
           </Button>
         </div>
       </div>
