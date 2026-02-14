@@ -1,136 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { motion } from "framer-motion";
-import { Clock, Newspaper } from "lucide-react";
+import { Clock, Newspaper, Loader2 } from "lucide-react";
 import { ArticleEmphasised, ArticleOverview, ArticleHeader } from "@/components/articles";
-// Example financial news articles
-const mockArticles: ArticleHeader[] = [
-  {
-    title: "Fed Signals Potential Rate Cuts as Inflation Cools to 2.4%",
-    description: "The Federal Reserve indicated it may begin cutting interest rates in the coming months as inflation continues to moderate, with core PCE falling to its lowest level since early 2021.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80",
-    publishedAt: new Date(Date.now() - 35 * 60000).toISOString(),
-    source: { name: "Bloomberg" },
-    category: ["general"]
-  },
-  {
-    title: "Apple Unveils AI-Powered Trading Platform for Institutional Investors",
-    description: "Tech giant Apple announced a new suite of machine learning tools designed to help hedge funds and asset managers optimize portfolio allocation and risk management.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80",
-    publishedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
-    source: { name: "Financial Times" },
-    category: ["technology"]
-  },
-  {
-    title: "Walmart Beats Earnings Expectations with 8.2% Revenue Growth",
-    description: "Retail giant Walmart reported stronger-than-expected Q4 results, driven by robust e-commerce sales and improved margins in its grocery division.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&q=80",
-    publishedAt: new Date(Date.now() - 4 * 3600000).toISOString(),
-    source: { name: "Reuters" },
-    category: ["retail"]
-  },
-  {
-    title: "Moderna Stock Surges 23% on Breakthrough Cancer Vaccine Data",
-    description: "Biotech company Moderna saw shares soar after releasing Phase 3 trial results showing its personalized cancer vaccine reduced recurrence risk by 44% in melanoma patients.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=800&q=80",
-    publishedAt: new Date(Date.now() - 5 * 3600000).toISOString(),
-    source: { name: "CNBC" },
-    category: ["life sciences"]
-  },
-  {
-    title: "Senate Passes Bipartisan Infrastructure Bill with $1.2T in Spending",
-    description: "The U.S. Senate approved a massive infrastructure package that includes investments in roads, bridges, broadband, and clean energy, signaling potential opportunities in construction and materials sectors.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800&q=80",
-    publishedAt: new Date(Date.now() - 6 * 3600000).toISOString(),
-    source: { name: "Wall Street Journal" },
-    category: ["politics"]
-  },
-  {
-    title: "India's GDP Growth Accelerates to 7.8%, Outpacing Major Economies",
-    description: "India's economy expanded faster than expected in Q4, driven by strong domestic consumption and manufacturing growth, making it the fastest-growing major economy globally.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80",
-    publishedAt: new Date(Date.now() - 7 * 3600000).toISOString(),
-    source: { name: "MarketWatch" },
-    category: ["developing markets"]
-  },
-  {
-    title: "JPMorgan Raises S&P 500 Target to 6,200 on Strong Corporate Earnings",
-    description: "Investment bank JPMorgan increased its year-end S&P 500 forecast, citing resilient corporate profits and improving economic conditions despite elevated interest rates.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=800&q=80",
-    publishedAt: new Date(Date.now() - 9 * 3600000).toISOString(),
-    source: { name: "Bloomberg" },
-    category: ["general"]
-  },
-  {
-    title: "Microsoft Acquires Cybersecurity Firm for $8.5B to Boost Cloud Security",
-    description: "Tech giant Microsoft announced the acquisition of leading cybersecurity company to strengthen its enterprise cloud offerings and compete with Amazon Web Services.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80",
-    publishedAt: new Date(Date.now() - 10 * 3600000).toISOString(),
-    source: { name: "Reuters" },
-    category: ["technology"]
-  },
-  {
-    title: "Amazon Plans 150 New Fulfillment Centers, Creating 100K Jobs",
-    description: "E-commerce leader Amazon unveiled aggressive expansion plans for its logistics network, aiming to reduce delivery times and compete with emerging same-day delivery services.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&q=80",
-    publishedAt: new Date(Date.now() - 12 * 3600000).toISOString(),
-    source: { name: "Financial Times" },
-    category: ["retail"]
-  },
-  {
-    title: "Pfizer and BioNTech Partner on Next-Gen mRNA Therapeutics Platform",
-    description: "Pharmaceutical giants announced a $2.3B joint venture to develop mRNA-based treatments for cardiovascular disease and rare genetic disorders.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80",
-    publishedAt: new Date(Date.now() - 14 * 3600000).toISOString(),
-    source: { name: "CNBC" },
-    category: ["life sciences"]
-  },
-  {
-    title: "White House Proposes Tax Reform Package Targeting Corporate Buybacks",
-    description: "The Biden administration unveiled new tax proposals aimed at discouraging stock buybacks and encouraging capital investment, sparking debate among investors and policymakers.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
-    publishedAt: new Date(Date.now() - 15 * 3600000).toISOString(),
-    source: { name: "Wall Street Journal" },
-    category: ["politics"]
-  },
-  {
-    title: "Brazil Central Bank Cuts Interest Rates as Inflation Falls Below Target",
-    description: "Brazil's monetary authority reduced benchmark rates by 50 basis points, marking the fourth consecutive cut as inflation pressures ease and economic growth stabilizes.",
-    url: "#",
-    urlToImage: "https://images.unsplash.com/photo-1483389127117-b6a2102724ae?w=800&q=80",
-    publishedAt: new Date(Date.now() - 18 * 3600000).toISOString(),
-    source: { name: "MarketWatch" },
-    category: ["developing markets"]
-  }
-];
+import * as newsService from "@/lib/services/newsService";
+import type { NewsArticle } from "@/lib/services/newsService";
 
 export default function NewsfeedPage() {
   const [category, setCategory] = useState('general');
+  const [articles, setArticles] = useState<ArticleHeader[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const { getToken } = useAuth();
 
   const categories = [
     { id: 'general', label: 'General' },
     { id: 'technology', label: 'Technology' },
     { id: 'retail', label: 'Retail' },
-    { id: 'life sciences', label: 'Life Sciences' },
+    { id: 'life_sciences', label: 'Life Sciences' },
     { id: 'politics', label: 'Politics' },
-    { id: 'developing markets', label: 'Developing Markets' },
+    { id: 'developing_markets', label: 'Developing Markets' },
   ];
 
+  // Map URL category to internal category for API
+  const categoryMap: Record<string, string> = {
+    'general': 'general',
+    'technology': 'technology',
+    'retail': 'retail',
+    'life_sciences': 'life sciences',
+    'politics': 'politics',
+    'developing_markets': 'developing markets'
+  };
+
+  const fetchNews = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const internalCategory = categoryMap[category] || 'general';
+      const response = await newsService.getNewsByCategory(
+        internalCategory,
+        15,
+        getToken
+      );
+      
+      // Convert API response to ArticleHeader format
+      const formattedArticles: ArticleHeader[] = response.articles.map((article: NewsArticle) => ({
+        title: article.title,
+        description: article.description,
+        url: article.url,
+        urlToImage: article.urlToImage,
+        publishedAt: article.publishedAt,
+        source: article.source,
+        category: article.category
+      }));
+      
+      setArticles(formattedArticles);
+    } catch (err: any) {
+      console.error("Error fetching news:", err);
+      setError(err.message || "Failed to load news");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNews();
+  }, [category, getToken]);
+
   const filteredArticles = category === 'general' 
-    ? mockArticles 
-    : mockArticles.filter(article => article.category.includes(category));
+    ? articles 
+    : articles.filter(article => article.category.includes(categoryMap[category] || category));
 
   const featuredArticle = filteredArticles[0];
   const gridArticles = filteredArticles.slice(1);
@@ -161,8 +104,29 @@ export default function NewsfeedPage() {
           ))}
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            <span className="ml-3 text-muted-foreground">Loading news...</span>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16">
+            <div className="text-red-500 mb-4">{error}</div>
+            <button 
+              onClick={fetchNews}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-sm"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
         {/* Content */}
-        {filteredArticles.length > 0 && (
+        {!isLoading && !error && filteredArticles.length > 0 && (
           <>
             {/* Featured Article - Large */}
             {featuredArticle && (
@@ -179,7 +143,7 @@ export default function NewsfeedPage() {
         )}
 
         {/* Empty State */}
-        {filteredArticles.length === 0 && (
+        {!isLoading && !error && filteredArticles.length === 0 && (
           <div className="text-center py-16">
             <Newspaper className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">No articles found</h3>
