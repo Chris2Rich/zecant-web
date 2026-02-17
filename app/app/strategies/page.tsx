@@ -184,7 +184,7 @@ function StrategyDashboard() {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mx-auto" />
           <p className="text-muted-foreground">Loading strategies...</p>
         </div>
       </div>
@@ -192,7 +192,7 @@ function StrategyDashboard() {
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full scrollbar-thin">
       <AnimatePresence mode="wait">
         {viewMode === "dashboard" && (
           <motion.div

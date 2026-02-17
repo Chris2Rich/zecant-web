@@ -406,8 +406,9 @@ export function ChatPage({
 
   if (!isLoaded) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">Loading chat...</p>
       </div>
     );
   }

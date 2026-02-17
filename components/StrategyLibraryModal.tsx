@@ -51,7 +51,7 @@ export function StrategyLibraryModal({
   const getStatusIcon = (status: StrategyStatus) => {
     switch (status) {
       case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'backtesting': return <Loader2 className="w-4 h-4 animate-spin" />;
+      case 'backtesting': return <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />;
       case 'failed': return <AlertCircle className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
