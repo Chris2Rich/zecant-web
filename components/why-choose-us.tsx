@@ -27,7 +27,7 @@ export function WhyChooseUs() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Choose <span className="gradient-text">Zecant</span>?
+            Why Choose Zecant?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
             Join thousands of professional traders who trust Zecant for their most important trades.
@@ -38,14 +38,14 @@ export function WhyChooseUs() {
           {reasons.map((reason, index) => (
             <div
               key={index}
-              className="group p-8 bg-card/30 rounded-sm border border-border-divider hover:border-primary/50 hover:bg-card/95 hover:inner-light-subtle transition-all duration-300"
+              className="group p-6 rounded-sm hover:-translate-y-2 bg-card/70 backdrop-blur-glass border transition-all duration-300 border-border-divider hover:border-primary/50 hover:inner-light-subtle"
             >
               <div className="mb-6">
-                <div className="w-16 h-16 bg-primary/20 rounded-sm flex items-center justify-center mb-4 group-hover:bg-primary/30 transition-colors duration-300">
-                  <reason.icon className="w-8 h-8 text-primary" />
-                </div>
+              <div className="mb-4">
+                <reason.icon className="w-8 h-8 text-primary group-hover:text-primary/95 transition-colors duration-300" />
+              </div>
                 <h3 className="text-xl font-semibold mb-3">{reason.title}</h3>
-                <p className="text-foreground leading-relaxed mb-4">{reason.description}</p>
+                <p className="text-muted-foreground leading-relaxed mb-4">{reason.description}</p>
                 <div className="text-primary font-semibold text-sm">{reason.metric}</div>
               </div>
             </div>

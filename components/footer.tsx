@@ -1,16 +1,12 @@
-import { Facebook, Twitter, Linkedin, Youtube } from "lucide-react"
+import { Youtube } from "lucide-react"
 
 const footerLinks = {
-  product: ["Spot Trading", "Futures Trading", "Options Trading", "Portfolio Management", "Mobile App", "API Access"],
-  resources: ["Help Center", "Documentation", "Trading Guides", "Market Analysis", "Community Forum", "Webinars"],
-  company: ["About Us", "Careers", "Press", "Partners", "Affiliate Program", "Contact"],
+  resources: ["Documentation", "Research"],
+  company: ["About Us", "Careers", "Contact"],
   legal: ["Privacy Policy", "Terms of Service", "Risk Disclosure", "Regulatory Info", "Security", "Compliance"],
 }
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
   { icon: Youtube, href: "#", label: "YouTube" },
 ]
 
@@ -18,9 +14,9 @@ export function Footer() {
   return (
     <footer className="bg-card/70 backdrop-blur-glass border-t border-border-divider">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-1">
+      <div className="flex flex-col lg:flex-row justify-between gap-12">          
+        {/* Company Info */}
+          <div className="max-w-sm lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-sm flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm">Z</span>
@@ -45,22 +41,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Product Links */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Product</h3>
-            <ul className="space-y-3">
-              {footerLinks.product.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href="#"
-                    className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="grid grid-cols-3 gap-12 lg:gap-16 lg:ml-auto">
 
           {/* Resources Links */}
           <div>
@@ -111,6 +92,7 @@ export function Footer() {
                 </li>
               ))}
             </ul>
+            </div>
           </div>
         </div>
 

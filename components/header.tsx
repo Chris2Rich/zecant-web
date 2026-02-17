@@ -101,7 +101,7 @@ export function Header() {
               <button 
                 className="flex items-center space-x-1 text-foreground hover:text-primary transition-colors duration-200 cursor-pointer"
               >
-                <span className={isMoreOpen ? "text-primary" : ""}>Resources</span>
+                <span className={isMoreOpen ? "text-primary" : ""}>More</span>
                 <ChevronDown 
                   className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
                     isMoreOpen ? 'rotate-180 text-primary' : ''
@@ -205,13 +205,19 @@ export function Header() {
 
       {isMenuOpen && (
         <div className="md:hidden border-t border-border-divider">
-          <div className="bg-background/70 backdrop-blur-glass -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]" />
+          <div className="bg-background/70 backdrop-blur-glass -z-2 fixed w-[100%] h-[150%] -translate-y-[33%]"/>
           <div className="container mx-auto px-4 py-4 space-y-4">
-            <a href="/pricing" className="block text-foreground hover:text-primary transition-colors">
-              Pricing
-            </a>
+          <Link
+            href={"/pricing"}
+            className="flex items-center space-x-3 p-3 rounded-sm hover:bg-muted/95 hover:inner-light-subtle transition-colors group/item"
+            >
+              <div>
+                <div className="font-medium text-foreground">Pricing</div>
+                <div className="text-sm text-muted-foreground">See the pricing tiers and what they offer</div>
+              </div>
+            </Link>
             <div className="space-y-2 border-t border-border-divider pt-4">
-              <div className="text-sm font-semibold text-muted-foreground uppercase mb-2">Resources</div>
+              <div className="text-sm font-semibold text-muted-foreground uppercase mb-2">More</div>
               {moreItems.map((item, index) => (
                 <Link
                 key={index}

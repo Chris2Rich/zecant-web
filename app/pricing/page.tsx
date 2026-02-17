@@ -17,7 +17,7 @@ export function PricingCards() {
     {/* Header */}
     <div className="text-center mb-16">
       <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">
-        Choose Your <span className="text-primary">Trading Edge</span>
+        Choose Your Trading Edge
       </h1>
       <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
         Start free, upgrade when you need more power. All plans include core AI features.
@@ -47,7 +47,7 @@ export function PricingCards() {
               </span>
             </div>
           )}
-
+          
           {/* Card */}
           <div
             className={`
