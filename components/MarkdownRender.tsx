@@ -89,6 +89,9 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
     let codeCounter = 0;
     let componentCounter = 0;
     
+    // Remove thinking blocks - they are displayed separately in ThinkingPanel
+    text = text.replace(/:::thinking[\s\S]*?:::/g, "");
+    
     // First, extract component blocks (:::function ... :::)
     text = text.replace(/:::(\w+)\n([\s\S]*?):::/g, (match, functionName, params) => {
       const marker = `§§COMPONENT${componentCounter}§§`;

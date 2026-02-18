@@ -31,6 +31,8 @@ export async function POST(req) {
           billingTier,
           credits: tierData.credits,
           onboarded: true,
+          subscriptionStatus: "active",
+          lastCreditReset: new Date().toISOString(),
           brokers: Array.isArray(user.publicMetadata?.brokers)
           ? user.publicMetadata.brokers
           : [],

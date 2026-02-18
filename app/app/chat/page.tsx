@@ -12,24 +12,38 @@ import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { defaultChatOptions } from "@/business/constants";
 import { lmtools } from "@/business/tools";
-import { SearchIndicator } from "@/components/chatindicators";
+import { ThinkingPanel } from "@/components/ThinkingPanel";
 
 const API_URL = "https://api.zecant.com";
+
+interface ToolCall {
+  tool: string;
+  args?: Record<string, unknown>;
+  result?: string;
+  timestamp?: number;
+}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
+  thoughts?: string[];
+  toolCalls?: ToolCall[];
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call" | "search_performed";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "thinking" | "thinking_chunk" | "thoughts_complete" | "tool_log";
   content?: string;
   chatid?: string;
   message_id?: string;
   error?: string;
   query?: string;
   results?: any;
+  tool?: string;
+  args?: Record<string, unknown>;
+  result?: string;
+  thoughts?: string[];
+  calls?: ToolCall[];
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -85,14 +99,14 @@ export function ChatPage({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchComplete, setSearchComplete] = useState(false);
-  const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentStreamingMessage, setCurrentStreamingMessage] = useState("");
   const [enabledTools, setEnabledTools] = useState<any[]>(lmtools.filter(t => t.enabled));
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [inputHeight, setInputHeight] = useState(0);
+  const [pendingThoughts, setPendingThoughts] = useState<string[]>([]);
+  const [pendingToolCalls, setPendingToolCalls] = useState<ToolCall[]>([]);
+  const [currentThinkingTool, setCurrentThinkingTool] = useState<string | null>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -130,11 +144,11 @@ export function ChatPage({
     setCurrentStreamingMessage("");
     streamingMessageRef.current = "";
     setIsStreaming(false);
-    setIsSearching(false);
-    setSearchComplete(false);
-    setSearchQuery(null);
     setError(null);
     setInput("");
+    setPendingThoughts([]);
+    setPendingToolCalls([]);
+    setCurrentThinkingTool(null);
     textareaRef.current?.focus();
   };
 
@@ -210,7 +224,7 @@ export function ChatPage({
     if (shouldAutoScrollRef.current) {
       scrollToBottom();
     }
-  }, [messages, currentStreamingMessage, isSearching]);
+  }, [messages, currentStreamingMessage, currentThinkingTool]);
 
   const getAuthToken = async (): Promise<string | null> => {
     try {
@@ -253,11 +267,11 @@ export function ChatPage({
     }
 
     setIsStreaming(true);
-    setIsSearching(false);
-    setSearchComplete(false);
-    setSearchQuery(null);
     streamingMessageRef.current = "";
     setCurrentStreamingMessage("");
+    setPendingThoughts([]);
+    setPendingToolCalls([]);
+    setCurrentThinkingTool(null);
 
     abortControllerRef.current = new AbortController();
 
@@ -307,26 +321,42 @@ export function ChatPage({
                 if (parsed.chatid) {
                   setCurrentChatId(parsed.chatid);
                 }
-              } else if (parsed.type === "search_performed") {
-                setIsSearching(true);
-                setSearchComplete(false);
-                setSearchQuery(parsed.query || null);
-                
-                // Mark as complete after a short delay
-                setTimeout(() => {
-                  setSearchComplete(true);
-                }, 1500);
-              } else if (parsed.type === "token") {
-                // Hide search indicator when streaming starts
-                if (streamingMessageRef.current === "" && (isSearching || searchComplete)) {
-                  setIsSearching(false);
-                  setSearchComplete(false);
+              } else if (parsed.type === "thinking" || parsed.type === "thinking_chunk") {
+                if (parsed.content) {
+                  setPendingThoughts(prev => [...prev, parsed.content!]);
                 }
-                
+              } else if (parsed.type === "tool_call") {
+                setCurrentThinkingTool(parsed.tool || null);
+                setPendingToolCalls(prev => [...prev, {
+                  tool: parsed.tool || "",
+                  args: parsed.args,
+                  timestamp: Date.now()
+                }]);
+              } else if (parsed.type === "tool_result") {
+                setCurrentThinkingTool(null);
+                setPendingToolCalls(prev => {
+                  const updated = [...prev];
+                  const lastCall = updated[updated.length - 1];
+                  if (lastCall && lastCall.tool === parsed.tool) {
+                    lastCall.result = parsed.result;
+                  }
+                  return updated;
+                });
+              } else if (parsed.type === "thoughts_complete") {
+                if (parsed.thoughts) {
+                  setPendingThoughts(parsed.thoughts);
+                }
+              } else if (parsed.type === "tool_log") {
+                if (parsed.calls) {
+                  setPendingToolCalls(parsed.calls);
+                }
+              } else if (parsed.type === "token") {
                 streamingMessageRef.current += parsed.content || "";
                 setCurrentStreamingMessage(prev => prev + (parsed.content || ""));
               } else if (parsed.type === "done") {
                 const finalMessage = streamingMessageRef.current;
+                const finalThoughts = pendingThoughts;
+                const finalToolCalls = pendingToolCalls;
                 if (finalMessage) {
                   setMessages((prev) => [
                     ...prev,
@@ -334,15 +364,17 @@ export function ChatPage({
                       role: "assistant",
                       content: finalMessage,
                       timestamp: Date.now(),
+                      thoughts: finalThoughts.length > 0 ? finalThoughts : undefined,
+                      toolCalls: finalToolCalls.length > 0 ? finalToolCalls : undefined,
                     },
                   ]);
                 }
                 streamingMessageRef.current = "";
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
-                setIsSearching(false);
-                setSearchComplete(false);
-                setSearchQuery(null);
+                setPendingThoughts([]);
+                setPendingToolCalls([]);
+                setCurrentThinkingTool(null);
                 shouldAutoScrollRef.current = true;
                 userHasScrolledRef.current = false;
               } else if (parsed.type === "error") {
@@ -350,9 +382,9 @@ export function ChatPage({
                 streamingMessageRef.current = "";
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
-                setIsSearching(false);
-                setSearchComplete(false);
-                setSearchQuery(null);
+                setPendingThoughts([]);
+                setPendingToolCalls([]);
+                setCurrentThinkingTool(null);
               }
             } catch (parseErr) {
               console.error("Failed to parse SSE message:", parseErr, data);
@@ -370,9 +402,9 @@ export function ChatPage({
       streamingMessageRef.current = "";
       setCurrentStreamingMessage("");
       setIsStreaming(false);
-      setIsSearching(false);
-      setSearchComplete(false);
-      setSearchQuery(null);
+      setPendingThoughts([]);
+      setPendingToolCalls([]);
+      setCurrentThinkingTool(null);
     }
   };
 
@@ -423,7 +455,7 @@ export function ChatPage({
         }}
       >
         {/* Welcome Message */}
-        {messages.length === 0 && !currentStreamingMessage && !isSearching && (
+        {messages.length === 0 && !currentStreamingMessage && (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-sm bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <Bot className="w-8 h-8 text-primary" />
@@ -465,21 +497,36 @@ export function ChatPage({
                   content={message.content}
                   timestamp={message.timestamp}
                 />
+                {message.role === "assistant" && (message.thoughts || message.toolCalls) && (
+                  <ThinkingPanel 
+                    thoughts={message.thoughts} 
+                    toolCalls={message.toolCalls} 
+                  />
+                )}
               </motion.div>
             ))}
 
-            {/* Search Indicator */}
-            {(isSearching || searchComplete) && !currentStreamingMessage && (
+            {/* Tool Execution Indicator */}
+            {currentThinkingTool && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
+                className="flex gap-4"
               >
-                <SearchIndicator 
-                  query={searchQuery} 
-                  isActive={isSearching && !searchComplete}
-                />
+                <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">ZECA</span>
+                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Using tool: <span className="font-mono text-primary">{currentThinkingTool}</span>
+                  </div>
+                </div>
               </motion.div>
             )}
 
