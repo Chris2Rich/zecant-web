@@ -38,7 +38,7 @@ export function Footer() {
                   className="w-10 h-10 bg-muted rounded-sm flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted/95 hover:inner-light-subtle transition-all duration-300 "
                   aria-label={social.label}
                 >
-                  <svg href={social.svg} className="w-4 h-4" />
+                  <svg href={social.svg} className="w-4 h-4 stroke-current" />
                 </a>
               ))}
             </div>
