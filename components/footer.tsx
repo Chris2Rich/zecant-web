@@ -1,9 +1,10 @@
 import { Youtube } from "lucide-react"
+import Link from "next/link"
 
 const footerLinks = {
-  resources: ["Documentation", "Research"],
-  company: ["About Us", "Careers", "Contact"],
-  legal: ["Privacy Policy", "Terms of Service", "Risk Disclosure", "Regulatory Info", "Security", "Compliance"],
+  resources: [{text: "Documentation", link: "/documentation"}, {text: "Research", link: "/research"}],
+  company: [{text: "About Us", link: "/"},  {text: "Careers", link: "mailto:support@zecant.com"}, {text: "Support", link: "mailto:support@zecant.com"}, {text: "Support", link: "mailto:support@zecant.com"}],
+  legal: [{text: "Privacy Policy", link: "/"}, {text: "Terms of Service", link: "/"}, {text: "Risk Disclosure", link: "/"}, {text: "Regulatory Info", link: "/"}, {text: "Security", link: "/"}, {text: "Complianc ", link: "/"}],
 }
 
 const socialLinks = [
@@ -49,12 +50,12 @@ export function Footer() {
             <ul className="space-y-3">
               {footerLinks.resources.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href="#"
+                  <Link
+                    href={link.link}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm"
                   >
-                    {link}
-                  </a>
+                    {link.text}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -66,12 +67,12 @@ export function Footer() {
             <ul className="space-y-3">
               {footerLinks.company.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href="#"
+                  <Link
+                    href={link.link}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm"
                   >
-                    {link}
-                  </a>
+                    {link.text}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -83,12 +84,12 @@ export function Footer() {
             <ul className="space-y-3">
               {footerLinks.legal.map((link, index) => (
                 <li key={index}>
-                  <a
-                    href="#"
+                  <Link
+                    href={link.link}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm"
                   >
-                    {link}
-                  </a>
+                    {link.text}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -99,7 +100,7 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="border-t border-border-divider mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <div className="text-muted-foreground text-sm">© 2025 Zaccaria and Company. All rights reserved.</div>
+            <div className="text-muted-foreground text-sm">© 2026 Zecant. All rights reserved.</div>
             <div className="text-muted-foreground text-xs max-w-md text-center md:text-right">
               Trading involves substantial risk of loss and is not suitable for all investors. Past performance is not
               indicative of future results.
