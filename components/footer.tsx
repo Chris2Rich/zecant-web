@@ -1,14 +1,14 @@
-import { Youtube } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 const footerLinks = {
-  resources: [{text: "Documentation", link: "/documentation"}, {text: "Research", link: "/research"}],
+  resources: [{text: "Updates", link: "/updates"}, {text: "Documentation", link: "/documentation"}, {text: "Research", link: "/research"}],
   company: [{text: "About Us", link: "/"},  {text: "Careers", link: "mailto:support@zecant.com"}, {text: "Support", link: "mailto:support@zecant.com"}, {text: "Support", link: "mailto:support@zecant.com"}],
   legal: [{text: "Privacy Policy", link: "/"}, {text: "Terms of Service", link: "/"}, {text: "Risk Disclosure", link: "/"}, {text: "Regulatory Info", link: "/"}, {text: "Security", link: "/"}, {text: "Complianc ", link: "/"}],
 }
 
 const socialLinks = [
-  { icon: Youtube, href: "#", label: "YouTube" },
+  { svg: "https://simpleicons.org/icons/discord.svg", href: "https://discord.gg/KcyHwZWyZa", label: "Discord" },
 ]
 
 export function Footer() {
@@ -19,15 +19,17 @@ export function Footer() {
         {/* Company Info */}
           <div className="max-w-sm lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-sm flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">Z</span>
+              <div className="flex items-center">
+                <Image 
+                  src="/Wordmark.png" 
+                  alt="Zecant" 
+                  width={120} 
+                  height={32}
+                  className="h-8 w-auto"
+                  priority
+                />
               </div>
-              <span className="text-xl font-bold gradient-text">Zecant</span>
             </div>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              Professional trading platform trusted by traders worldwide. Advanced tools, real-time data, and
-              institutional-grade execution.
-            </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
                 <a
@@ -36,7 +38,7 @@ export function Footer() {
                   className="w-10 h-10 bg-muted rounded-sm flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-muted/95 hover:inner-light-subtle transition-all duration-300 "
                   aria-label={social.label}
                 >
-                  <social.icon className="w-5 h-5" />
+                  <svg href={social.svg} className="w-4 h-4" />
                 </a>
               ))}
             </div>
