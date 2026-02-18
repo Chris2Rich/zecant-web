@@ -35,14 +35,17 @@ export async function POST(req) {
             return NextResponse.json({ error: "Invalid pending tier" }, { status: 400 });
         }
 
-        const currentCredits = user.publicMetadata?.credits || 0;
-        const newCredits = currentCredits + tierData.credits;
+        const subscriptionCredits = tierData.credits;
+        const purchasedCredits = user.publicMetadata?.purchasedCredits || 0;
+        const totalCredits = subscriptionCredits + purchasedCredits;
 
         await (await clerkClient()).users.updateUserMetadata(userId, {
             publicMetadata: {
                 ...user.publicMetadata,
                 billingTier: tier,
-                credits: newCredits,
+                subscriptionCredits,
+                purchasedCredits,
+                credits: totalCredits,
                 onboarded: true,
                 subscriptionStatus: "active",
                 lastCreditReset: new Date().toISOString(),

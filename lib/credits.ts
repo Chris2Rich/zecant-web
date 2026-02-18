@@ -4,51 +4,64 @@ import { billingTiers } from "@/business/constants.js";
 export async function getCredits(userId) {
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
+  
+  const subscriptionCredits = user.publicMetadata?.subscriptionCredits ?? user.publicMetadata?.credits ?? 0;
+  const purchasedCredits = user.publicMetadata?.purchasedCredits ?? 0;
+  
   return {
-    credits: user.publicMetadata?.credits || 0,
+    subscriptionCredits,
+    purchasedCredits,
+    credits: subscriptionCredits + purchasedCredits,
     billingTier: user.publicMetadata?.billingTier || "Free",
     subscriptionStatus: user.publicMetadata?.subscriptionStatus || "active",
   };
 }
 
-export async function addCredits(userId, amount, transactionType = "manual") {
+export async function addPurchasedCredits(userId, amount) {
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
   
-  const currentCredits = user.publicMetadata?.credits || 0;
-  const newCredits = currentCredits + amount;
+  const currentPurchased = user.publicMetadata?.purchasedCredits ?? 0;
+  const subscriptionCredits = user.publicMetadata?.subscriptionCredits ?? 0;
+  const newPurchased = currentPurchased + amount;
+  const totalCredits = subscriptionCredits + newPurchased;
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...user.publicMetadata,
-      credits: newCredits,
+      purchasedCredits: newPurchased,
+      credits: totalCredits,
     },
   });
 
   return {
-    previousCredits: currentCredits,
+    previousPurchasedCredits: currentPurchased,
     addedCredits: amount,
-    newCredits: newCredits,
+    newPurchasedCredits: newPurchased,
+    totalCredits,
   };
 }
 
-export async function setCredits(userId, amount) {
+export async function setSubscriptionCredits(userId, amount) {
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
 
-  const currentCredits = user.publicMetadata?.credits || 0;
+  const purchasedCredits = user.publicMetadata?.purchasedCredits ?? 0;
+  const totalCredits = amount + purchasedCredits;
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...user.publicMetadata,
-      credits: amount,
+      subscriptionCredits: amount,
+      credits: totalCredits,
       lastCreditReset: new Date().toISOString(),
     },
   });
 
   return {
-    previousCredits: currentCredits,
-    newCredits: amount,
+    subscriptionCredits: amount,
+    purchasedCredits,
+    totalCredits,
   };
 }
 
@@ -60,11 +73,17 @@ export async function resetToFreeTier(userId) {
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
 
+  const purchasedCredits = user.publicMetadata?.purchasedCredits ?? 0;
+  const freeCredits = billingTiers.Free.credits;
+  const totalCredits = freeCredits + purchasedCredits;
+
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...user.publicMetadata,
       billingTier: "Free",
-      credits: billingTiers.Free.credits,
+      subscriptionCredits: freeCredits,
+      purchasedCredits,
+      credits: totalCredits,
       subscriptionStatus: "canceled",
     },
     privateMetadata: {
@@ -73,5 +92,10 @@ export async function resetToFreeTier(userId) {
     },
   });
 
-  return { success: true, credits: billingTiers.Free.credits };
+  return { 
+    success: true, 
+    subscriptionCredits: freeCredits,
+    purchasedCredits,
+    totalCredits,
+  };
 }

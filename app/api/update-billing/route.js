@@ -22,14 +22,18 @@ export async function POST(req) {
 
     const user = await (await clerkClient()).users.getUser(userId);
 
-    // 🆓 Handle free tier immediately — no Stripe needed
     if (!tierData.priceId || tierData.price === 0) {
+      const subscriptionCredits = tierData.credits;
+      const purchasedCredits = user.publicMetadata?.purchasedCredits || 0;
+      const totalCredits = subscriptionCredits + purchasedCredits;
 
       await (await clerkClient()).users.updateUserMetadata(userId, {
         publicMetadata: {
           ...user.publicMetadata,
           billingTier,
-          credits: tierData.credits,
+          subscriptionCredits,
+          purchasedCredits,
+          credits: totalCredits,
           onboarded: true,
           subscriptionStatus: "active",
           lastCreditReset: new Date().toISOString(),
@@ -47,11 +51,10 @@ export async function POST(req) {
 
       return NextResponse.json({
         success: true,
-        free: true, // flag to let frontend skip payment step
+        free: true,
       });
     }
 
-    // 💳 Paid tiers continue with Stripe flow
     let stripeCustomerId = user.privateMetadata?.stripeCustomerId;
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({

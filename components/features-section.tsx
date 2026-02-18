@@ -1,29 +1,29 @@
-import { Brain, Database, BarChart3, FileText } from "lucide-react"
+import { Brain, Database, BarChart3, FileText, ChartLine } from "lucide-react"
 
 const features = [
   {
-    icon: Brain,
+    icon: FileText,
     title: "AI Strategy Builder",
     description:
-      "Natural language strategy specification with intelligent backtesting and optimization across multiple market conditions.",
+    "You describe what you want to happen, we employ powerful quantitative and statistical models to turn your words into edge."
   },
   {
     icon: Database,
     title: "Multi-Source Data",
     description:
-      "Historical market data, news sentiment, option chains, and SEC filings integrated for comprehensive strategy analysis.",
+      "Zecant has support for custom timeseries data allowing you to bring your own high quality data with little friction.",
   },
   {
-    icon: BarChart3,
-    title: "Advanced Backtesting",
+    icon: ChartLine,
+    title: "Cloud Backtesting",
     description:
-      "Historical performance analysis with risk metrics, drawdown analysis, and scenario testing across market cycles.",
+      "All strategies can be thoroughly tested within our granular backtesting engine with automatic calculation of key statistics.",
   },
   {
-    icon: FileText,
-    title: "SEC Filing Analysis",
+    icon: Brain,
+    title: "Deep Analysis",
     description:
-      "Automated analysis of 10-K, 10-Q, and 8-K filings with AI-powered insights for fundamental strategy development.",
+      "Zecant has the ability to leverage web data, news data, portfolio positions, market data and more for deep analysis.",
   },
 ]
 

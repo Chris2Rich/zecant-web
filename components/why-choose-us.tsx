@@ -3,19 +3,19 @@ import { Shield, Zap, Headphones } from "lucide-react"
 const reasons = [
   {
     icon: Shield,
-    title: "Security & Compliance",
+    title: "Security",
     description: "Bank-grade encryption, regulatory compliance, and SIPC protection for your peace of mind.",
     metric: "256-bit SSL encryption",
   },
   {
     icon: Zap,
-    title: "Performance & Speed",
+    title: "Performance",
     description: "Sub-millisecond execution, 99.9% uptime, and direct market access for optimal trading.",
     metric: "<1ms latency",
   },
   {
     icon: Headphones,
-    title: "Support & Reliability",
+    title: "Support",
     description: "24/7 expert support, comprehensive documentation, and dedicated account management.",
     metric: "24/7 availability",
   },
@@ -30,7 +30,7 @@ export function WhyChooseUs() {
             Why Choose Zecant?
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Join thousands of professional traders who trust Zecant for their most important trades.
+            Zecant is a one of a kind solution that leverages emerging technologies to empower traders.
           </p>
         </div>
 

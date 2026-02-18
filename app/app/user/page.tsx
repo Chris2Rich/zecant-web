@@ -1,7 +1,7 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,19 +14,15 @@ export default function ProfilePage() {
   const { user, isLoaded } = useUser()
   const [isUploading, setIsUploading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
   const [username, setUsername] = useState("")
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useState(() => {
+  useEffect(() => {
     if (user) {
-      setFirstName(user.firstName || "")
-      setLastName(user.lastName || "")
       setUsername(user.username || "")
     }
-  })
+  }, [user])
 
   if (!isLoaded) {
     return (
@@ -80,8 +76,6 @@ export default function ProfilePage() {
 
     try {
       await user.update({
-        firstName,
-        lastName,
         username: username || undefined,
       })
       setMessage({ type: "success", text: "Profile updated successfully!" })
@@ -93,9 +87,9 @@ export default function ProfilePage() {
   }
 
   const getInitials = () => {
-    const name = user.fullName || user.username || user.emailAddresses[0]?.emailAddress || "User"
+    const name = user.username || user.emailAddresses[0]?.emailAddress || "User"
     return name
-      .split(" ")
+      .split(/[@.\s]/)
       .map((word) => word.charAt(0))
       .join("")
       .toUpperCase()
@@ -134,7 +128,7 @@ export default function ProfilePage() {
                 {user.imageUrl ? (
                   <img
                     src={user.imageUrl}
-                    alt={user.fullName || "Profile"}
+                    alt={user.username || "Profile"}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -160,27 +154,6 @@ export default function ProfilePage() {
               <p>Click on the avatar to upload a new picture.</p>
               <p className="mt-1">JPG, PNG or GIF. Max size 5MB.</p>
             </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
-            />
           </div>
         </div>
 

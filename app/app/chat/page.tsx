@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { defaultChatOptions } from "@/business/constants";
 import { lmtools } from "@/business/tools";
-import { ThinkingPanel } from "@/components/ThinkingPanel";
 
 const API_URL = "https://api.zecant.com";
 
@@ -27,12 +26,11 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
-  thoughts?: string[];
   toolCalls?: ToolCall[];
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "thinking" | "thinking_chunk" | "thoughts_complete" | "tool_log";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "tool_log";
   content?: string;
   chatid?: string;
   message_id?: string;
@@ -42,7 +40,6 @@ interface SSEMessage {
   tool?: string;
   args?: Record<string, unknown>;
   result?: string;
-  thoughts?: string[];
   calls?: ToolCall[];
 }
 
@@ -104,7 +101,6 @@ export function ChatPage({
   const [enabledTools, setEnabledTools] = useState<any[]>(lmtools.filter(t => t.enabled));
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [inputHeight, setInputHeight] = useState(0);
-  const [pendingThoughts, setPendingThoughts] = useState<string[]>([]);
   const [pendingToolCalls, setPendingToolCalls] = useState<ToolCall[]>([]);
   const [currentThinkingTool, setCurrentThinkingTool] = useState<string | null>(null);
 
@@ -146,7 +142,6 @@ export function ChatPage({
     setIsStreaming(false);
     setError(null);
     setInput("");
-    setPendingThoughts([]);
     setPendingToolCalls([]);
     setCurrentThinkingTool(null);
     textareaRef.current?.focus();
@@ -269,7 +264,6 @@ export function ChatPage({
     setIsStreaming(true);
     streamingMessageRef.current = "";
     setCurrentStreamingMessage("");
-    setPendingThoughts([]);
     setPendingToolCalls([]);
     setCurrentThinkingTool(null);
 
@@ -321,10 +315,6 @@ export function ChatPage({
                 if (parsed.chatid) {
                   setCurrentChatId(parsed.chatid);
                 }
-              } else if (parsed.type === "thinking" || parsed.type === "thinking_chunk") {
-                if (parsed.content) {
-                  setPendingThoughts(prev => [...prev, parsed.content!]);
-                }
               } else if (parsed.type === "tool_call") {
                 setCurrentThinkingTool(parsed.tool || null);
                 setPendingToolCalls(prev => [...prev, {
@@ -342,10 +332,6 @@ export function ChatPage({
                   }
                   return updated;
                 });
-              } else if (parsed.type === "thoughts_complete") {
-                if (parsed.thoughts) {
-                  setPendingThoughts(parsed.thoughts);
-                }
               } else if (parsed.type === "tool_log") {
                 if (parsed.calls) {
                   setPendingToolCalls(parsed.calls);
@@ -355,7 +341,6 @@ export function ChatPage({
                 setCurrentStreamingMessage(prev => prev + (parsed.content || ""));
               } else if (parsed.type === "done") {
                 const finalMessage = streamingMessageRef.current;
-                const finalThoughts = pendingThoughts;
                 const finalToolCalls = pendingToolCalls;
                 if (finalMessage) {
                   setMessages((prev) => [
@@ -364,7 +349,6 @@ export function ChatPage({
                       role: "assistant",
                       content: finalMessage,
                       timestamp: Date.now(),
-                      thoughts: finalThoughts.length > 0 ? finalThoughts : undefined,
                       toolCalls: finalToolCalls.length > 0 ? finalToolCalls : undefined,
                     },
                   ]);
@@ -372,7 +356,6 @@ export function ChatPage({
                 streamingMessageRef.current = "";
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
-                setPendingThoughts([]);
                 setPendingToolCalls([]);
                 setCurrentThinkingTool(null);
                 shouldAutoScrollRef.current = true;
@@ -382,7 +365,6 @@ export function ChatPage({
                 streamingMessageRef.current = "";
                 setCurrentStreamingMessage("");
                 setIsStreaming(false);
-                setPendingThoughts([]);
                 setPendingToolCalls([]);
                 setCurrentThinkingTool(null);
               }
@@ -402,7 +384,6 @@ export function ChatPage({
       streamingMessageRef.current = "";
       setCurrentStreamingMessage("");
       setIsStreaming(false);
-      setPendingThoughts([]);
       setPendingToolCalls([]);
       setCurrentThinkingTool(null);
     }
@@ -497,12 +478,6 @@ export function ChatPage({
                   content={message.content}
                   timestamp={message.timestamp}
                 />
-                {message.role === "assistant" && (message.thoughts || message.toolCalls) && (
-                  <ThinkingPanel 
-                    thoughts={message.thoughts} 
-                    toolCalls={message.toolCalls} 
-                  />
-                )}
               </motion.div>
             ))}
 

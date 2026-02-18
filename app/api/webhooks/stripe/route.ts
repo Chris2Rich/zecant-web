@@ -9,6 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+const processedEvents = new Set();
+
 function getCreditsForTier(tierName) {
   return billingTiers[tierName]?.credits || billingTiers.Free.credits;
 }
@@ -22,44 +24,78 @@ function getTierFromPriceId(priceId) {
   return "Free";
 }
 
-async function handleInvoicePaid(invoice) {
+function isEventProcessed(eventId) {
+  if (processedEvents.has(eventId)) {
+    return true;
+  }
+  processedEvents.add(eventId);
+  if (processedEvents.size > 1000) {
+    const arr = Array.from(processedEvents).slice(-500);
+    processedEvents.clear();
+    arr.forEach(id => processedEvents.add(id));
+  }
+  return false;
+}
+
+async function getCustomerAndUserId(customerId) {
+  if (!customerId) return null;
+  
+  const customer = await stripe.customers.retrieve(customerId);
+  if (!customer || customer.deleted || !customer.metadata?.clerkUserId) {
+    return null;
+  }
+  
+  return {
+    customer,
+    clerkUserId: customer.metadata.clerkUserId,
+  };
+}
+
+async function handleInvoicePaid(invoice, eventId) {
+  if (isEventProcessed(eventId)) {
+    console.log(`Skipping already processed event: ${eventId}`);
+    return;
+  }
+
+  if (invoice.billing_reason === "subscription_create") {
+    console.log(`Skipping initial invoice (handled by finalize-billing): ${eventId}`);
+    return;
+  }
+
   const customerId = invoice.customer;
   const subscriptionId = invoice.subscription;
   
-  if (!customerId) {
-    console.error("Invoice paid event missing customer ID");
+  if (!customerId || !subscriptionId) {
+    console.error("Invoice paid event missing customer or subscription ID");
     return;
   }
 
-  const customers = await stripe.customers.search({
-    query: `id:'${customerId}'`,
-    limit: 1,
-  });
-  
-  const customer = customers.data[0];
-  if (!customer || !customer.metadata?.clerkUserId) {
-    console.error(`Customer ${customerId} has no clerkUserId metadata`);
+  const result = await getCustomerAndUserId(customerId);
+  if (!result) {
+    console.error(`Customer ${customerId} not found or has no clerkUserId metadata`);
     return;
   }
 
-  const clerkUserId = customer.metadata.clerkUserId;
+  const { clerkUserId } = result;
   
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   const priceId = subscription.items.data[0]?.price.id;
   const tierName = getTierFromPriceId(priceId);
-  const creditsToAdd = getCreditsForTier(tierName);
+  const subscriptionCredits = getCreditsForTier(tierName);
 
   const client = await clerkClient();
   const user = await client.users.getUser(clerkUserId);
   
-  const currentCredits = user.publicMetadata?.credits || 0;
-  const newCredits = currentCredits + creditsToAdd;
+  const purchasedCredits = user.publicMetadata?.purchasedCredits || 0;
+  const totalCredits = subscriptionCredits + purchasedCredits;
 
   await client.users.updateUserMetadata(clerkUserId, {
     publicMetadata: {
       ...user.publicMetadata,
       billingTier: tierName,
-      credits: newCredits,
+      subscriptionCredits,
+      purchasedCredits,
+      credits: totalCredits,
       subscriptionStatus: "active",
       lastCreditReset: new Date().toISOString(),
     },
@@ -69,10 +105,15 @@ async function handleInvoicePaid(invoice) {
     },
   });
 
-  console.log(`Added ${creditsToAdd} credits to user ${clerkUserId} (tier: ${tierName})`);
+  console.log(`Reset subscription credits to ${subscriptionCredits} for user ${clerkUserId} (tier: ${tierName}, total: ${totalCredits})`);
 }
 
-async function handleInvoicePaymentFailed(invoice) {
+async function handleInvoicePaymentFailed(invoice, eventId) {
+  if (isEventProcessed(eventId)) {
+    console.log(`Skipping already processed event: ${eventId}`);
+    return;
+  }
+
   const customerId = invoice.customer;
   
   if (!customerId) {
@@ -80,33 +121,41 @@ async function handleInvoicePaymentFailed(invoice) {
     return;
   }
 
-  const customers = await stripe.customers.search({
-    query: `id:'${customerId}'`,
-    limit: 1,
-  });
-  
-  const customer = customers.data[0];
-  if (!customer || !customer.metadata?.clerkUserId) {
-    console.error(`Customer ${customerId} has no clerkUserId metadata`);
+  const result = await getCustomerAndUserId(customerId);
+  if (!result) {
+    console.error(`Customer ${customerId} not found or has no clerkUserId metadata`);
     return;
   }
 
-  const clerkUserId = customer.metadata.clerkUserId;
+  const { clerkUserId } = result;
+  const freeCredits = billingTiers.Free.credits;
 
   const client = await clerkClient();
   const user = await client.users.getUser(clerkUserId);
 
+  const purchasedCredits = user.publicMetadata?.purchasedCredits || 0;
+  const totalCredits = freeCredits + purchasedCredits;
+
   await client.users.updateUserMetadata(clerkUserId, {
     publicMetadata: {
       ...user.publicMetadata,
+      billingTier: "Free",
+      subscriptionCredits: freeCredits,
+      purchasedCredits,
+      credits: totalCredits,
       subscriptionStatus: "past_due",
     },
   });
 
-  console.log(`Marked user ${clerkUserId} subscription as past_due`);
+  console.log(`Payment failed: reset user ${clerkUserId} to Free tier (${freeCredits} subscription credits, ${purchasedCredits} purchased credits)`);
 }
 
-async function handleCustomerSubscriptionDeleted(subscription) {
+async function handleCustomerSubscriptionDeleted(subscription, eventId) {
+  if (isEventProcessed(eventId)) {
+    console.log(`Skipping already processed event: ${eventId}`);
+    return;
+  }
+
   const customerId = subscription.customer;
   
   if (!customerId) {
@@ -114,28 +163,28 @@ async function handleCustomerSubscriptionDeleted(subscription) {
     return;
   }
 
-  const customers = await stripe.customers.search({
-    query: `id:'${customerId}'`,
-    limit: 1,
-  });
-  
-  const customer = customers.data[0];
-  if (!customer || !customer.metadata?.clerkUserId) {
-    console.error(`Customer ${customerId} has no clerkUserId metadata`);
+  const result = await getCustomerAndUserId(customerId);
+  if (!result) {
+    console.error(`Customer ${customerId} not found or has no clerkUserId metadata`);
     return;
   }
 
-  const clerkUserId = customer.metadata.clerkUserId;
+  const { clerkUserId } = result;
   const freeCredits = billingTiers.Free.credits;
 
   const client = await clerkClient();
   const user = await client.users.getUser(clerkUserId);
 
+  const purchasedCredits = user.publicMetadata?.purchasedCredits || 0;
+  const totalCredits = freeCredits + purchasedCredits;
+
   await client.users.updateUserMetadata(clerkUserId, {
     publicMetadata: {
       ...user.publicMetadata,
       billingTier: "Free",
-      credits: freeCredits,
+      subscriptionCredits: freeCredits,
+      purchasedCredits,
+      credits: totalCredits,
       subscriptionStatus: "canceled",
     },
     privateMetadata: {
@@ -144,10 +193,15 @@ async function handleCustomerSubscriptionDeleted(subscription) {
     },
   });
 
-  console.log(`Downgraded user ${clerkUserId} to Free tier`);
+  console.log(`Canceled: reset user ${clerkUserId} to Free tier`);
 }
 
-async function handleCustomerSubscriptionUpdated(subscription) {
+async function handleCustomerSubscriptionUpdated(subscription, eventId) {
+  if (isEventProcessed(eventId)) {
+    console.log(`Skipping already processed event: ${eventId}`);
+    return;
+  }
+
   const customerId = subscription.customer;
   const priceId = subscription.items.data[0]?.price.id;
   
@@ -156,39 +210,38 @@ async function handleCustomerSubscriptionUpdated(subscription) {
     return;
   }
 
-  const customers = await stripe.customers.search({
-    query: `id:'${customerId}'`,
-    limit: 1,
-  });
-  
-  const customer = customers.data[0];
-  if (!customer || !customer.metadata?.clerkUserId) {
-    console.error(`Customer ${customerId} has no clerkUserId metadata`);
+  const result = await getCustomerAndUserId(customerId);
+  if (!result) {
+    console.error(`Customer ${customerId} not found or has no clerkUserId metadata`);
     return;
   }
 
-  const clerkUserId = customer.metadata.clerkUserId;
+  const { clerkUserId } = result;
   const tierName = getTierFromPriceId(priceId);
   const newStatus = subscription.status;
 
   const client = await clerkClient();
   const user = await client.users.getUser(clerkUserId);
   const currentTier = user.publicMetadata?.billingTier;
+  const purchasedCredits = user.publicMetadata?.purchasedCredits || 0;
 
   if (currentTier !== tierName && newStatus === "active") {
-    const newCredits = getCreditsForTier(tierName);
+    const subscriptionCredits = getCreditsForTier(tierName);
+    const totalCredits = subscriptionCredits + purchasedCredits;
     
     await client.users.updateUserMetadata(clerkUserId, {
       publicMetadata: {
         ...user.publicMetadata,
         billingTier: tierName,
-        credits: newCredits,
+        subscriptionCredits,
+        purchasedCredits,
+        credits: totalCredits,
         subscriptionStatus: "active",
         lastCreditReset: new Date().toISOString(),
       },
     });
 
-    console.log(`Updated user ${clerkUserId} to ${tierName} tier with ${newCredits} credits`);
+    console.log(`Tier change: updated user ${clerkUserId} to ${tierName} tier (${subscriptionCredits} subscription credits)`);
   } else {
     const statusMap = {
       active: "active",
@@ -196,15 +249,23 @@ async function handleCustomerSubscriptionUpdated(subscription) {
       canceled: "canceled",
       unpaid: "past_due",
     };
+
+    const tierCredits = getCreditsForTier(tierName);
+    const isDowngrade = newStatus === "canceled" || newStatus === "unpaid";
+    const effectiveCredits = isDowngrade ? billingTiers.Free.credits : tierCredits;
+    const totalCredits = effectiveCredits + purchasedCredits;
     
     await client.users.updateUserMetadata(clerkUserId, {
       publicMetadata: {
         ...user.publicMetadata,
+        subscriptionCredits: effectiveCredits,
+        purchasedCredits,
+        credits: totalCredits,
         subscriptionStatus: statusMap[newStatus] || newStatus,
       },
     });
 
-    console.log(`Updated user ${clerkUserId} subscription status to ${newStatus}`);
+    console.log(`Status update: user ${clerkUserId} subscription status -> ${newStatus}`);
   }
 }
 
@@ -234,19 +295,19 @@ export async function POST(req) {
   try {
     switch (event.type) {
       case "invoice.paid":
-        await handleInvoicePaid(event.data.object);
+        await handleInvoicePaid(event.data.object, event.id);
         break;
       
       case "invoice.payment_failed":
-        await handleInvoicePaymentFailed(event.data.object);
+        await handleInvoicePaymentFailed(event.data.object, event.id);
         break;
       
       case "customer.subscription.deleted":
-        await handleCustomerSubscriptionDeleted(event.data.object);
+        await handleCustomerSubscriptionDeleted(event.data.object, event.id);
         break;
       
       case "customer.subscription.updated":
-        await handleCustomerSubscriptionUpdated(event.data.object);
+        await handleCustomerSubscriptionUpdated(event.data.object, event.id);
         break;
       
       default:

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import Markdown from 'markdown-to-jsx';
 import 'katex/dist/katex.min.css';
 import katex from 'katex';
@@ -6,6 +6,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { StockChart } from "@/components/StockChart";
 import { GenericChart } from "@/components/Chart"
+import { ChevronDown, Brain } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type MarkdownRenderProps = {
   message: string;
@@ -89,20 +91,19 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
     let codeCounter = 0;
     let componentCounter = 0;
     
-    // Remove thinking blocks - they are displayed separately in ThinkingPanel
-    text = text.replace(/:::thinking[\s\S]*?:::/g, "");
-    
-    // First, extract component blocks (:::function ... :::)
+    // Extract component blocks (:::function ... :::) including thinking blocks
     text = text.replace(/:::(\w+)\n([\s\S]*?):::/g, (match, functionName, params) => {
       const marker = `§§COMPONENT${componentCounter}§§`;
       
-      try {
-        // Try to parse params as JSON
-        const parsedParams = JSON.parse(params.trim());
-        componentMapLocal.set(marker, { type: functionName, params: parsedParams });
-      } catch (e) {
-        // If not JSON, treat as plain text
-        componentMapLocal.set(marker, { type: functionName, params: { text: params.trim() } });
+      if (functionName === "thinking") {
+        componentMapLocal.set(marker, { type: "thinking", params: { text: params.trim() } });
+      } else {
+        try {
+          const parsedParams = JSON.parse(params.trim());
+          componentMapLocal.set(marker, { type: functionName, params: parsedParams });
+        } catch (e) {
+          componentMapLocal.set(marker, { type: functionName, params: { text: params.trim() } });
+        }
       }
       
       componentCounter++;
@@ -206,6 +207,14 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
           if (componentData) {
             const componentKey = `component-${key++}`;
             switch (componentData.type){
+              case "thinking":
+                parts.push(
+                  <InlineThinkingBlock
+                    key={componentKey}
+                    content={componentData.params.text}
+                  />
+                );
+                break;
               case "stock_chart":
                 parts.push(
                   <div key={componentKey} className="my-6">
@@ -426,5 +435,47 @@ export default function MarkdownRender({ message }: MarkdownRenderProps) {
     >
       {processedText}
     </Markdown>
+  );
+}
+
+interface InlineThinkingBlockProps {
+  content: string;
+}
+
+function InlineThinkingBlock({ content }: InlineThinkingBlockProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const preview = content.length > 60 ? content.slice(0, 60).trim() + "..." : content.trim();
+
+  return (
+    <div className="my-3">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-2 w-full px-3 py-1.5 rounded-md bg-muted/50 hover:bg-muted transition-colors text-sm text-muted-foreground hover:text-foreground border border-border/30"
+      >
+        <Brain className="w-4 h-4 text-primary flex-shrink-0" />
+        <ChevronDown
+          className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+        />
+        <span className="truncate flex-1 text-left font-medium">
+          {isExpanded ? "Thinking" : preview}
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-1 px-3 py-2 text-sm text-muted-foreground border-l-2 border-primary/30 bg-muted/20 rounded-r-md whitespace-pre-wrap">
+              {content}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

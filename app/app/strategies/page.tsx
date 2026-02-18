@@ -666,22 +666,27 @@ function StrategyDetailView({
       <div className="border-b border-border">
         <div className="flex space-x-8">
           {[
-            { id: "overview", label: "Overview", icon: BarChart3 },
-            { id: "performance", label: "Performance", icon: TrendingUp },
-            { id: "risk", label: "Risk Analysis", icon: AlertCircle },
-            { id: "trades", label: "Trade History", icon: DollarSign },
-          ].map(({ id, label, icon: Icon }) => (
+            { id: "overview", label: "Overview" },
+            { id: "performance", label: "Performance" },
+            { id: "risk", label: "Risk Analysis" },
+            { id: "trades", label: "Trade History" },
+          ].map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id as any)}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`text-sm font-medium transition-colors relative pb-4 ${
                 activeTab === id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon className="w-4 h-4" />
               {label}
+              {activeTab === id && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                />
+              )}
             </button>
           ))}
         </div>
