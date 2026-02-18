@@ -296,6 +296,7 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: oklch(0.5 0.05 260 / 0.3) transparent;
+    scroll-behavior: smooth;
   }
 
   /* DENSE SPACING SCALE: 20% reduction for increased information density */

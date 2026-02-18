@@ -93,7 +93,7 @@ export default function SecurityPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto space-y-8 scrollbar-thin">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Security</h1>
         <p className="text-muted-foreground mt-1">Manage your password and account security.</p>

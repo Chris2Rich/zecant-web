@@ -9,6 +9,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { createPortal } from "react-dom"
+import { useState, useRef } from "react"
 import {CustomUserButton} from '@/components/custom-user-button'
 import {usePathname} from "next/navigation"
 import NavItem from "@/components/navitem"
@@ -34,6 +36,65 @@ function SidebarInnerStatic() {
     )
   }
 
+  function LogoButton({ label = "", active = false, link = "/" }) {
+    const [show, setShow] = useState(false)
+    const [coords, setCoords] = useState({ top: 0, left: 0 })
+    const ref = useRef<HTMLButtonElement>(null)
+  
+    const handleEnter = () => {
+      const rect = ref.current?.getBoundingClientRect()
+      if (rect) {
+        setCoords({
+          top: rect.top + rect.height / 2,
+          left: rect.right + 8
+        })
+      }
+      setShow(true)
+    }
+  
+    return (
+      <>
+        <Link href={link}>
+          <button
+            ref={ref}
+            onMouseEnter={handleEnter}
+            onMouseLeave={() => setShow(false)}
+            className={`
+              group relative w-10 h-10 rounded-sm flex items-center justify-center transition-colors
+              ${active
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+              }
+            `}
+          >
+            <Image 
+                            src="/Icon Logo.png" 
+                            alt="Zecant Logo" 
+                            width={32} 
+                            height={32}
+                            className=" w-8 h-8"
+                            priority
+                        />
+          </button>
+        </Link>
+  
+        {show && createPortal(
+          <div
+            className="fixed px-2 py-1 bg-card/95 backdrop-blur-glass text-foreground text-xs rounded-sm border border-border-glass z-[9999] whitespace-nowrap pointer-events-none"
+            style={{
+              top: coords.top,
+              left: coords.left,
+              transform: "translateY(-50%)"
+            }}
+          >
+            {label}
+          </div>,
+          document.body
+        )}
+      </>
+    )
+  }  
+
 export default function AppLayout({children, sidebarItems = []} : {
     children : React.ReactNode
     sidebarItems?: Array<{
@@ -48,28 +109,8 @@ export default function AppLayout({children, sidebarItems = []} : {
         <SidebarProvider>
             <div className="flex h-screen text-foreground overflow-hidden">
             {/* Side Navigation */}
-            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-3 space-y-3 z-50">
-                <Link href="/">
-                <button
-                    className="
-                    group relative w-10 h-10 rounded-sm flex items-center justify-center transition-colors
-                    bg-primary text-primary-foreground inner-light-primary hover:cursor-pointer"
-                >
-                        <Image 
-                            src="/Icon Logo.png" 
-                            alt="Zecant Logo" 
-                            width={32} 
-                            height={32}
-                            className=" w-8 h-8"
-                            priority
-                        />
-                    
-                    {/* Tooltip */}
-                    <span className="absolute left-full ml-2 px-2 py-1 bg-card/95 backdrop-blur-glass text-foreground text-xs rounded-sm opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap border border-border-glass z-50">
-                    Zecant
-                    </span>
-                </button>
-                </Link>
+            <aside className="w-16 bg-card/70 backdrop-blur-glass border-r border-border flex flex-col items-center py-3 space-y-3 z-50 overflow-y-scroll overflow-x-scroll no-scrollbar">
+                <LogoButton label="Exit App" link="/" active={true} />
 
                 {/* Main Navigation */}
                     <nav className="flex-1 flex flex-col items-center space-y-3 pt-3 border-t border-border">
