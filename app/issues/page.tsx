@@ -21,8 +21,7 @@ const MIN_DESCRIPTION_LENGTH = 50
 
 const MAX_SCREENSHOTS = 5
 const MAX_VIDEOS = 2
-const MAX_SCREENSHOT_SIZE = 5 * 1024 * 1024
-const MAX_VIDEO_SIZE = 10 * 1024 * 1024
+const MAX_TOTAL_SIZE = 4 * 1024 * 1024
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"]
@@ -92,9 +91,11 @@ export default function IssuesPage() {
     const fileArray = Array.from(files)
     const currentCount = formData[field].length
     const maxCount = field === 'screenshots' ? MAX_SCREENSHOTS : MAX_VIDEOS
-    const maxSize = field === 'screenshots' ? MAX_SCREENSHOT_SIZE : MAX_VIDEO_SIZE
     const allowedTypes = field === 'screenshots' ? ALLOWED_IMAGE_TYPES : ALLOWED_VIDEO_TYPES
     const typeName = field === 'screenshots' ? 'image' : 'video'
+
+    const totalSize = formData.screenshots.reduce((sum, f) => sum + f.file.size, 0) +
+                      formData.videos.reduce((sum, f) => sum + f.file.size, 0)
 
     const errors: string[] = []
     const validFiles: FileWithPreview[] = []
@@ -110,8 +111,8 @@ export default function IssuesPage() {
         continue
       }
 
-      if (file.size > maxSize) {
-        errors.push(`${file.name}: Exceeds ${formatFileSize(maxSize)} limit`)
+      if (totalSize + validFiles.reduce((sum, f) => sum + f.file.size, 0) + file.size > MAX_TOTAL_SIZE) {
+        errors.push(`${file.name}: Exceeds overall 4.0MB limit`)
         continue
       }
 
@@ -265,18 +266,18 @@ export default function IssuesPage() {
               </div>
 
               {submitMessage && (
-                <Alert className={`mb-6 ${submitMessage.type === 'success' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+                <Alert className={`mb-6 ${submitMessage.type === 'success' ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className={submitMessage.type === 'success' ? 'text-green-800' : 'text-red-800'}>
+                  <AlertDescription>
                     {submitMessage.message}
                   </AlertDescription>
                 </Alert>
               )}
 
               {validationErrors.length > 0 && (
-                <Alert className="mb-6 border-red-500 bg-red-50">
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                  <AlertDescription className="text-red-800">
+                <Alert className="mb-6 bg-destructive/10 border-destructive/20 text-destructive">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <AlertDescription>
                     <ul className="list-disc list-inside">
                       {validationErrors.map((error, index) => (
                         <li key={index}>{error}</li>
@@ -355,7 +356,7 @@ export default function IssuesPage() {
                               Click to upload screenshots
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              JPEG, PNG, GIF, WebP up to {formatFileSize(MAX_SCREENSHOT_SIZE)} each
+                              Overall limit is 4.0MB
                             </p>
                           </div>
                         </label>
@@ -417,7 +418,7 @@ export default function IssuesPage() {
                               Click to upload videos
                             </p>
                             <p className="text-xs text-muted-foreground mt-1">
-                              MP4, WebM up to {formatFileSize(MAX_VIDEO_SIZE)} each
+                              Overall limit is 4.0MB
                             </p>
                           </div>
                         </label>
