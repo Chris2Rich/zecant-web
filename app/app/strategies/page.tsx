@@ -192,7 +192,7 @@ function StrategyDashboard() {
   }
 
   return (
-    <div className="h-full w-full scrollbar-thin">
+    <div className="h-full w-full overflow-y-auto scrollbar-thin">
       <AnimatePresence mode="wait">
         {viewMode === "dashboard" && (
           <motion.div
@@ -550,7 +550,7 @@ function StrategyDetailView({
 
   if (!results) {
     return (
-      <div className="h-full space-y-6">
+      <div className="h-full space-y-6 overflow-y-auto scrollbar-thin">
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-foreground">{strategy.name}</h1>
@@ -592,7 +592,7 @@ function StrategyDetailView({
   const portfolio = results.portfolio;
 
   return (
-    <div className="h-full space-y-6">
+    <div className="h-full space-y-6 overflow-y-auto scrollbar-thin">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 flex-1">
@@ -1156,7 +1156,7 @@ function StrategyComparisonView({
   onBack: () => void;
 }) {
   return (
-    <div className="h-full space-y-6">
+    <div className="h-full space-y-6 overflow-y-auto scrollbar-thin">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-foreground">Strategy Comparison</h1>
@@ -1251,7 +1251,7 @@ function StrategyCreationModal({
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-card rounded-sm border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto"
+          className="bg-card rounded-sm border border-border p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto scrollbar-thin"
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-foreground">Create New Strategy</h2>
