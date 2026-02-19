@@ -21,6 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
       default: pageMeta.title,
       template: '%s | Zecant'
     },
+    icons: {
+      icon: '/Icon Logo.png'
+    },
     description: pageMeta.description,
     keywords: [
       'AI trading strategy builder',
@@ -100,16 +103,18 @@ const jsonLd = {
   ]
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark scroll-smooth scrollbar-thin">
-        <body className={`antialiased select-none`}>
+      <html lang="en" className="dark scroll-smooth scrollbar-thin" suppressHydrationWarning>
+        <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}/>
+        </head>
+        <body className={`antialiased select-none`}>
           <main className="min-h-screen">
             <Suspense fallback={null}>
               <HexGrid />
