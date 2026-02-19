@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import HexGridOG from "@/components/hexgrid-og"
 
 export const runtime = 'edge'
 export const alt = 'Zecant - AI-Powered Trading Strategy Platform'
@@ -7,6 +8,14 @@ export const contentType = 'image/png'
 export const revalidate = 86400
 
 export const GET = async () => {
+  const [interRegular, interBlack] = await Promise.all([
+    fetch('https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-400-normal.woff').then((res) =>
+      res.arrayBuffer()
+    ),
+    fetch('https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.18/files/inter-latin-900-normal.woff').then((res) =>
+      res.arrayBuffer()
+    ),
+  ])
   return new ImageResponse(
     (
       <div
@@ -17,74 +26,90 @@ export const GET = async () => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#0a0a0a',
-          // 1. Swapped radial-gradient to a supported linear-gradient fallback
-          backgroundImage: 'linear-gradient(to bottom, rgba(99, 102, 241, 0.15) 0%, #0a0a0a 70%)',
+          backgroundColor: '#03060b',
           position: 'relative',
           overflow: 'hidden',
+          fontFamily: '"Inter", sans-serif',
         }}
       >
-        
-        {/* 2. Grid pattern replaced with a raw SVG element natively supported by Satori */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            display: 'flex',
-          }}
-        >
-          <svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
-        
-        {/* Main content */}
+
+        {/* Hexgrid with CSS maskImage */}
+        <HexGridOG width={1200} height={630} />
+
+        {/* Main content - centered */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '20px',
-            zIndex: 1
+            gap: '24px',
+            padding: '0 48px',
           }}
         >
-          <span
+          {/* "Turn Ideas Into Alpha" */}
+          <div
             style={{
-              fontSize: '120px',
-              fontWeight: 900,
-              letterSpacing: '-0.04em',
-              color: '#ffffff',
-              lineHeight: 1
+              display: 'flex',
+              flexDirection: 'row',
+              fontSize: '96px',
+              fontWeight: 600,
+              lineHeight: 1.1,
+              letterSpacing: '-0.03em',
+              whiteSpace: 'pre',
             }}
           >
-            ZECANT
-          </span>
-          <span style={{ fontSize: '28px', color: 'rgba(255,255,255,0.6)', fontWeight: 500, letterSpacing: '0.02em' }}>
-            Turn Ideas Into Alpha
-          </span>
-          <span style={{ fontSize: '20px', color: 'rgba(255,255,255,0.4)', marginTop: '8px' }}>
-            AI-Powered Trading Strategy Platform
-          </span>
+            <span style={{ color: '#f0f0f5' }}>Turn </span>
+            <span style={{ color: '#4a78ea' }}>Ideas</span>
+            <span style={{ color: '#f0f0f5' }}> Into Alpha</span>
+          </div>
+          <br />
+          {/* Subtext */}
+          <div
+            style={{
+              display: 'flex',
+              fontSize: '22px',
+              color: '#9ca3af',
+              textAlign: 'center',
+              maxWidth: '600px',
+              lineHeight: 1.5,
+              fontWeight: 400,
+            }}
+          >
+            Zecant lets you programmatically generate and backtest trading strategies using natural language.
+            Algorithmic trading democratised.
+          </div>
         </div>
-        
+
         {/* Bottom accent */}
         <div
           style={{
+            display: 'flex',
             position: 'absolute',
-            bottom: '40px',
-            height: '3px',
-            width: '200px',
-            // 3. Fixed strict Satori gradient syntax
-            backgroundImage: 'linear-gradient(to right, rgba(99,102,241,0), #6366f1, rgba(99,102,241,0))'
+            bottom: '315px',
+            height: '2px',
+            width: '720px',
+            background: 'linear-gradient(90deg, transparent, #4a78ea, transparent)',
           }}
         />
       </div>
     ),
-    { ...size }
+    {
+      width: 1200,
+      height: 630,
+      fonts: [
+        {
+          name: 'Inter',
+          data: interRegular,
+          style: 'normal',
+          weight: 400,
+        },
+        {
+          name: 'Inter',
+          data: interBlack,
+          style: 'normal',
+          weight: 900,
+        },
+      ],
+    }
   )
 }
