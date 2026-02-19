@@ -5,9 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
-import { headers } from "next/headers";
 import HexGrid from "@/components/hexgrid"
-import Script from "next/script"
 
 const siteUrl = 'https://zecant.com'
 
@@ -69,7 +67,6 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [`${siteUrl}/api/og`]
     },
     manifest: '/manifest.json',
-    themeColor: '#000000'
   }
 }
 
@@ -108,16 +105,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const pathname = (await headers()).get("x-pathname");
   return (
     <ClerkProvider>
-      <html lang="en" className={`dark scroll-smooth scrollbar-thin ${pathname?.startsWith("/app") ? "overflow-hidden" : ""}`}>
+      <html lang="en" className="dark scroll-smooth scrollbar-thin">
         <body className={`antialiased select-none`}>
-        <Script
-          id="ld-json"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}/>
           <main className="min-h-screen">
             <Suspense fallback={null}>
               <HexGrid />

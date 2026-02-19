@@ -68,13 +68,13 @@ function SidebarInnerStatic() {
             `}
           >
             <Image 
-                            src="/Icon Logo.png" 
-                            alt="Zecant Logo" 
-                            width={32} 
-                            height={32}
-                            className=" w-8 h-8"
-                            priority
-                        />
+              src="/Icon Logo.png" 
+              alt="Zecant Logo" 
+              width={32} 
+              height={32}
+              className=" w-8 h-8"
+              priority
+          />
           </button>
         </Link>
   
