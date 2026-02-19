@@ -23,10 +23,8 @@ export default function SecurityPage() {
   const { signOut } = useClerk()
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
 
@@ -63,30 +61,17 @@ export default function SecurityPage() {
       return
     }
 
-    if (hasPassword && !currentPassword) {
-      setMessage({ type: "error", text: "Please enter your current password" })
-      return
-    }
-
     setIsSaving(true)
 
     try {
       if (window.__reverificationFn) {
-        await window.__reverificationFn(hasPassword ? currentPassword : undefined, newPassword)
+        await window.__reverificationFn(undefined, newPassword)
       } else {
-        if (hasPassword) {
-          await user.updatePassword({
-            currentPassword,
-            newPassword,
-          })
-        } else {
-          await user.updatePassword({
-            newPassword,
-          })
-        }
+        await user.updatePassword({
+          newPassword,
+        })
       }
       setMessage({ type: "success", text: "Password updated successfully!" })
-      setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
     } catch (error: any) {
@@ -129,27 +114,6 @@ export default function SecurityPage() {
             </div>
 
             <div className="space-y-4">
-              {hasPassword && (
-                <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Current Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="currentPassword"
-                      type={showCurrentPassword ? "text" : "password"}
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Enter current password"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              )}
 
               <div className="space-y-2">
                 <Label htmlFor="newPassword">New Password</Label>
