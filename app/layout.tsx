@@ -7,6 +7,7 @@ import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import { headers } from "next/headers";
 import HexGrid from "@/components/hexgrid"
+import Script from "next/script"
 
 const siteUrl = 'https://zecant.com'
 
@@ -112,13 +113,12 @@ export default async function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`dark scroll-smooth scrollbar-thin ${pathname?.startsWith("/app") ? "overflow-hidden" : ""}`}>
-        <head>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-        </head>
         <body className={`antialiased select-none`}>
+        <Script
+          id="ld-json"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
           <main className="min-h-screen">
             <HexGrid />
             <Suspense fallback={null}> 
