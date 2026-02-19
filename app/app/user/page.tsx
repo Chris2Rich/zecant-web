@@ -161,7 +161,7 @@ export default function ProfilePage() {
             disabled
             className="bg-muted/50"
           />
-          <p className="text-xs text-muted-foreground">Email address cannot be changed here.</p>
+          <p className="text-xs text-muted-foreground">Email address cannot be changed.</p>
         </div>
 
       </div>
