@@ -1,7 +1,7 @@
 "use client"
 
 import { useUser } from "@clerk/nextjs"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Loader2, Save, Bell, Moon, Globe } from "lucide-react"
@@ -17,6 +17,22 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(true)
   const [language, setLanguage] = useState<Language>("en")
+
+  useEffect(() => {
+    if (user) {
+      const metadata = user.unsafeMetadata as {
+        notifications?: boolean
+        darkMode?: boolean
+        language?: string
+      }
+      if (metadata.notifications !== undefined) setNotifications(metadata.notifications)
+      if (metadata.darkMode !== undefined) setDarkMode(metadata.darkMode)
+      const lang = metadata.language as Language | undefined
+      if (lang && ALLOWED_LANGUAGES.includes(lang as Language)) {
+        setLanguage(lang as Language)
+      }
+    }
+  }, [user])
 
   if (!isLoaded) {
     return (
@@ -136,7 +152,7 @@ export default function SettingsPage() {
           </div>
           <select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => setLanguage(e.target.value as Language)}
             className="bg-muted border border-border-divider rounded-sm px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="en">English</option>

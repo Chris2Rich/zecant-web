@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Camera, Loader2, Save } from "lucide-react"
+import { Camera, Loader2 } from "lucide-react"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]
@@ -13,7 +13,6 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp
 export default function ProfilePage() {
   const { user, isLoaded } = useUser()
   const [isUploading, setIsUploading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
   const [username, setUsername] = useState("")
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -70,21 +69,7 @@ export default function ProfilePage() {
     }
   }
 
-  const handleSaveProfile = async () => {
-    setIsSaving(true)
-    setMessage(null)
 
-    try {
-      await user.update({
-        username: username || undefined,
-      })
-      setMessage({ type: "success", text: "Profile updated successfully!" })
-    } catch (error: any) {
-      setMessage({ type: "error", text: error.errors?.[0]?.message || "Failed to update profile" })
-    } finally {
-      setIsSaving(false)
-    }
-  }
 
   const getInitials = () => {
     const name = user.username || user.emailAddresses[0]?.emailAddress || "User"
@@ -162,9 +147,10 @@ export default function ProfilePage() {
           <Input
             id="username"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
+            disabled
+            className="bg-muted/50"
           />
+          <p className="text-xs text-muted-foreground">Username cannot be changed.</p>
         </div>
 
         <div className="space-y-2">
@@ -178,21 +164,6 @@ export default function ProfilePage() {
           <p className="text-xs text-muted-foreground">Email address cannot be changed here.</p>
         </div>
 
-        <div className="pt-4">
-          <Button onClick={handleSaveProfile} disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4" />
-                Save Changes
-              </>
-            )}
-          </Button>
-        </div>
       </div>
     </div>
   )

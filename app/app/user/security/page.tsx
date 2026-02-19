@@ -1,6 +1,6 @@
 "use client"
 
-import { useUser, useClerk, useSession } from "@clerk/nextjs"
+import { useUser, useClerk, useSession, useReverification } from "@clerk/nextjs"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +29,21 @@ export default function SecurityPage() {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+
+  const updatePasswordWithReverification = useReverification(
+    async (currentPwd: string | undefined, newPwd: string) => {
+      if (currentPwd) {
+        await user!.updatePassword({
+          currentPassword: currentPwd,
+          newPassword: newPwd,
+        })
+      } else {
+        await user!.updatePassword({
+          newPassword: newPwd,
+        })
+      }
+    }
+  )
 
   if (!isLoaded) {
     return (
@@ -72,14 +87,9 @@ export default function SecurityPage() {
           setIsSaving(false)
           return
         }
-        await user.updatePassword({
-          currentPassword,
-          newPassword,
-        })
+        await updatePasswordWithReverification(currentPassword, newPassword)
       } else {
-        await user.updatePassword({
-          newPassword,
-        })
+        await updatePasswordWithReverification(undefined, newPassword)
       }
       setMessage({ type: "success", text: "Password updated successfully!" })
       setCurrentPassword("")
@@ -93,7 +103,7 @@ export default function SecurityPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 scrollbar-thin">
+    <div className="max-w-2xl mx-auto space-y-8 overflow-y-auto scrollbar-thin">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Security</h1>
         <p className="text-muted-foreground mt-1">Manage your password and account security.</p>
