@@ -25,15 +25,14 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: pageMeta.description,
     keywords: [
-      'algorithmic trading',
-      'AI trading',
-      'trading strategy',
-      'backtesting',
-      'quantitative trading',
-      'portfolio management',
-      'trading automation',
-      'AI strategy builder'
-    ],
+      'AI trading strategy builder',
+      'algorithmic trading platform',
+      'backtesting trading strategies',
+      'quantitative trading software',
+      'natural language trading',
+      'automated trading platform',
+      'Zecant'
+    ],    
     robots: {
       index: true,
       follow: true,
@@ -120,7 +119,9 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
           <main className="min-h-screen">
-            <HexGrid />
+            <Suspense fallback={null}>
+              <HexGrid />
+            </Suspense>
             <Suspense fallback={null}> 
               {children}
             </Suspense>
