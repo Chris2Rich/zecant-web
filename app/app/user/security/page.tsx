@@ -1,11 +1,12 @@
 "use client"
 
-import { useUser, useClerk, useSession, useReverification } from "@clerk/nextjs"
+import { useUser, useClerk } from "@clerk/nextjs"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, Lock, Eye, EyeOff, Shield, Check, AlertCircle } from "lucide-react"
+import { RevalidationModal } from "@/components/reverification-modal"
 
 const validatePassword = (password: string): string | null => {
   if (password.length < 8) return "Password must be at least 8 characters"
@@ -19,7 +20,6 @@ const validatePassword = (password: string): string | null => {
 
 export default function SecurityPage() {
   const { user, isLoaded } = useUser()
-  const { session } = useSession()
   const { signOut } = useClerk()
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -29,21 +29,6 @@ export default function SecurityPage() {
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-
-  const updatePasswordWithReverification = useReverification(
-    async (currentPwd: string | undefined, newPwd: string) => {
-      if (currentPwd) {
-        await user!.updatePassword({
-          currentPassword: currentPwd,
-          newPassword: newPwd,
-        })
-      } else {
-        await user!.updatePassword({
-          newPassword: newPwd,
-        })
-      }
-    }
-  )
 
   if (!isLoaded) {
     return (
@@ -78,18 +63,27 @@ export default function SecurityPage() {
       return
     }
 
+    if (hasPassword && !currentPassword) {
+      setMessage({ type: "error", text: "Please enter your current password" })
+      return
+    }
+
     setIsSaving(true)
 
     try {
-      if (hasPassword) {
-        if (!currentPassword) {
-          setMessage({ type: "error", text: "Please enter your current password" })
-          setIsSaving(false)
-          return
-        }
-        await updatePasswordWithReverification(currentPassword, newPassword)
+      if (window.__reverificationFn) {
+        await window.__reverificationFn(hasPassword ? currentPassword : undefined, newPassword)
       } else {
-        await updatePasswordWithReverification(undefined, newPassword)
+        if (hasPassword) {
+          await user.updatePassword({
+            currentPassword,
+            newPassword,
+          })
+        } else {
+          await user.updatePassword({
+            newPassword,
+          })
+        }
       }
       setMessage({ type: "success", text: "Password updated successfully!" })
       setCurrentPassword("")
@@ -103,180 +97,182 @@ export default function SecurityPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 overflow-y-auto scrollbar-thin">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Security</h1>
-        <p className="text-muted-foreground mt-1">Manage your password and account security.</p>
-      </div>
-
-      {message && (
-        <div
-          className={`p-4 rounded-sm border ${
-            message.type === "success"
-              ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400"
-              : "bg-destructive/10 border-destructive/20 text-destructive"
-          }`}
-        >
-          {message.text}
+    <RevalidationModal>
+      <div className="max-w-2xl mx-auto space-y-8 overflow-y-auto scrollbar-thin">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Security</h1>
+          <p className="text-muted-foreground mt-1">Manage your password and account security.</p>
         </div>
-      )}
 
-      <div className="space-y-6">
-        <div className="p-6 rounded-sm border border-border-divider bg-card/50">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
-              <Lock className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
-              <p className="text-sm text-muted-foreground">Update your account password</p>
-            </div>
+        {message && (
+          <div
+            className={`p-4 rounded-sm border ${
+              message.type === "success"
+                ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400"
+                : "bg-destructive/10 border-destructive/20 text-destructive"
+            }`}
+          >
+            {message.text}
           </div>
+        )}
 
-          <div className="space-y-4">
-            {hasPassword && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-sm border border-border-divider bg-card/50">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
+                <p className="text-sm text-muted-foreground">Update your account password</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {hasPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter current password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current Password</Label>
+                <Label htmlFor="newPassword">New Password</Label>
                 <div className="relative">
                   <Input
-                    id="currentPassword"
-                    type={showCurrentPassword ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter current password"
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
                   />
                   <button
                     type="button"
-                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
-              <div className="relative">
-                <Input
-                  id="newPassword"
-                  type={showNewPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              <div className="pt-2">
+                <Button onClick={handlePasswordChange} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="w-4 h-4" />
+                      Update Password
+                    </>
+                  )}
+                </Button>
               </div>
-            </div>
-
-            <div className="pt-2">
-              <Button onClick={handlePasswordChange} disabled={isSaving}>
-                {isSaving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <Shield className="w-4 h-4" />
-                    Update Password
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6 rounded-sm border border-border-divider bg-card/50">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Account Security</h2>
-              <p className="text-sm text-muted-foreground">Additional security information</p>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b border-border-divider">
-              <span className="text-sm text-muted-foreground">Email verified</span>
-              <div className="flex items-center gap-2">
-                {user.emailAddresses[0]?.verification?.status === "verified" ? (
-                  <>
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-green-500">Verified</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm text-yellow-500">Not verified</span>
-                  </>
-                )}
+          <div className="p-6 rounded-sm border border-border-divider bg-card/50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Account Security</h2>
+                <p className="text-sm text-muted-foreground">Additional security information</p>
               </div>
             </div>
-            <div className="flex items-center justify-between py-2 border-b border-border-divider">
-              <span className="text-sm text-muted-foreground">Password enabled</span>
-              <div className="flex items-center gap-2">
-                {hasPassword ? (
-                  <>
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-green-500">Enabled</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm text-yellow-500">Not set</span>
-                  </>
-                )}
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between py-2 border-b border-border-divider">
+                <span className="text-sm text-muted-foreground">Email verified</span>
+                <div className="flex items-center gap-2">
+                  {user.emailAddresses[0]?.verification?.status === "verified" ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-sm text-green-500">Verified</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-4 h-4 text-yellow-500" />
+                      <span className="text-sm text-yellow-500">Not verified</span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-muted-foreground">Two-factor authentication</span>
-              <div className="flex items-center gap-2">
-                {user.twoFactorEnabled ? (
-                  <>
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-green-500">Enabled</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Disabled</span>
-                  </>
-                )}
+              <div className="flex items-center justify-between py-2 border-b border-border-divider">
+                <span className="text-sm text-muted-foreground">Password enabled</span>
+                <div className="flex items-center gap-2">
+                  {hasPassword ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-sm text-green-500">Enabled</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-4 h-4 text-yellow-500" />
+                      <span className="text-sm text-yellow-500">Not set</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-muted-foreground">Two-factor authentication</span>
+                <div className="flex items-center gap-2">
+                  {user.twoFactorEnabled ? (
+                    <>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-sm text-green-500">Enabled</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Disabled</span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </RevalidationModal>
   )
 }

@@ -85,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: pageMeta.description,
       images: [
         {
-          url: '/api/og',
+          url: `${siteUrl}/api/og`,
           width: 1200,
           height: 630,
           alt: 'Zecant - Turn Ideas Into Alpha'
@@ -98,7 +98,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: pageMeta.description,
       creator: '@zecantofficial',
       site: '@zecantofficial',
-      images: ['/api/og']
+      images: [`${siteUrl}/api/og`]
     },
     manifest: '/manifest.json',
     themeColor: '#000000'
