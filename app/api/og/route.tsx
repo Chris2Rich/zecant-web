@@ -19,7 +19,8 @@ export default async function Image() {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#0a0a0a',
-        position: 'relative'
+        position: 'relative',
+        overflow: 'hidden'
       }}
     >
       {/* Background gradient */}
@@ -110,3 +111,5 @@ export default async function Image() {
     }
   )
 }
+
+export const revalidate = 86400 // 24h
