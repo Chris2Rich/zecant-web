@@ -11,42 +11,10 @@ import HexGrid from "@/components/hexgrid"
 const siteUrl = 'https://zecant.com'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') || ''
-
-  const pages: Record<string, { title: string; description: string }> = {
-    '/': {
-      title: 'Zecant - AI-Powered Trading Strategy Platform',
-      description: 'Programmatically generate and backtest trading strategies using natural language. Algorithmic trading democratised.'
-    },
-    '/pricing': {
-      title: 'Pricing',
-      description: 'Choose the plan that fits your trading needs. Start free, upgrade when you need more power.'
-    },
-    '/docs': {
-      title: 'Documentation',
-      description: 'Everything you need to get started with Zecant platform and build powerful trading applications.'
-    },
-    '/research': {
-      title: 'Research & Insights',
-      description: 'Stay informed with the latest financial research, market analysis, and investment insights.'
-    },
-    '/updates': {
-      title: 'Product Updates',
-      description: 'Stay up to date with the latest features, improvements, and bug fixes.'
-    },
-    '/issues': {
-      title: 'Report an Issue',
-      description: 'Report bugs, suggest features, or get help with Zecant.'
-    }
-  }
-
-  const defaultMeta = {
+  const pageMeta = {
     title: 'Zecant - AI-Powered Trading Strategy Platform',
-    description: 'Programmatically generate and backtest trading strategies using natural language.'
+    description: 'Programmatically generate and backtest trading strategies using natural language. Algorithmic trading democratised.'
   }
-
-  const pageMeta = pages[pathname] || defaultMeta
 
   return {
     metadataBase: new URL(siteUrl),
