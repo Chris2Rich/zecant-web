@@ -5,6 +5,9 @@ import { ArticleOverview, ArticleEmphasised, ArticleHeader } from "@/components/
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import Link from "next/link";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface PageProps {
   params: Promise<{
@@ -100,6 +103,11 @@ export default async function ArticlePage({ params }: PageProps) {
       <main className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <ScrollReveal>
+            <Link href="/research" className="float-right">
+              <Button variant="outline">
+              <X className="w-4 h-4" />
+              </Button>
+            </Link>
             <article className="max-w-4xl mx-auto">
               <header className="text-center mb-8">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 text-balance">

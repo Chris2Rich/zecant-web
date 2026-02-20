@@ -31,11 +31,6 @@ import type {
   StrategyConfig,
   BacktestResult,
   StrategyStatus,
-  MODEL_TYPES,
-  RULES,
-  POSITION_SIZERS,
-  TRAINING_WINDOW_TYPES,
-  RANDOM_FOREST_PARAMS,
 } from "@/lib/types/strategy";
 import {
   MODEL_TYPES,
@@ -587,8 +582,7 @@ function StrategyDetailView({
         <Trash2 className="w-4 h-4" />
       </button>
           <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            <X className="w-4 h-4" />
           </Button>
         </div>
 
@@ -649,8 +643,7 @@ function StrategyDetailView({
         <Trash2 className="w-4 h-4" />
       </button>
           <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            <X className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -764,30 +757,29 @@ function StrategyOverviewTab({ strategy }: { strategy: Strategy }) {
           Strategy Configuration
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium text-foreground mb-2">Model Settings</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <p>
-                  Model Type:{" "}
-                  <span className="text-foreground">{getModelTypeLabel(config?.model_type) || "N/A"}</span>
-                </p>
-                <p>
-                  Position Sizer:{" "}
-                  <span className="text-foreground">{getPositionSizerLabel(config?.position_sizer_type) || "Fixed Fractional"}</span>
-                </p>
-                <p>
-                  Symbols:{" "}
-                  <span className="text-foreground">
-                    {(config?.traded_symbols || []).join(", ")}
-                  </span>
-                </p>
-                <p>
-                  Starting Capital:{" "}
-                  <span className="text-foreground">
+          <div>
+            <h4 className="font-medium text-foreground mb-2">Model Settings</h4>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p>
+                Model Type:{" "}
+                <span className="text-foreground">{getModelTypeLabel(config?.model_type) || "N/A"}</span>
+              </p>
+              <p>
+                Position Sizer:{" "}
+                <span className="text-foreground">{getPositionSizerLabel(config?.position_sizer_type) || "Fixed Fractional"}</span>
+              </p>
+              <p>
+                Symbols:{" "}
+                <span className="text-foreground">
+                  {(config?.traded_symbols || []).join(", ")}
+                </span>
+              </p>
+              <p>
+                Starting Capital:{" "}
+                <span className="text-foreground">
                   ${config?.starting_capital?.toLocaleString() || "N/A"}
-                  </span>
-                </p>
-              </div>
+                </span>
+              </p>
             </div>
           </div>
           <div>
@@ -1199,8 +1191,7 @@ function StrategyComparisonView({
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            <X className="w-4 h-4" />
           </Button>
         </div>
       </div>
