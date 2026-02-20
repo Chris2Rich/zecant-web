@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: {
       default: pageMeta.title,
-      template: '%s | Zecant'
+      template: 'Zecant | %s'
     },
     icons: {
       icon: '/Icon Logo.png'

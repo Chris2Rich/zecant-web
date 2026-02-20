@@ -26,7 +26,7 @@ export default function UpdatesPage() {
   return (
     <>
       <Header />
-      <main className="pt-24 pb-16">
+      <main className="pt-32 pb-16">
         <div className="container mx-auto px-4">
           <ScrollReveal>
             <div className="max-w-4xl mx-auto">

@@ -1,3 +1,4 @@
+"use client"
 import React, { useMemo, useState } from 'react';
 import Markdown from 'markdown-to-jsx';
 import 'katex/dist/katex.min.css';

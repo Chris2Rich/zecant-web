@@ -10,6 +10,7 @@ import MarkdownRender from "@/components/MarkdownRender";
 import { MemoizedMessage } from "@/components/MemoizedMarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
+import { AgentThinkingPanel, AgentTab, AgentType } from "@/components/AgentThinkingPanel";
 import { defaultChatOptions } from "@/business/constants";
 import { lmtools } from "@/business/tools";
 
@@ -30,7 +31,7 @@ interface Message {
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "tool_log";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "tool_log" | "agent_routing" | "agent_start" | "agent_progress" | "agent_complete" | "agent_error";
   content?: string;
   chatid?: string;
   message_id?: string;
@@ -41,6 +42,13 @@ interface SSEMessage {
   args?: Record<string, unknown>;
   result?: string;
   calls?: ToolCall[];
+  agent?: string;
+  agents?: string[];
+  task?: string;
+  update?: string;
+  summary?: string;
+  confidence?: number;
+  order?: number;
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -103,6 +111,8 @@ export function ChatPage({
   const [inputHeight, setInputHeight] = useState(0);
   const [pendingToolCalls, setPendingToolCalls] = useState<ToolCall[]>([]);
   const [currentThinkingTool, setCurrentThinkingTool] = useState<string | null>(null);
+  const [agentTabs, setAgentTabs] = useState<AgentTab[]>([]);
+  const [isAgentsExpanded, setIsAgentsExpanded] = useState(true);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -144,6 +154,8 @@ export function ChatPage({
     setInput("");
     setPendingToolCalls([]);
     setCurrentThinkingTool(null);
+    setAgentTabs([]);
+    setIsAgentsExpanded(true);
     textareaRef.current?.focus();
   };
 
@@ -266,6 +278,8 @@ export function ChatPage({
     setCurrentStreamingMessage("");
     setPendingToolCalls([]);
     setCurrentThinkingTool(null);
+    setAgentTabs([]);
+    setIsAgentsExpanded(true);
 
     abortControllerRef.current = new AbortController();
 
@@ -358,6 +372,7 @@ export function ChatPage({
                 setIsStreaming(false);
                 setPendingToolCalls([]);
                 setCurrentThinkingTool(null);
+                // Note: agentTabs are NOT cleared here - they persist for visibility
                 shouldAutoScrollRef.current = true;
                 userHasScrolledRef.current = false;
               } else if (parsed.type === "error") {
@@ -367,6 +382,47 @@ export function ChatPage({
                 setIsStreaming(false);
                 setPendingToolCalls([]);
                 setCurrentThinkingTool(null);
+              } else if (parsed.type === "agent_start") {
+                const newAgent: AgentTab = {
+                  id: parsed.agent || "unknown",
+                  agent: (parsed.agent as AgentType) || "orchestrator",
+                  status: "running",
+                  task: parsed.task || "Processing...",
+                  startedAt: Date.now(),
+                  order: parsed.order || agentTabs.length,
+                };
+                setAgentTabs(prev => [...prev, newAgent]);
+                setIsAgentsExpanded(true);
+              } else if (parsed.type === "agent_routing") {
+                // Routing info - could update orchestrator tab
+                setAgentTabs(prev => prev.map(tab => 
+                  tab.agent === "orchestrator" 
+                    ? {...tab, status: "completed", summary: `Routed to: ${parsed.agents?.join(", ")}`}
+                    : tab
+                ));
+              } else if (parsed.type === "agent_progress") {
+                setAgentTabs(prev => prev.map(tab => 
+                  tab.agent === parsed.agent 
+                    ? {...tab, progress: parsed.update}
+                    : tab
+                ));
+              } else if (parsed.type === "agent_complete") {
+                setAgentTabs(prev => prev.map(tab => 
+                  tab.agent === parsed.agent 
+                    ? {
+                        ...tab, 
+                        status: "completed", 
+                        summary: parsed.summary,
+                        completedAt: Date.now()
+                      }
+                    : tab
+                ));
+              } else if (parsed.type === "agent_error") {
+                setAgentTabs(prev => prev.map(tab => 
+                  tab.agent === parsed.agent 
+                    ? {...tab, status: "error", summary: parsed.error}
+                    : tab
+                ));
               }
             } catch (parseErr) {
               console.error("Failed to parse SSE message:", parseErr, data);
@@ -386,6 +442,7 @@ export function ChatPage({
       setIsStreaming(false);
       setPendingToolCalls([]);
       setCurrentThinkingTool(null);
+      // Note: agentTabs are NOT cleared on error - they persist for debugging
     }
   };
 
@@ -504,6 +561,13 @@ export function ChatPage({
                 </div>
               </motion.div>
             )}
+
+            {/* Agent Thinking Panel */}
+            <AgentThinkingPanel 
+              agents={agentTabs} 
+              isExpanded={isAgentsExpanded}
+              onToggle={() => setIsAgentsExpanded(!isAgentsExpanded)}
+            />
 
             {/* Streaming Message */}
             {currentStreamingMessage && (

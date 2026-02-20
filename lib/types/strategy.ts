@@ -119,16 +119,24 @@ export type StrategyStatus = "draft" | "backtesting" | "completed" | "failed";
 export type BacktestStatus = "pending" | "running" | "completed" | "failed";
 
 export const INDICATORS = [
-  "rsi",
-  "macd",
-  "sma",
-  "ema",
-  "volume",
-  "bb_width",
-  "atr",
-  "price",
-  "vwap",
-  "adx",
+  // Trend
+  { value: "sma", label: "SMA (Simple Moving Average)", category: "Trend", params: ["window"] },
+  { value: "ema", label: "EMA (Exponential Moving Average)", category: "Trend", params: ["period"] },
+  { value: "adx", label: "ADX (Average Directional Index)", category: "Trend", params: ["period"] },
+  { value: "donchian", label: "Donchian Channel", category: "Trend", params: ["period"] },
+  // Momentum
+  { value: "rsi", label: "RSI (Relative Strength Index)", category: "Momentum", params: ["period"] },
+  { value: "macd", label: "MACD", category: "Momentum", params: ["fast", "slow", "signal"] },
+  { value: "momentum", label: "Momentum", category: "Momentum", params: ["period"] },
+  // Volatility
+  { value: "volatility", label: "Volatility", category: "Volatility", params: ["window"] },
+  { value: "atr", label: "ATR (Average True Range)", category: "Volatility", params: ["period"] },
+  { value: "bb_width", label: "Bollinger Band Width", category: "Volatility", params: ["window"] },
+  // Volume
+  { value: "volume", label: "Volume MA", category: "Volume", params: ["window"] },
+  { value: "vwap", label: "VWAP", category: "Volume", params: ["window"] },
+  // Returns
+  { value: "returns", label: "Returns", category: "Returns", params: ["period"] },
 ] as const;
 
 export const OPERATORS = [
@@ -148,4 +156,63 @@ export const TIMEFRAMES = [
   { value: "1h", label: "1 Hour" },
   { value: "4h", label: "4 Hours" },
   { value: "1d", label: "1 Day" },
+] as const;
+
+export const MODEL_TYPES = [
+  { value: "random_forest", label: "Random Forest" },
+  { value: "rules_based", label: "Rules-Based" },
+  { value: "gradient_boosting", label: "Gradient Boosting" },
+] as const;
+
+export const RULES = [
+  { value: "ema_crossover", label: "EMA Crossover" },
+  { value: "price_filter", label: "Price Filter (SMA)" },
+  { value: "adx_filter", label: "ADX Trend Strength" },
+  { value: "donchian_breakout", label: "Donchian Breakout" },
+] as const;
+
+export const POSITION_SIZERS = [
+  { value: "fixed_fractional", label: "Fixed Fractional" },
+  { value: "kelly", label: "Kelly Criterion" },
+  { value: "risk_parity", label: "Risk Parity" },
+  { value: "volatility_targeting", label: "Volatility Targeting" },
+  { value: "max_drawdown", label: "Max Drawdown" },
+] as const;
+
+export const TRAINING_WINDOW_TYPES = [
+  { value: "expanding", label: "Expanding Window" },
+  { value: "rolling", label: "Rolling Window" },
+] as const;
+
+export const RANDOM_FOREST_PARAMS = [
+  { 
+    name: "n_estimators", 
+    label: "Number of Trees", 
+    type: "number", 
+    default: 100,
+    min: 10,
+    max: 500,
+    step: 10,
+    description: "Number of decision trees in the forest"
+  },
+  { 
+    name: "max_depth", 
+    label: "Max Depth", 
+    type: "number", 
+    default: 10,
+    min: 1,
+    max: 50,
+    step: 1,
+    description: "Maximum depth of each decision tree"
+  },
+  { 
+    name: "min_samples_split", 
+    label: "Min Samples Split", 
+    type: "number", 
+    default: 2,
+    min: 1,
+    max: 20,
+    step: 1,
+    description: "Minimum samples required to split a node"
+  },
 ] as const;

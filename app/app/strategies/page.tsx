@@ -31,6 +31,18 @@ import type {
   StrategyConfig,
   BacktestResult,
   StrategyStatus,
+  MODEL_TYPES,
+  RULES,
+  POSITION_SIZERS,
+  TRAINING_WINDOW_TYPES,
+  RANDOM_FOREST_PARAMS,
+} from "@/lib/types/strategy";
+import {
+  MODEL_TYPES,
+  RULES,
+  POSITION_SIZERS,
+  TRAINING_WINDOW_TYPES,
+  RANDOM_FOREST_PARAMS,
 } from "@/lib/types/strategy";
 
 // Auto-camelCase tags for display
@@ -39,6 +51,17 @@ const camelCaseTag = (tag: string) => {
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
+};
+
+// Helper to get label from value
+const getModelTypeLabel = (value: string) => {
+  const found = MODEL_TYPES.find(t => t.value === value);
+  return found ? found.label : value;
+};
+
+const getPositionSizerLabel = (value: string) => {
+  const found = POSITION_SIZERS.find(s => s.value === value);
+  return found ? found.label : value;
 };
 
 // Main Strategy Dashboard Component
@@ -741,25 +764,30 @@ function StrategyOverviewTab({ strategy }: { strategy: Strategy }) {
           Strategy Configuration
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h4 className="font-medium text-foreground mb-2">Model Settings</h4>
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>
-                Model Type:{" "}
-                <span className="text-foreground">{config?.model_type || "N/A"}</span>
-              </p>
-              <p>
-                Symbols:{" "}
-                <span className="text-foreground">
-                  {(config?.traded_symbols || []).join(", ")}
-                </span>
-              </p>
-              <p>
-                Starting Capital:{" "}
-                <span className="text-foreground">
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Model Settings</h4>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <p>
+                  Model Type:{" "}
+                  <span className="text-foreground">{getModelTypeLabel(config?.model_type) || "N/A"}</span>
+                </p>
+                <p>
+                  Position Sizer:{" "}
+                  <span className="text-foreground">{getPositionSizerLabel(config?.position_sizer_type) || "Fixed Fractional"}</span>
+                </p>
+                <p>
+                  Symbols:{" "}
+                  <span className="text-foreground">
+                    {(config?.traded_symbols || []).join(", ")}
+                  </span>
+                </p>
+                <p>
+                  Starting Capital:{" "}
+                  <span className="text-foreground">
                   ${config?.starting_capital?.toLocaleString() || "N/A"}
-                </span>
-              </p>
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
           <div>
@@ -1203,6 +1231,18 @@ function StrategyCreationModal({
   const [startingCapital, setStartingCapital] = useState("100000");
   const [backtestStart, setBacktestStart] = useState("2020-01-01");
   const [backtestEnd, setBacktestEnd] = useState("2023-12-31");
+  
+  // New dropdown state
+  const [modelType, setModelType] = useState<string>(MODEL_TYPES[0].value);
+  const [selectedRules, setSelectedRules] = useState<string[]>([RULES[0].value, RULES[1].value]);
+  const [positionSizer, setPositionSizer] = useState<string>(POSITION_SIZERS[0].value);
+  const [trainingWindowType, setTrainingWindowType] = useState<string>(TRAINING_WINDOW_TYPES[0].value);
+  
+  // Random Forest params
+  const [nEstimators, setNEstimators] = useState(100);
+  const [maxDepth, setMaxDepth] = useState(10);
+  const [minSamplesSplit, setMinSamplesSplit] = useState(2);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -1214,17 +1254,30 @@ function StrategyCreationModal({
     setError(null);
 
     try {
+      // Build config based on model type
       const config: StrategyConfig = {
         traded_symbols: symbols.split(",").map((s) => s.trim()),
         backtest_start: backtestStart,
         backtest_end: backtestEnd,
         starting_capital: parseFloat(startingCapital),
-        model_type: "RandomForest",
-        model_params: {
-          n_estimators: 100,
-          max_depth: 10,
-        },
+        model_type: modelType,
+        position_sizer_type: positionSizer,
+        training_window_type: trainingWindowType,
+        retrain_frequency: 252,
+        training_window_size: 252,
       };
+
+      // Add model-specific config
+      if (modelType === "rules_based") {
+        config.rules = selectedRules;
+      } else {
+        // Random Forest or Gradient Boosting params
+        config.model_params = {
+          n_estimators: nEstimators,
+          max_depth: maxDepth,
+          min_samples_split: minSamplesSplit,
+        };
+      }
 
       const response = await strategyService.createStrategy({
         name,
@@ -1241,6 +1294,13 @@ function StrategyCreationModal({
         setDescription("");
         setSymbols("SPY");
         setStartingCapital("100000");
+        setModelType(MODEL_TYPES[0].value);
+        setSelectedRules([RULES[0].value, RULES[1].value]);
+        setPositionSizer(POSITION_SIZERS[0].value);
+        setTrainingWindowType(TRAINING_WINDOW_TYPES[0].value);
+        setNEstimators(100);
+        setMaxDepth(10);
+        setMinSamplesSplit(2);
       }
     } catch (err: any) {
       setError(err.message || "Failed to create strategy");
@@ -1352,6 +1412,138 @@ function StrategyCreationModal({
                 className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 required
               />
+            </div>
+
+            {/* Model Type Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Model Type
+              </label>
+              <select
+                value={modelType}
+                onChange={(e) => setModelType(e.target.value)}
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {MODEL_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Rules Selection (only show for rules_based) */}
+            {modelType === "rules_based" && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Trading Rules (select multiple)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {RULES.map((rule) => (
+                    <label key={rule.value} className="flex items-center gap-2 text-sm text-foreground">
+                      <input
+                        type="checkbox"
+                        checked={selectedRules.includes(rule.value)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedRules([...selectedRules, rule.value]);
+                          } else {
+                            setSelectedRules(selectedRules.filter((r) => r !== rule.value));
+                          }
+                        }}
+                        className="rounded border-border"
+                      />
+                      {rule.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Random Forest Params (show for non-rules models) */}
+            {modelType !== "rules_based" && (
+              <div className="space-y-3 p-3 bg-muted/50 rounded-sm border border-border">
+                <label className="block text-sm font-medium text-foreground">
+                  Model Parameters
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">
+                      Trees (n_estimators)
+                    </label>
+                    <input
+                      type="number"
+                      value={nEstimators}
+                      onChange={(e) => setNEstimators(parseInt(e.target.value) || 100)}
+                      min={10}
+                      max={500}
+                      className="w-full px-2 py-1 rounded-sm bg-muted border border-border text-foreground text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">
+                      Max Depth
+                    </label>
+                    <input
+                      type="number"
+                      value={maxDepth}
+                      onChange={(e) => setMaxDepth(parseInt(e.target.value) || 10)}
+                      min={1}
+                      max={50}
+                      className="w-full px-2 py-1 rounded-sm bg-muted border border-border text-foreground text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted-foreground mb-1">
+                      Min Samples Split
+                    </label>
+                    <input
+                      type="number"
+                      value={minSamplesSplit}
+                      onChange={(e) => setMinSamplesSplit(parseInt(e.target.value) || 2)}
+                      min={1}
+                      max={20}
+                      className="w-full px-2 py-1 rounded-sm bg-muted border border-border text-foreground text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Position Sizer Dropdown */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Position Sizer
+              </label>
+              <select
+                value={positionSizer}
+                onChange={(e) => setPositionSizer(e.target.value)}
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {POSITION_SIZERS.map((sizer) => (
+                  <option key={sizer.value} value={sizer.value}>
+                    {sizer.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Training Window Type */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Training Window
+              </label>
+              <select
+                value={trainingWindowType}
+                onChange={(e) => setTrainingWindowType(e.target.value)}
+                className="w-full px-3 py-2 rounded-sm bg-muted border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                {TRAINING_WINDOW_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex gap-3 pt-4">

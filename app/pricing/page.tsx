@@ -13,7 +13,7 @@ import { pricingTiers } from "@/business/constants.js"
 
 export function PricingCards() {
   const { isSignedIn } = useUser()
-  return <section className="container mx-auto px-4 py-24 md:py-32 relative">
+  return <section className="container mx-auto px-4 py-32 relative">
     {/* Header */}
     <div className="text-center mb-16">
       <h1 className="text-4xl md:text-6xl font-bold mb-6 text-balance">

@@ -1,3 +1,4 @@
+"use client"
 import { memo } from "react";
 import MarkdownRender from "@/components/MarkdownRender";
 import { Bot, User } from "lucide-react";

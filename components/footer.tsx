@@ -2,9 +2,24 @@ import Link from "next/link"
 import Image from "next/image"
 
 const footerLinks = {
-  resources: [{text: "Updates", link: "/updates"}, {text: "Documentation", link: "/documentation"}, {text: "Research", link: "/research"}],
-  company: [{text: "About Us", link: "/"},  {text: "Careers", link: "mailto:support@zecant.com"}, {text: "Support", link: "mailto:support@zecant.com"}, {text: "Support", link: "mailto:support@zecant.com"}],
-  legal: [{text: "Privacy Policy", link: "/"}, {text: "Terms of Service", link: "/"}, {text: "Risk Disclosure", link: "/"}, {text: "Regulatory Info", link: "/"}, {text: "Security", link: "/"}, {text: "Compliance ", link: "/"}],
+  resources: [
+    {text: "Updates", link: "/updates"},
+    {text: "Documentation", link: "/docs"},
+    {text: "Research", link: "/research"}
+  ],
+  company: [
+    {text: "About Us", link: "/about"},
+    {text: "Careers", link: "mailto:careers@zecant.com"},
+    {text: "Support", link: "mailto:support@zecant.com"}
+  ],
+  legal: [
+    {text: "Privacy Policy", link: "/legal#privacy-policy"},
+    {text: "Terms of Service", link: "/legal#terms-of-service"},
+    {text: "Risk Disclosure", link: "/legal#risk-disclosure"},
+    {text: "Regulatory Info", link: "/legal#regulatory-info"},
+    {text: "Security", link: "/legal#security"},
+    {text: "Compliance", link: "/legal#compliance"}
+  ],
 }
 
 const Discord = (props: any) => (
