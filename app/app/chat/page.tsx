@@ -32,7 +32,7 @@ interface Message {
 }
 
 interface SSEMessage {
-  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "tool_log" | "agent_routing" | "agent_start" | "agent_progress" | "agent_complete" | "agent_error";
+  type: "metadata" | "token" | "done" | "error" | "tool_call" | "tool_result" | "tool_log" | "agent_routing" | "agent_start" | "agent_progress" | "agent_complete" | "agent_error" | "thinking";
   content?: string;
   chatid?: string;
   message_id?: string;
@@ -112,6 +112,7 @@ export function ChatPage({
   const [inputHeight, setInputHeight] = useState(0);
   const [pendingToolCalls, setPendingToolCalls] = useState<ToolCall[]>([]);
   const [currentThinkingTool, setCurrentThinkingTool] = useState<string | null>(null);
+  const [currentThinking, setCurrentThinking] = useState<string>("");
   const [agentTabs, setAgentTabs] = useState<AgentTab[]>([]);
   const [isAgentsExpanded, setIsAgentsExpanded] = useState(true);
 
@@ -122,6 +123,7 @@ export function ChatPage({
   const inputContainerRef = useRef<HTMLDivElement>(null);
   
   const streamingMessageRef = useRef("");
+  const thinkingRef = useRef("");
   const userHasScrolledRef = useRef(false);
   const shouldAutoScrollRef = useRef(true);
 

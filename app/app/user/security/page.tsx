@@ -14,7 +14,6 @@ const validatePassword = (password: string): string | null => {
   if (!/[A-Z]/.test(password)) return "Password must contain an uppercase letter"
   if (!/[a-z]/.test(password)) return "Password must contain a lowercase letter"
   if (!/[0-9]/.test(password)) return "Password must contain a number"
-  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return "Password must contain a special character"
   return null
 }
 
@@ -83,7 +82,7 @@ export default function SecurityPage() {
 
   return (
     <RevalidationModal>
-      <div className="max-w-2xl mx-auto space-y-8 overflow-y-auto scrollbar-thin">
+      <div className="max-w-2xl mx-auto space-y-8 h-full overflow-y-auto scrollbar-thin">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Security</h1>
           <p className="text-muted-foreground mt-1">Manage your password and account security.</p>
