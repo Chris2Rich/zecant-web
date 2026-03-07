@@ -4,7 +4,8 @@ import {
     FolderSearch,
     Globe,
     ChartPie,
-    TrendingUpDown
+    TrendingUpDown,
+    GraduationCap
   } from "lucide-react"
 
 export interface Tool {
@@ -17,11 +18,19 @@ export interface Tool {
 }
 
 export const lmtools: Tool[] = [
-    {
+{
     id: "search",
     name: "Search",
     description: "Search the internet to improve responses",
     icon: Globe,
+    enabled: true,
+    premium: false
+    },
+    {
+    id: "research_agent",
+    name: "Research",
+    description: "Search academic papers and Wikipedia",
+    icon: GraduationCap,
     enabled: true,
     premium: false
     },

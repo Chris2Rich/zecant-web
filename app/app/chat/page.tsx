@@ -11,6 +11,7 @@ import { MemoizedMessage } from "@/components/MemoizedMarkdownRender";
 import { Button } from "@/components/ui/button"
 import { ChatToolsButton } from "@/components/chat-tools-button";
 import { AgentThinkingPanel, AgentTab, AgentType } from "@/components/AgentThinkingPanel";
+import { ThinkingPanel } from "@/components/ThinkingPanel";
 import { defaultChatOptions } from "@/business/constants";
 import { lmtools } from "@/business/tools";
 
@@ -534,44 +535,24 @@ export function ChatPage({
                   role={message.role}
                   content={message.content}
                   timestamp={message.timestamp}
+                  toolCalls={message.toolCalls}
                 />
               </motion.div>
             ))}
 
-            {/* Tool Execution Indicator */}
-            {currentThinkingTool && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="flex gap-4"
-              >
-                <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-primary" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground">ZECA</span>
-                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Using tool: <span className="font-mono text-primary">{currentThinkingTool}</span>
-                  </div>
-                </div>
-              </motion.div>
+            {/* Agent Thinking Panel */}
+            {agentTabs.length > 0 && (
+              <AgentThinkingPanel 
+                agents={agentTabs} 
+                isExpanded={isAgentsExpanded}
+                onToggle={() => setIsAgentsExpanded(!isAgentsExpanded)}
+              />
             )}
 
-            {/* Agent Thinking Panel */}
-            <AgentThinkingPanel 
-              agents={agentTabs} 
-              isExpanded={isAgentsExpanded}
-              onToggle={() => setIsAgentsExpanded(!isAgentsExpanded)}
-            />
-
             {/* Streaming Message */}
-            {currentStreamingMessage && (
+            {(currentStreamingMessage || currentThinkingTool) && (
               <motion.div
+                key="streaming-message"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-4"
@@ -584,11 +565,22 @@ export function ChatPage({
                     <span className="text-sm font-semibold text-foreground">
                       ZECA
                     </span>
-                    <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                    {currentThinkingTool && (
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-md border border-border/30">
+                        <Loader2 className="w-3 h-3 animate-spin text-primary" />
+                        Using tool: <span className="font-mono text-primary">{currentThinkingTool}</span>
+                      </span>
+                    )}
+                    {!currentThinkingTool && <Loader2 className="w-3 h-3 animate-spin text-primary" />}
                   </div>
-                  <div className="prose prose-sm max-w-none text-foreground">
-                    <MarkdownRender message={currentStreamingMessage}/>
-                  </div>
+                  {currentStreamingMessage && (
+                    <div className="prose prose-sm max-w-none text-foreground">
+                      <MarkdownRender message={currentStreamingMessage}/>
+                    </div>
+                  )}
+                  {pendingToolCalls.length > 0 && (
+                    <ThinkingPanel toolCalls={pendingToolCalls} />
+                  )}
                 </div>
               </motion.div>
             )}

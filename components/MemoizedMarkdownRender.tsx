@@ -3,18 +3,26 @@ import { memo } from "react";
 import MarkdownRender from "@/components/MarkdownRender";
 import { Bot, User } from "lucide-react";
 import { formatMessagesTimestamp } from "@/lib/utils";
+import { ThinkingPanel } from "@/components/ThinkingPanel";
 
 interface MessageProps {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
+  toolCalls?: {
+    tool: string;
+    args?: Record<string, unknown>;
+    result?: string;
+    timestamp?: number;
+  }[];
 }
 
 // Memoized message component - only re-renders if content changes
 export const MemoizedMessage = memo(function MemoizedMessage({ 
   role, 
   content, 
-  timestamp 
+  timestamp,
+  toolCalls,
 }: MessageProps) {
   return (
     <div className="flex gap-4 overflow-x-auto scrollbar-thin">
@@ -46,6 +54,9 @@ export const MemoizedMessage = memo(function MemoizedMessage({
         <div className="prose prose-sm max-w-none text-foreground">
           <MarkdownRender message={content}/>
         </div>
+        {toolCalls && toolCalls.length > 0 && (
+          <ThinkingPanel toolCalls={toolCalls} />
+        )}
       </div>
     </div>
   );
@@ -53,5 +64,6 @@ export const MemoizedMessage = memo(function MemoizedMessage({
   // Custom comparison function: only re-render if content actually changes
   return prevProps.content === nextProps.content && 
          prevProps.role === nextProps.role &&
-         prevProps.timestamp === nextProps.timestamp;
+         prevProps.timestamp === nextProps.timestamp &&
+         JSON.stringify(prevProps.toolCalls) === JSON.stringify(nextProps.toolCalls);
 });
