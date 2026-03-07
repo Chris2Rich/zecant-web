@@ -81,8 +81,9 @@ export default function SecurityPage() {
   }
 
   return (
+    <div className="w-full h-full overflow-y-auto scrollbar-thin">
     <RevalidationModal>
-      <div className="max-w-2xl mx-auto space-y-8 h-full overflow-y-auto scrollbar-thin">
+      <div className="max-w-2xl mx-auto space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Security</h1>
           <p className="text-muted-foreground mt-1">Manage your password and account security.</p>
@@ -237,5 +238,6 @@ export default function SecurityPage() {
         </div>
       </div>
     </RevalidationModal>
+    </div>
   )
 }

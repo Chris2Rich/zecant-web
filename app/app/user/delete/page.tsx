@@ -51,7 +51,8 @@ export default function DeleteAccountPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 h-full overflow-y-auto scrollbar-thin">
+    <div className="w-full h-full overflow-y-auto scrollbar-thin">
+    <div className="max-w-2xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Delete Account</h1>
         <p className="text-muted-foreground mt-1">Permanently delete your account and all associated data.</p>
@@ -145,6 +146,7 @@ export default function DeleteAccountPage() {
           <span className="text-primary">Settings</span> page or contacting support before deleting your account.
         </p>
       </div>
+    </div>
     </div>
   )
 }

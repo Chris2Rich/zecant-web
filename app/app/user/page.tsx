@@ -82,6 +82,7 @@ export default function ProfilePage() {
   }
 
   return (
+    <div className="w-full h-full overflow-y-auto scrollbar-thin">
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Profile</h1>
@@ -90,12 +91,12 @@ export default function ProfilePage() {
 
       {message && (
         <div
-          className={`p-4 rounded-sm border ${
+        className={`p-4 rounded-sm border ${
             message.type === "success"
-              ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400"
-              : "bg-destructive/10 border-destructive/20 text-destructive"
+            ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400"
+            : "bg-destructive/10 border-destructive/20 text-destructive"
           }`}
-        >
+          >
           {message.text}
         </div>
       )}
@@ -109,12 +110,12 @@ export default function ProfilePage() {
                 onClick={handleAvatarClick}
                 className="w-24 h-24 rounded-sm overflow-hidden bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center group hover:cursor-pointer"
                 disabled={isUploading}
-              >
+                >
                 {user.imageUrl ? (
                   <img
-                    src={user.imageUrl}
-                    alt={user.username || "Profile"}
-                    className="w-full h-full object-cover"
+                  src={user.imageUrl}
+                  alt={user.username || "Profile"}
+                  className="w-full h-full object-cover"
                   />
                 ) : (
                   <span className="text-primary-foreground font-bold text-2xl">{getInitials()}</span>
@@ -133,7 +134,7 @@ export default function ProfilePage() {
                 accept="image/*"
                 onChange={handleFileChange}
                 className="hidden"
-              />
+                />
             </div>
             <div className="text-sm text-muted-foreground">
               <p>Click on the avatar to upload a new picture.</p>
@@ -149,7 +150,7 @@ export default function ProfilePage() {
             value={username}
             disabled
             className="bg-muted/50"
-          />
+            />
           <p className="text-xs text-muted-foreground">Username cannot be changed.</p>
         </div>
 
@@ -160,11 +161,12 @@ export default function ProfilePage() {
             value={user.emailAddresses[0]?.emailAddress || ""}
             disabled
             className="bg-muted/50"
-          />
+            />
           <p className="text-xs text-muted-foreground">Email address cannot be changed.</p>
         </div>
 
       </div>
+    </div>
     </div>
   )
 }
