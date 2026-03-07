@@ -11,7 +11,9 @@ const isPublicRoute = createRouteMatcher([
   '/about(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/api/og(.*)',
+  '/api/og',
+  '/sitemap.xml',
+  '/robots.txt',
 ]);
 
 const isAppRoute = createRouteMatcher(['/app(.*)']);
